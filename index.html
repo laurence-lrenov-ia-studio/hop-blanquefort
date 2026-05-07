@@ -3,24 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOP! Animation Réseau — Blanquefort</title>
+<title>Ici, c'est Blanquefort ! — HOP! Club des Entrepreneurs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Charte HOP! Pro Lumineuse */
-    --hop-marine: #1a2a4f;
-    --hop-marine-soft: #2a3d6b;
-    --hop-bleu: #2196d4;
-    --hop-bleu-clair: #5fb3df;
+    /* Charte HOP! Pro Lumineuse — V12 adoucie */
+    --hop-marine: #2c4374;        /* anciennement #1a2a4f, plus doux */
+    --hop-marine-deep: #1a2a4f;   /* gardé pour cas spéciaux */
+    --hop-marine-soft: #4a6098;
+    --hop-bleu: #2196d4;          /* bleu vif du logo, conservé */
+    --hop-bleu-clair: #6db3df;    /* léger ajustement */
     --hop-bleu-pale: #dce8f3;
+    --hop-bleu-ciel: #e8f4fb;     /* nouveau : très clair pour cockpit */
     --hop-creme: #f5f8fc;
     --hop-creme-warm: #faf8f4;
     --hop-blanc: #ffffff;
     --hop-bord: #e1e8f0;
     --hop-bord-soft: #eef2f7;
-    --hop-texte: #1a2a4f;
+    --hop-texte: #2c4374;         /* aligné sur marine */
     --hop-texte-sec: #5a6b85;
     --hop-texte-mute: #8b97a8;
     --hop-success: #16a34a;
@@ -43,7 +45,7 @@
     -webkit-font-smoothing: antialiased;
     line-height: 1.5;
   }
-  h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.015em; line-height: 1.15; }
+  h1, h2, h3 { font-family: 'Montserrat', sans-serif; font-weight: 500; letter-spacing: -0.015em; line-height: 1.15; }
 
   /* ============== ÉCRAN LOGIN ============== */
   #login-screen {
@@ -152,7 +154,7 @@
   .header-title h1 {
     font-size: 22px; line-height: 1.1;
     color: var(--hop-marine);
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .header-title .subtitle {
     font-size: 11px; color: var(--hop-texte-sec);
@@ -212,7 +214,7 @@
     font-size: 32px;
     color: var(--hop-marine);
     margin-bottom: 6px;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .section-subtitle {
     color: var(--hop-texte-sec);
@@ -262,7 +264,7 @@
     color: var(--hop-marine);
     margin-top: 10px;
     line-height: 1;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .stat-suffix {
     font-size: 12px;
@@ -442,7 +444,7 @@
     font-weight: 800;
     color: var(--hop-bleu);
     line-height: 1;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .vote-count .label {
     font-size: 10px;
@@ -453,15 +455,952 @@
     font-weight: 600;
   }
 
+
+
+
+  /* ============== VUE CALENDRIER HYBRIDE ============== */
+  .cal-toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .cal-hybrid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .cal-sidebar {
+    position: sticky;
+    top: 16px;
+    background: white;
+    border: 1px solid var(--hop-bord);
+    border-radius: 14px;
+    padding: 20px 16px;
+    box-shadow: 0 2px 10px rgba(44, 67, 116, 0.06);
+  }
+
+  /* Mini-calendrier */
+  .mini-cal {
+    margin-bottom: 20px;
+  }
+  .mini-cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 0 4px;
+  }
+  .mini-cal-month {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--hop-marine);
+    text-transform: capitalize;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .mini-cal-nav {
+    background: var(--hop-creme);
+    border: 1px solid var(--hop-bord);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--hop-texte-sec);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .mini-cal-nav:hover { background: var(--hop-bleu-pale); color: var(--hop-bleu); }
+
+  .mini-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+  .mini-cal-dow {
+    font-size: 10px;
+    color: var(--hop-texte-mute);
+    text-transform: uppercase;
+    text-align: center;
+    padding: 4px 0;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .mini-cal-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: default;
+    color: var(--hop-texte);
+    position: relative;
+    font-weight: 500;
+  }
+  .mini-cal-day.empty { color: transparent; pointer-events: none; }
+  .mini-cal-day.today {
+    background: var(--hop-bleu-pale);
+    color: var(--hop-bleu);
+    font-weight: 700;
+  }
+  .mini-cal-day.has-event {
+    background: var(--hop-marine);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .mini-cal-day.has-event-atelier {
+    background: var(--hop-bleu);
+  }
+  .mini-cal-day.has-event:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(44, 67, 116, 0.3);
+  }
+
+  /* Filtres */
+  .cal-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hop-bord);
+    margin-bottom: 16px;
+  }
+  .cal-filter-label {
+    font-size: 11px;
+    color: var(--hop-texte-sec);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .cal-filter-btn {
+    background: transparent;
+    border: 1px solid var(--hop-bord);
+    color: var(--hop-texte-sec);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .cal-filter-btn:hover { background: var(--hop-creme); color: var(--hop-marine); }
+  .cal-filter-btn.active {
+    background: var(--hop-marine);
+    color: white;
+    border-color: var(--hop-marine);
+  }
+
+  /* Légende */
+  .cal-legend {
+    padding-top: 14px;
+    border-top: 1px solid var(--hop-bord);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cal-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--hop-texte-sec);
+  }
+  .cal-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .cal-dot-classique { background: var(--hop-marine); }
+  .cal-dot-atelier   { background: var(--hop-bleu); }
+  .cal-dot-passe     { background: var(--hop-bord); border: 1px solid var(--hop-texte-mute); }
+
+  .cal-content { min-height: 200px; }
+
+  /* Mobile : on empile mini-cal au-dessus */
+  @media (max-width: 900px) {
+    .cal-hybrid {
+      grid-template-columns: 1fr;
+    }
+    .cal-sidebar {
+      position: relative;
+      top: auto;
+    }
+    .cal-filters {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cal-filter-btn { padding: 8px 14px; }
+    .cal-legend { flex-direction: row; flex-wrap: wrap; gap: 14px; }
+  }
+
+  /* ============== THÉMATIQUES ATELIERS ============== */
+  .thema-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .thema-pill-large {
+    font-size: 13px;
+    padding: 6px 14px;
+  }
+
+  .atelier-card {
+    border-left: 4px solid var(--hop-bord);
+    transition: all 0.15s;
+  }
+
+  /* Page admin Thématiques */
+  .thema-admin-card {
+    background: white;
+    border: 1px solid var(--hop-bord);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    border-left: 6px solid var(--thema-color, var(--hop-bord));
+  }
+  .thema-admin-icon {
+    font-size: 32px;
+    text-align: center;
+    background: var(--hop-creme);
+    border-radius: 10px;
+    width: 60px; height: 60px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .thema-admin-info h4 {
+    font-size: 15px; font-weight: 700; color: var(--hop-marine);
+    margin-bottom: 6px; font-family: 'Montserrat', sans-serif;
+  }
+  .thema-admin-meta {
+    display: flex; gap: 10px; align-items: center;
+    font-size: 12px; color: var(--hop-texte-sec);
+  }
+  .thema-color-swatch {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .thema-admin-actions {
+    display: flex; gap: 6px;
+  }
+
+  /* ============== TOUR DE PRÉSENTATION ============== */
+  .tour-mode {
+    position: fixed; inset: 0;
+    background: linear-gradient(165deg, #e8f4fb 0%, #d4e9f7 40%, #c4dff2 100%);
+    color: var(--hop-marine);
+    z-index: 700;
+    display: none;
+    flex-direction: column;
+  }
+  .tour-mode.active { display: flex; }
+  .tour-mode::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(33, 150, 212, 0.1), transparent 55%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.6), transparent 55%);
+    pointer-events: none;
+  }
+
+  /* Setup screen */
+  .tour-setup {
+    position: relative; z-index: 1;
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .tour-close-setup {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .tour-setup-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(44, 67, 116, 0.1);
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 480px;
+    width: 100%;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 16px 40px rgba(44, 67, 116, 0.12);
+  }
+  .tour-setup-card h2 {
+    font-size: 28px;
+    color: var(--hop-marine);
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 6px;
+  }
+  .tour-setup-subtitle {
+    color: var(--hop-texte-sec);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  .tour-setup-section { margin-bottom: 22px; }
+  .tour-setup-section label {
+    display: block;
+    font-size: 12px;
+    color: var(--hop-bleu);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .tour-toggle {
+    display: flex;
+    gap: 6px;
+    background: var(--hop-creme);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--hop-bord);
+  }
+  .tour-toggle-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--hop-texte-sec);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tour-toggle-btn.active {
+    background: var(--hop-bleu);
+    color: white;
+    box-shadow: 0 2px 8px rgba(33, 150, 212, 0.3);
+  }
+  .tour-setup-info {
+    text-align: center;
+    color: var(--hop-marine);
+    font-size: 13px;
+    margin: 24px 0 20px;
+    padding: 12px;
+    background: var(--hop-bleu-pale);
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .tour-start-btn {
+    width: 100%;
+    background: var(--hop-bleu);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .tour-start-btn:hover {
+    background: #0d7fb8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(33, 150, 212, 0.4);
+  }
+
+  /* Running screen */
+  .tour-running {
+    position: relative; z-index: 1;
+    flex: 1;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .tour-header {
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(44, 67, 116, 0.1);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+  }
+  .tour-header-left, .tour-header-right {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tour-control-btn {
+    background: white;
+    border: 1px solid rgba(44, 67, 116, 0.15);
+    color: var(--hop-marine);
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tour-control-btn:hover { background: var(--hop-bleu-pale); }
+  .tour-counter {
+    font-size: 14px;
+    color: var(--hop-bleu);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .tour-timer {
+    font-size: 36px;
+    font-weight: 800;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--hop-marine);
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+  .tour-timer.warning { color: #fbbf24; }
+  .tour-timer.danger { color: #ef4444; animation: pulse 0.6s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+  }
+
+  .tour-card-container {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .tour-card {
+    text-align: center;
+    max-width: 720px;
+    width: 100%;
+    animation: cardSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes cardSlideIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .tour-avatar {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--hop-bleu) 0%, var(--hop-marine) 100%);
+    color: white;
+    font-size: 52px;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0 auto 28px;
+    box-shadow: 0 16px 40px rgba(33, 150, 212, 0.4);
+    border: 4px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    position: relative;
+  }
+  .tour-nom {
+    font-size: 56px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: var(--hop-marine);
+    line-height: 1.05;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+  .tour-activite {
+    font-size: 24px;
+    color: var(--hop-bleu);
+    margin-bottom: 32px;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+  .tour-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    font-size: 16px;
+    color: var(--hop-marine);
+  }
+  .tour-contact-line {
+    display: flex; align-items: center; gap: 10px;
+    background: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(44, 67, 116, 0.1);
+    box-shadow: 0 1px 3px rgba(44, 67, 116, 0.04);
+  }
+  .tour-contact-line a {
+    color: var(--hop-marine); text-decoration: none;
+    font-weight: 600;
+  }
+  .tour-contact-line a:hover { color: var(--hop-bleu); }
+
+  /* Progress bar */
+  .tour-progress {
+    height: 6px;
+    background: rgba(44, 67, 116, 0.1);
+    overflow: hidden;
+  }
+  .tour-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--hop-bleu), #5fb3df);
+    width: 100%;
+    transition: width 1s linear;
+  }
+  .tour-progress-bar.warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+  .tour-progress-bar.danger { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+  /* Controls */
+  .tour-controls {
+    padding: 18px 20px 28px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(44, 67, 116, 0.08);
+  }
+  .tour-ctrl-btn {
+    background: white;
+    border: 1px solid rgba(44, 67, 116, 0.15);
+    color: var(--hop-marine);
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(44, 67, 116, 0.08);
+  }
+  .tour-ctrl-btn:hover { background: var(--hop-bleu-pale); transform: scale(1.05); }
+  .tour-ctrl-btn.tour-next, .tour-ctrl-btn.tour-pause {
+    background: var(--hop-bleu);
+    color: white;
+    border-color: var(--hop-bleu);
+    width: 72px; height: 72px;
+    font-size: 26px;
+    box-shadow: 0 8px 20px rgba(33, 150, 212, 0.35);
+  }
+  .tour-ctrl-btn.tour-next:hover, .tour-ctrl-btn.tour-pause:hover {
+    background: var(--hop-marine);
+    border-color: var(--hop-marine);
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .tour-nom { font-size: 36px; }
+    .tour-activite { font-size: 18px; }
+    .tour-avatar { width: 100px; height: 100px; font-size: 38px; }
+    .tour-timer { font-size: 28px; }
+    .tour-contacts { font-size: 14px; }
+    .tour-contact-line { padding: 8px 14px; }
+    .tour-ctrl-btn { width: 52px; height: 52px; font-size: 20px; }
+    .tour-ctrl-btn.tour-next, .tour-ctrl-btn.tour-pause { width: 64px; height: 64px; font-size: 24px; }
+  }
+
+
+  /* Tour : description et missions */
+  .tour-description {
+    max-width: 680px;
+    margin: 0 auto 24px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--hop-marine);
+    background: rgba(255, 255, 255, 0.65);
+    padding: 14px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(44, 67, 116, 0.08);
+  }
+  .tour-description:empty { display: none; }
+  .tour-missions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 680px;
+    margin: 0 auto 24px;
+  }
+  .tour-missions:empty { display: none; }
+  .tour-mission-pill {
+    background: white;
+    border: 1px solid rgba(33, 150, 212, 0.2);
+    color: var(--hop-marine);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(44, 67, 116, 0.05);
+  }
+
+  /* Tour : footer logo */
+  .tour-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.7);
+    border-top: 1px solid rgba(44, 67, 116, 0.08);
+    backdrop-filter: blur(10px);
+  }
+  .tour-footer-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+  .tour-footer-text {
+    font-size: 13px;
+    color: var(--hop-marine);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 768px) {
+    .tour-description { font-size: 14px; padding: 12px 16px; }
+    .tour-mission-pill { font-size: 12px; padding: 6px 12px; }
+    .tour-footer-text { font-size: 11px; }
+    .tour-footer-logo { width: 28px; height: 28px; }
+  }
+
+  /* ============== COCKPIT MOBILE ============== */
+  .cockpit-mobile {
+    position: fixed; inset: 0;
+    background: linear-gradient(165deg, #e8f4fb 0%, #d4e9f7 40%, #c4dff2 100%);
+    color: var(--hop-marine);
+    z-index: 600;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .cockpit-mobile.active { display: flex; }
+  .cockpit-mobile::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(33, 150, 212, 0.12), transparent 55%),
+      radial-gradient(circle at 85% 85%, rgba(255, 255, 255, 0.7), transparent 55%);
+    pointer-events: none;
+  }
+
+  .cm-header {
+    position: relative; z-index: 2;
+    padding: 16px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(44, 67, 116, 0.1);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+  }
+  .cm-header-left { display: flex; align-items: center; gap: 12px; }
+  .cm-title { font-size: 16px; font-weight: 700; color: var(--hop-marine); line-height: 1.1; }
+  .cm-date { font-size: 12px; color: var(--hop-bleu); margin-top: 2px; text-transform: capitalize; font-weight: 600; }
+  .cm-close {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(44, 67, 116, 0.15);
+    color: var(--hop-marine);
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cm-close:hover { background: white; }
+
+  .cm-body {
+    position: relative; z-index: 1;
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  .cm-section {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(44, 67, 116, 0.1);
+    border-radius: 16px;
+    padding: 18px 18px 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(44, 67, 116, 0.06);
+  }
+  .cm-section-label {
+    font-size: 11px;
+    color: var(--hop-bleu);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .cm-reunion-date {
+    font-size: 22px; color: var(--hop-marine);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600; line-height: 1.2;
+    text-transform: capitalize;
+  }
+  .cm-reunion-meta {
+    font-size: 13px; color: var(--hop-texte-sec);
+    margin-top: 6px;
+    line-height: 1.7;
+  }
+
+  .cm-intervenant-name {
+    font-size: 28px;
+    color: var(--hop-marine);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .cm-intervenant-activite {
+    font-size: 14px; color: var(--hop-bleu);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .cm-buttons {
+    display: flex; flex-direction: column;
+    gap: 8px;
+  }
+  .cm-btn {
+    display: flex; align-items: center; gap: 12px;
+    background: white;
+    border: 1px solid rgba(33, 150, 212, 0.25);
+    color: var(--hop-marine);
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(44, 67, 116, 0.04);
+  }
+  .cm-btn:hover, .cm-btn:active {
+    background: var(--hop-bleu-pale);
+    border-color: var(--hop-bleu);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 150, 212, 0.15);
+  }
+  .cm-btn-icon { font-size: 22px; flex-shrink: 0; }
+  .cm-btn-label { flex: 1; line-height: 1.2; }
+  .cm-btn-arrow { opacity: 0.4; font-size: 18px; color: var(--hop-bleu); }
+  .cm-btn:hover .cm-btn-arrow { opacity: 1; transform: translateX(2px); transition: transform 0.15s; }
+  .cm-btn-specific {
+    background: linear-gradient(135deg, #fff8ec 0%, #fef3d7 100%);
+    border-color: rgba(212, 160, 74, 0.35);
+    color: var(--hop-marine-deep);
+  }
+  .cm-btn-specific:hover { background: linear-gradient(135deg, #fef3d7 0%, #fde9bc 100%); }
+
+
+  .cm-btn-tour {
+    background: linear-gradient(135deg, var(--hop-bleu) 0%, #1a7fb8 100%);
+    border-color: var(--hop-bleu);
+    color: white;
+    font-size: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 18px rgba(33, 150, 212, 0.3);
+  }
+  .cm-btn-tour:hover {
+    background: linear-gradient(135deg, #1a7fb8 0%, var(--hop-marine) 100%);
+    border-color: var(--hop-marine);
+    box-shadow: 0 8px 24px rgba(33, 150, 212, 0.4);
+  }
+  .cm-btn-tour .cm-btn-icon { font-size: 26px; }
+  .cm-btn-tour .cm-btn-arrow { color: white; opacity: 0.8; }
+
+  .cm-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .cm-stat {
+    background: white;
+    border: 1px solid rgba(44, 67, 116, 0.08);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    display: flex; flex-direction: column;
+    gap: 4px;
+  }
+  .cm-stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--hop-marine);
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1;
+  }
+  .cm-stat-lbl {
+    font-size: 10px;
+    color: var(--hop-texte-sec);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+  }
+
+  .cm-admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .cm-admin-btn {
+    background: white;
+    border: 1px solid rgba(44, 67, 116, 0.12);
+    color: var(--hop-marine);
+    padding: 12px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cm-admin-btn:hover { background: var(--hop-bleu-pale); border-color: var(--hop-bleu); }
+
+  .cm-loading {
+    color: var(--hop-texte-mute);
+    text-align: center;
+    padding: 16px;
+    font-size: 13px;
+  }
+
+
+  .cm-tap-edit {
+    cursor: pointer;
+    color: var(--hop-bleu) !important;
+    background: var(--hop-bleu-pale);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px dashed var(--hop-bleu);
+    display: inline-block;
+    transition: all 0.15s;
+    font-weight: 600;
+  }
+  .cm-tap-edit:hover, .cm-tap-edit:active {
+    background: var(--hop-bleu);
+    color: white !important;
+    border-color: var(--hop-bleu);
+  }
+  .cm-intervenant-name.cm-tap-edit {
+    padding: 8px 16px;
+    border-radius: 12px;
+    margin-top: 4px;
+  }
+
+  /* Iframe modal interne au cockpit mobile */
+  .cm-iframe-modal {
+    position: absolute; inset: 0;
+    background: black;
+    z-index: 5;
+    display: none;
+    flex-direction: column;
+  }
+  .cm-iframe-modal.active { display: flex; }
+  .cm-iframe-header {
+    background: var(--hop-marine);
+    color: white;
+    padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  #cm-iframe { flex: 1; width: 100%; border: none; background: white; }
+
+  /* Ajustements desktop */
+  @media (min-width: 768px) {
+    .cm-body { max-width: 580px; margin: 0 auto; padding: 24px 20px; }
+  
+  .cm-btn-tour {
+    background: linear-gradient(135deg, var(--hop-bleu) 0%, #1a7fb8 100%);
+    border-color: var(--hop-bleu);
+    color: white;
+    font-size: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 18px rgba(33, 150, 212, 0.3);
+  }
+  .cm-btn-tour:hover {
+    background: linear-gradient(135deg, #1a7fb8 0%, var(--hop-marine) 100%);
+    border-color: var(--hop-marine);
+    box-shadow: 0 8px 24px rgba(33, 150, 212, 0.4);
+  }
+  .cm-btn-tour .cm-btn-icon { font-size: 26px; }
+  .cm-btn-tour .cm-btn-arrow { color: white; opacity: 0.8; }
+
+  .cm-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ============== LIENS ADMIN PAGE ============== */
+  .lien-card {
+    background: white;
+    border: 1px solid var(--hop-bord);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    transition: all 0.15s;
+  }
+  .lien-card:hover { box-shadow: var(--shadow-sm); border-color: var(--hop-bleu-clair); }
+  .lien-icon {
+    font-size: 28px;
+    text-align: center;
+    background: var(--hop-creme);
+    border-radius: 10px;
+    width: 50px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lien-info h4 {
+    font-size: 15px; font-weight: 700; color: var(--hop-marine);
+    margin-bottom: 4px;
+  }
+  .lien-info .lien-url {
+    font-size: 12px; color: var(--hop-texte-sec);
+    word-break: break-all; line-height: 1.4;
+  }
+  .lien-info .lien-meta {
+    margin-top: 6px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+    font-size: 11px;
+  }
+  .lien-card.disabled { opacity: 0.4; }
+  .lien-actions {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .lien-actions button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .lien-card { grid-template-columns: 40px 1fr; }
+    .lien-actions { grid-column: 1 / -1; flex-direction: row; }
+  }
+
   /* COCKPIT (mode projection) */
   .cockpit {
-    background: linear-gradient(135deg, var(--hop-marine) 0%, #0d1a36 100%);
-    color: white;
+    background: linear-gradient(165deg, #e8f4fb 0%, #d4e9f7 40%, #c4dff2 100%);
+    color: var(--hop-marine);
     min-height: 100vh;
-    padding: 48px;
+    padding: 0;
     display: none;
     position: relative;
   }
+  .cockpit::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(33, 150, 212, 0.12), transparent 55%),
+      radial-gradient(circle at 85% 85%, rgba(255, 255, 255, 0.7), transparent 55%);
+    pointer-events: none;
+  }
+  .cockpit > * { position: relative; z-index: 1; }
   .cockpit::before {
     content: '';
     position: absolute; inset: 0;
@@ -483,7 +1422,7 @@
   .cockpit-header h1 {
     font-size: 48px;
     color: white;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .cockpit-header .date {
     font-size: 18px;
@@ -507,7 +1446,7 @@
     color: white;
     font-size: 24px;
     margin-bottom: 24px;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 500;
@@ -518,7 +1457,7 @@
     color: white;
     line-height: 1.05;
     margin: 20px 0;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: -0.02em;
   }
   .cockpit-activite {
@@ -545,17 +1484,199 @@
     color: white;
     font-size: 32px;
     font-weight: 700;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .exit-cockpit {
     position: fixed;
     top: 24px; right: 24px;
-    background: rgba(255,255,255,0.1);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.2);
+    background: white;
+    color: var(--hop-marine);
+    border: 1px solid rgba(44, 67, 116, 0.15);
     z-index: 10;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(44, 67, 116, 0.1);
   }
-  .exit-cockpit:hover { background: rgba(255,255,255,0.2); }
+  .exit-cockpit:hover { background: var(--hop-bleu-pale); }
+
+  /* === ÉCRAN D'ACCUEIL DU MODE PROJECTION === */
+  .cockpit-welcome {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .cockpit-welcome-logo {
+    margin-bottom: 24px;
+  }
+  .cockpit-welcome-logo img {
+    width: 110px;
+    height: 110px;
+    border-radius: 22px;
+    object-fit: cover;
+    box-shadow: 0 14px 36px rgba(44, 67, 116, 0.2);
+    border: 4px solid rgba(255,255,255,0.7);
+    display: block;
+  }
+  .cockpit-welcome-title {
+    font-size: 72px;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--hop-marine);
+    line-height: 1.05;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  .cockpit-welcome-subtitle {
+    font-size: 22px;
+    color: var(--hop-bleu);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin: 0 0 48px 0;
+  }
+  .cockpit-welcome-meeting {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(44, 67, 116, 0.1);
+    border-radius: 20px;
+    padding: 24px 40px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 16px rgba(44, 67, 116, 0.08);
+    min-width: 480px;
+    max-width: 90%;
+  }
+  .cockpit-welcome-date {
+    font-size: 28px;
+    color: var(--hop-marine);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: capitalize;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .cockpit-welcome-lieu {
+    font-size: 16px;
+    color: var(--hop-texte-sec);
+    line-height: 1.6;
+  }
+  .cockpit-welcome-presenter {
+    background: linear-gradient(135deg, rgba(33, 150, 212, 0.08) 0%, rgba(255, 255, 255, 0.92) 100%);
+    border: 1px solid rgba(33, 150, 212, 0.22);
+    border-radius: 20px;
+    padding: 32px 48px;
+    margin-bottom: 36px;
+    box-shadow: 0 6px 24px rgba(33, 150, 212, 0.12);
+    min-width: 480px;
+    max-width: 90%;
+  }
+  .cockpit-welcome-label {
+    font-size: 12px;
+    color: var(--hop-bleu);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .cockpit-welcome-name {
+    font-size: 56px;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--hop-marine);
+    font-weight: 600;
+    line-height: 1.05;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+  }
+  .cockpit-welcome-activite {
+    font-size: 20px;
+    color: var(--hop-bleu);
+    font-weight: 500;
+  }
+  .cockpit-welcome-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cw-stat {
+    background: white;
+    border: 1px solid rgba(44, 67, 116, 0.1);
+    border-radius: 16px;
+    padding: 18px 28px;
+    text-align: center;
+    min-width: 140px;
+    box-shadow: 0 2px 10px rgba(44, 67, 116, 0.06);
+  }
+  .cw-stat-num {
+    display: block;
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--hop-marine);
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .cw-stat-lbl {
+    font-size: 12px;
+    color: var(--hop-texte-sec);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+  }
+  .cockpit-welcome-cta {
+    background: var(--hop-bleu);
+    color: white;
+    border: none;
+    padding: 18px 44px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(33, 150, 212, 0.35);
+    letter-spacing: 0.02em;
+  }
+  .cockpit-welcome-cta:hover {
+    background: var(--hop-marine);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(33, 150, 212, 0.5);
+  }
+  .cockpit-welcome-footer {
+    margin-top: 36px;
+    font-size: 14px;
+    color: var(--hop-bleu);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    .cockpit-welcome { padding: 32px 20px; }
+    .cockpit-welcome-logo img { width: 80px; height: 80px; border-radius: 16px; }
+    .cockpit-welcome-title { font-size: 42px; }
+    .cockpit-welcome-subtitle { font-size: 16px; margin-bottom: 28px; }
+    .cockpit-welcome-meeting { padding: 18px 22px; min-width: 0; width: 100%; }
+    .cockpit-welcome-date { font-size: 22px; }
+    .cockpit-welcome-presenter { padding: 22px 22px; min-width: 0; width: 100%; }
+    .cockpit-welcome-name { font-size: 36px; }
+    .cockpit-welcome-cta { font-size: 16px; padding: 14px 28px; }
+    .cw-stat { min-width: 100px; padding: 14px 20px; }
+    .cw-stat-num { font-size: 28px; }
+  }
 
   /* LOADING & EMPTY */
   .loading {
@@ -647,7 +1768,7 @@
   }
   .modal-header h2 {
     font-size: 22px; color: var(--hop-marine);
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .modal-close {
     background: transparent; border: none;
@@ -704,7 +1825,7 @@
     font-size: 24px;
     font-weight: 800;
     line-height: 1;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
   }
   .reunion-cal-date-month {
     font-size: 11px;
@@ -947,7 +2068,7 @@
     justify-content: center;
     font-size: 20px;
     font-weight: 700;
-    font-family: 'Fraunces', serif;
+    font-family: 'Montserrat', sans-serif;
     flex-shrink: 0;
     box-shadow: var(--shadow-sm);
   }
@@ -1062,8 +2183,8 @@
 <div id="login-screen">
   <div class="login-card">
     <img class="login-logo" src="data:image/jpeg;base64,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" alt="HOP! Club des Entrepreneurs">
-    <h1>Animation Réseau</h1>
-    <div class="login-subtitle">Espace réservé aux membres</div>
+    <h1>Ici, c'est Blanquefort&nbsp;!</h1>
+    <div class="login-subtitle">Club des Entrepreneurs · Espace membres</div>
     <input type="password" id="login-input" class="login-input" placeholder="Mot de passe" autofocus>
     <button class="login-btn" onclick="checkPassword()">Entrer dans l'espace</button>
     <div class="login-error" id="login-error"></div>
@@ -1076,13 +2197,15 @@
     <div class="header-left">
       <img class="header-logo" src="data:image/jpeg;base64,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" alt="HOP!">
       <div class="header-title">
-        <h1>Animation Réseau</h1>
-        <div class="subtitle">Club des Entrepreneurs · Blanquefort</div>
+        <h1>Ici, c'est Blanquefort&nbsp;!</h1>
+        <div class="subtitle">Club des Entrepreneurs</div>
       </div>
     </div>
     <div class="header-right">
+      <button class="btn-icon" id="admin-toggle-btn" onclick="toggleAdminMode()">🔓 Mode admin</button>
       <button class="btn-icon" onclick="reload()">↻ Actualiser</button>
-      <button class="btn-icon" onclick="openCockpit()">▶ Mode Réunion</button>
+      <button class="btn-icon" onclick="openCockpitMobile()" style="background:var(--hop-bleu);color:white;border-color:var(--hop-bleu);">📱 Cockpit</button>
+      <button class="btn-icon" onclick="openCockpit()">▶ Projection</button>
     </div>
   </header>
 
@@ -1094,6 +2217,8 @@
     <button class="tab" data-view="ateliers" onclick="switchView('ateliers')">Ateliers</button>
     <button class="tab" data-view="proposer" onclick="switchView('proposer')">Proposer un atelier</button>
     <button class="tab" data-view="presence" onclick="switchView('presence')">Présence</button>
+    <button class="tab admin-only" data-view="liens" onclick="switchView('liens')" style="display:none;">🔗 Liens</button>
+    <button class="tab admin-only" data-view="thematiques" onclick="switchView('thematiques')" style="display:none;">🎨 Thématiques</button>
   </nav>
 
   <main class="container">
@@ -1139,20 +2264,40 @@
 
     <!-- CALENDRIER PRÉSENCE -->
     <div class="view" id="view-calendrier">
-      <h2 class="section-title">Calendrier de présence</h2>
-      <p class="section-subtitle">Qui sera là à chaque réunion · auto-déclaration + correction admin</p>
+      <h2 class="section-title">📅 Calendrier des présences</h2>
+      <p class="section-subtitle">Coche ta présence pour chaque réunion à venir</p>
 
-      <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
-        <div style="display: flex; gap: 6px; align-items: center;">
-          <span style="font-size: 13px; color: var(--hop-texte-sec); margin-right: 4px;">Vue :</span>
-          <button class="btn-icon active-view" id="cal-view-reunion-btn" onclick="setCalendrierView('reunion')">📅 Par réunion</button>
-          <button class="btn-icon" id="cal-view-membre-btn" onclick="setCalendrierView('membre')">👥 Par membre</button>
-        </div>
-        <div style="flex: 1;"></div>
-        <button class="btn-icon" id="admin-toggle-btn" onclick="toggleAdminMode()">🔓 Mode admin</button>
+      <div class="cal-toolbar">
+        <div style="flex:1;"></div>
+        <button class="btn-icon" id="cal-add-reunion-btn" onclick="openCreateReunion()" style="display:none;">➕ Nouvelle réunion</button>
       </div>
 
-      <div id="calendrier-content"><div class="loading">Chargement…</div></div>
+      <!-- Layout hybride : sidebar mini-cal sur desktop, mini-cal en haut sur mobile -->
+      <div class="cal-hybrid">
+        <!-- Mini-calendrier (sidebar desktop / haut mobile) -->
+        <aside class="cal-sidebar">
+          <div class="mini-cal" id="mini-cal">
+            <!-- Généré dynamiquement -->
+          </div>
+          <div class="cal-filters">
+            <div class="cal-filter-label">Filtres</div>
+            <button class="cal-filter-btn active" data-filter="all" onclick="setCalFilter('all')">Toutes</button>
+            <button class="cal-filter-btn" data-filter="venir" onclick="setCalFilter('venir')">À venir</button>
+            <button class="cal-filter-btn" data-filter="atelier" onclick="setCalFilter('atelier')">Ateliers</button>
+            <button class="cal-filter-btn" data-filter="classique" onclick="setCalFilter('classique')">Classiques</button>
+          </div>
+          <div class="cal-legend">
+            <div class="cal-legend-item"><span class="cal-dot cal-dot-classique"></span> Classique</div>
+            <div class="cal-legend-item"><span class="cal-dot cal-dot-atelier"></span> Atelier</div>
+            <div class="cal-legend-item"><span class="cal-dot cal-dot-passe"></span> Passée</div>
+          </div>
+        </aside>
+
+        <!-- Liste des réunions -->
+        <div class="cal-content" id="calendrier-list">
+          <div class="loading">Chargement…</div>
+        </div>
+      </div>
     </div>
 
     <!-- ATELIERS -->
@@ -1171,8 +2316,15 @@
       <div class="card">
         <div class="form-grid">
           <div class="form-group full">
-            <label for="atelier-theme">Thématique de l'atelier *</label>
-            <input type="text" id="atelier-theme" class="form-input" placeholder="Ex : Optimiser ses réseaux sociaux">
+            <label>🎨 Catégorie (optionnel)</label>
+            <select id="atelier-thematique-select" class="form-select">
+              <option value="">— Choisir une catégorie —</option>
+            </select>
+            <div style="font-size:11px;color:var(--hop-texte-mute);margin-top:4px;">Aide à classer ton atelier dans les bonnes thématiques</div>
+          </div>
+          <div class="form-group full">
+            <label for="atelier-theme">💡 Thématique précise *</label>
+            <input type="text" id="atelier-theme" class="form-input" placeholder="Ex : Optimiser ses réseaux sociaux pour TPE locale">
           </div>
           <div class="form-group full">
             <label for="atelier-desc">Description (pourquoi ce sujet)</label>
@@ -1190,6 +2342,28 @@
       </div>
     </div>
 
+    <!-- THÉMATIQUES (admin) -->
+    <div class="view" id="view-thematiques">
+      <h2 class="section-title">🎨 Thématiques d'ateliers</h2>
+      <p class="section-subtitle">Catégories utilisées pour ranger les ateliers proposés et leur donner un code couleur</p>
+      <div style="display:flex;gap:12px;margin-bottom:24px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="openCreateThematique()">➕ Nouvelle thématique</button>
+        <span style="font-size:13px;color:var(--hop-texte-sec);">Les thématiques activées apparaissent dans le sélecteur des ateliers</span>
+      </div>
+      <div id="thematiques-list"><div class="loading">Chargement…</div></div>
+    </div>
+
+    <!-- LIENS DE PROJECTION (admin) -->
+    <div class="view" id="view-liens">
+      <h2 class="section-title">🔗 Liens de projection</h2>
+      <p class="section-subtitle">Boutons rapides accessibles depuis le Mode Réunion et le Cockpit Mobile</p>
+      <div style="display:flex;gap:12px;margin-bottom:24px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="openCreateLien()">➕ Nouveau lien</button>
+        <span style="font-size:13px;color:var(--hop-texte-sec);">Les liens activés apparaissent dans l'ordre choisi</span>
+      </div>
+      <div id="liens-list"><div class="loading">Chargement…</div></div>
+    </div>
+
     <!-- PRÉSENCE -->
     <div class="view" id="view-presence">
       <h2 class="section-title">Check-in présence</h2>
@@ -1199,82 +2373,261 @@
   </main>
 </div>
 
-<!-- ============== COCKPIT (MODE RÉUNION) ============== -->
-<div class="cockpit" id="cockpit">
-  <button class="btn exit-cockpit" onclick="closeCockpit()">✕ Quitter</button>
-  <div class="cockpit-header">
-    <div>
-      <h1>Réunion en cours</h1>
-      <div class="date" id="cockpit-date"></div>
-    </div>
-    <img src="data:image/jpeg;base64,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" alt="HOP!" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; box-shadow: var(--shadow-md);">
-  </div>
-  <div class="cockpit-grid">
-    <div class="cockpit-section">
-      <h2>Intervention du jour</h2>
-      <div id="cockpit-intervenant-zone">
-        <div class="cockpit-intervenant">À assigner</div>
-        <div class="cockpit-activite">—</div>
+<!-- ============== COCKPIT MOBILE (TÉLÉCOMMANDE) ============== -->
+<div class="cockpit-mobile" id="cockpit-mobile">
+  <div class="cm-header">
+    <div class="cm-header-left">
+      <div class="cm-logo-wrap"><img src="" alt="HOP!" id="cm-logo" style="width:32px;height:32px;border-radius:6px;"></div>
+      <div>
+        <div class="cm-title">HOP! Cockpit</div>
+        <div class="cm-date" id="cm-date">—</div>
       </div>
     </div>
-    <div class="cockpit-section">
-      <h2>Réseau en chiffres</h2>
-      <div id="cockpit-stats"><div class="loading">Chargement…</div></div>
+    <button class="cm-close" onclick="closeCockpitMobile()">✕</button>
+  </div>
+
+  <div class="cm-body">
+    <!-- Réunion en cours -->
+    <div class="cm-section cm-reunion">
+      <div class="cm-section-label">Réunion en cours</div>
+      <div class="cm-reunion-info" id="cm-reunion-info">
+        <div class="cm-reunion-date">—</div>
+        <div class="cm-reunion-meta">—</div>
+      </div>
+    </div>
+
+    <!-- Intervenant -->
+    <div class="cm-section">
+      <div class="cm-section-label">🎤 Intervenant du jour</div>
+      <div class="cm-intervenant" id="cm-intervenant">
+        <div class="cm-intervenant-name">—</div>
+        <div class="cm-intervenant-activite">—</div>
+      </div>
+    </div>
+
+    <!-- Lancements rapides -->
+    <div class="cm-section">
+      <div class="cm-section-label">🚀 Lancements rapides</div>
+      <div class="cm-buttons" id="cm-buttons">
+        <div class="cm-loading">Aucun lien configuré</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="cm-section cm-stats-section">
+      <div class="cm-section-label">📊 En direct</div>
+      <div class="cm-stats" id="cm-stats">
+        <div class="cm-stat"><span class="cm-stat-num">—</span><span class="cm-stat-lbl">Présents</span></div>
+        <div class="cm-stat"><span class="cm-stat-num">—</span><span class="cm-stat-lbl">Absents</span></div>
+        <div class="cm-stat"><span class="cm-stat-num">—</span><span class="cm-stat-lbl">Membres</span></div>
+      </div>
+    </div>
+
+    <!-- Actions admin -->
+    <div class="cm-section" id="cm-admin-actions" style="display:none;">
+      <div class="cm-section-label">⚙️ Admin rapide</div>
+      <div class="cm-admin-grid">
+        <button class="cm-admin-btn" onclick="closeCockpitMobile(); switchView('calendrier');">📅 Présences</button>
+        <button class="cm-admin-btn" onclick="closeCockpitMobile(); switchView('liens');">🔗 Liens</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal iframe interne pour ouverture en mode "iframe" -->
+  <div class="cm-iframe-modal" id="cm-iframe-modal">
+    <div class="cm-iframe-header">
+      <span id="cm-iframe-title">Lien</span>
+      <button class="cm-close" onclick="closeIframeModal()">✕ Fermer</button>
+    </div>
+    <iframe id="cm-iframe" src="" frameborder="0" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- ============== COCKPIT (MODE PROJECTION — ÉCRAN D'ACCUEIL) ============== -->
+<div class="cockpit" id="cockpit">
+  <button class="btn-icon exit-cockpit" onclick="closeCockpit()">✕ Quitter</button>
+
+  <div class="cockpit-welcome">
+    <!-- Logo XL au centre -->
+    <div class="cockpit-welcome-logo">
+      <img id="cockpit-logo" src="" alt="HOP!">
+    </div>
+
+    <!-- Titre du club -->
+    <h1 class="cockpit-welcome-title">Ici, c'est Blanquefort&nbsp;!</h1>
+    <div class="cockpit-welcome-subtitle">HOP! Club des Entrepreneurs</div>
+
+    <!-- Date et lieu de la réunion -->
+    <div class="cockpit-welcome-meeting" id="cockpit-meeting-info">
+      <div class="cockpit-welcome-date" id="cockpit-date">—</div>
+      <div class="cockpit-welcome-lieu" id="cockpit-lieu">—</div>
+    </div>
+
+    <!-- Intervenant du jour (si désigné) -->
+    <div class="cockpit-welcome-presenter" id="cockpit-presenter-block">
+      <div class="cockpit-welcome-label">🎤 Intervenant du jour</div>
+      <div class="cockpit-welcome-name" id="cockpit-presenter-name">—</div>
+      <div class="cockpit-welcome-activite" id="cockpit-presenter-activite">—</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="cockpit-welcome-stats" id="cockpit-stats">
+      <div class="cw-stat">
+        <span class="cw-stat-num" id="cw-stat-membres">—</span>
+        <span class="cw-stat-lbl">Membres</span>
+      </div>
+      <div class="cw-stat">
+        <span class="cw-stat-num" id="cw-stat-reunions">—</span>
+        <span class="cw-stat-lbl">Réunions à venir</span>
+      </div>
+      <div class="cw-stat">
+        <span class="cw-stat-num" id="cw-stat-ateliers">—</span>
+        <span class="cw-stat-lbl">Ateliers en vote</span>
+      </div>
+    </div>
+
+    <!-- CTA bouton lancer le tour -->
+    <button class="cockpit-welcome-cta" onclick="closeCockpit(); openTour();">
+      🎤 Lancer le tour de présentation
+    </button>
+
+    <div class="cockpit-welcome-footer">Échanger · Apprendre · Soutenir</div>
+  </div>
+</div>
+
+<!-- ============== TOUR DE PRÉSENTATION ============== -->
+<div class="tour-mode" id="tour-mode">
+  <!-- Écran de configuration (avant lancement) -->
+  <div class="tour-setup" id="tour-setup">
+    <button class="tour-close-setup" onclick="closeTour()">✕</button>
+    <div class="tour-setup-card">
+      <h2>🎤 Tour de présentation</h2>
+      <p class="tour-setup-subtitle">Configure ta session avant de lancer</p>
+
+      <div class="tour-setup-section">
+        <label>⏱️ Durée par membre</label>
+        <div class="tour-toggle">
+          <button class="tour-toggle-btn active" data-duration="60" onclick="setTourDuration(60)">60 sec</button>
+          <button class="tour-toggle-btn" data-duration="90" onclick="setTourDuration(90)">90 sec</button>
+          <button class="tour-toggle-btn" data-duration="120" onclick="setTourDuration(120)">2 min</button>
+        </div>
+      </div>
+
+      <div class="tour-setup-section">
+        <label>🔄 Au timer 0</label>
+        <div class="tour-toggle">
+          <button class="tour-toggle-btn active" data-mode="auto" onclick="setTourMode('auto')">▶ Auto-suivant</button>
+          <button class="tour-toggle-btn" data-mode="manual" onclick="setTourMode('manual')">⏸ Manuel</button>
+        </div>
+      </div>
+
+      <div class="tour-setup-section">
+        <label>🎲 Ordre</label>
+        <div class="tour-toggle">
+          <button class="tour-toggle-btn active" data-order="random" onclick="setTourOrder('random')">🔀 Aléatoire</button>
+          <button class="tour-toggle-btn" data-order="alpha" onclick="setTourOrder('alpha')">🔤 Alphabétique</button>
+        </div>
+      </div>
+
+      <div class="tour-setup-info">
+        <span id="tour-membre-count">22 membres</span> · 
+        <span id="tour-time-estimate">~22 min total</span>
+      </div>
+
+      <button class="tour-start-btn" onclick="startTour()">▶ Démarrer le tour</button>
+    </div>
+  </div>
+
+  <!-- Écran de présentation (pendant la session) -->
+  <div class="tour-running" id="tour-running" style="display:none;">
+    <!-- Header avec timer et compteur -->
+    <div class="tour-header">
+      <div class="tour-header-left">
+        <button class="tour-control-btn" onclick="closeTour()" title="Quitter">✕</button>
+        <span class="tour-counter" id="tour-counter">1 / 22</span>
+      </div>
+      <div class="tour-timer" id="tour-timer">1:00</div>
+      <div class="tour-header-right">
+        <button class="tour-control-btn" onclick="tourShuffle()" title="Mélanger">🔀</button>
+      </div>
+    </div>
+
+    <!-- Carte du membre en cours -->
+    <div class="tour-card-container" id="tour-card-container">
+      <div class="tour-card" id="tour-card">
+        <div class="tour-avatar" id="tour-avatar">??</div>
+        <h1 class="tour-nom" id="tour-nom">—</h1>
+        <div class="tour-activite" id="tour-activite">—</div>
+        <div class="tour-description" id="tour-description"></div>
+        <div class="tour-missions" id="tour-missions"></div>
+        <div class="tour-contacts" id="tour-contacts"></div>
+      </div>
+    </div>
+
+    <!-- Footer logo HOP! -->
+    <div class="tour-footer">
+      <img class="tour-footer-logo" id="tour-footer-logo" src="" alt="HOP!">
+      <span class="tour-footer-text">HOP! Club des Entrepreneurs</span>
+    </div>
+
+    <!-- Barre de progression du timer -->
+    <div class="tour-progress">
+      <div class="tour-progress-bar" id="tour-progress-bar"></div>
+    </div>
+
+    <!-- Contrôles -->
+    <div class="tour-controls">
+      <button class="tour-ctrl-btn" onclick="tourPrev()" id="tour-prev">⏮</button>
+      <button class="tour-ctrl-btn tour-pause" onclick="tourPause()" id="tour-pause">⏸</button>
+      <button class="tour-ctrl-btn tour-next" onclick="tourNext()" id="tour-next">⏭</button>
     </div>
   </div>
 </div>
 
 
-<!-- ============== MODAL ÉDITION RÉUNION ============== -->
-<div id="edit-modal" class="modal-overlay" style="display:none;">
+<!-- ============== MODAL CRÉER/ÉDITER THÉMATIQUE ============== -->
+<div id="thema-modal" class="modal-overlay" style="display:none;">
   <div class="modal">
     <div class="modal-header">
-      <h2>Éditer la réunion</h2>
-      <button class="modal-close" onclick="closeEditReunion()">✕</button>
+      <h2 id="thema-modal-title">Nouvelle thématique</h2>
+      <button class="modal-close" onclick="closeThemaModal()">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="edit-reunion-id">
-      <div class="form-group full">
-        <label>Date</label>
-        <input type="text" id="edit-date-display" class="form-input" readonly style="background: var(--hop-creme); color: var(--hop-texte-sec);">
-      </div>
+      <input type="hidden" id="thema-edit-id">
       <div class="form-grid">
         <div class="form-group">
-          <label>📍 Lieu de la réunion</label>
-          <input type="text" id="edit-lieu-reunion" class="form-input" placeholder="Ex : Agence Mutuelle de Poitiers">
+          <label>Icône (emoji)</label>
+          <input type="text" id="thema-icone" class="form-input" placeholder="🎯" maxlength="3">
         </div>
         <div class="form-group">
-          <label>🍽️ Lieu du repas</label>
-          <input type="text" id="edit-lieu-repas" class="form-input" placeholder="Ex : Restaurant Côté Jardin">
-        </div>
-        <div class="form-group">
-          <label>🎤 Intervenant</label>
-          <select id="edit-presentateur" class="form-select">
-            <option value="">— Aucun —</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>📝 Type</label>
-          <select id="edit-type" class="form-select">
-            <option value="Classique">Classique</option>
-            <option value="Atelier">Atelier</option>
-          </select>
+          <label>Ordre</label>
+          <input type="number" id="thema-ordre" class="form-input" placeholder="1" min="1">
         </div>
         <div class="form-group full">
-          <label>🎯 Atelier associé (si réunion atelier)</label>
-          <select id="edit-atelier" class="form-select">
-            <option value="">— Aucun —</option>
-          </select>
+          <label>Nom *</label>
+          <input type="text" id="thema-nom" class="form-input" placeholder="Ex : Marketing & Communication">
         </div>
-        <div class="form-group full">
-          <label>📌 Notes internes</label>
-          <textarea id="edit-notes" class="form-textarea" placeholder="Notes pour le bureau, infos pratiques…"></textarea>
+        <div class="form-group">
+          <label>Couleur (HEX)</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="color" id="thema-couleur-picker" class="form-input" style="width:48px;height:42px;padding:2px;cursor:pointer;" value="#2c4374" oninput="document.getElementById('thema-couleur').value=this.value;">
+            <input type="text" id="thema-couleur" class="form-input" placeholder="#2c4374" style="flex:1;" oninput="document.getElementById('thema-couleur-picker').value=this.value;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select id="thema-actif" class="form-select">
+            <option value="true">✓ Active</option>
+            <option value="false">✗ Désactivée</option>
+          </select>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeEditReunion()">Annuler</button>
-      <button class="btn btn-primary" onclick="saveEditReunion()">💾 Enregistrer</button>
+      <button class="btn btn-secondary" onclick="deleteThemaConfirm()" id="thema-delete-btn" style="display:none;color:var(--hop-danger);">🗑️ Supprimer</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-secondary" onclick="closeThemaModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveThematique()">💾 Enregistrer</button>
     </div>
   </div>
 </div>
@@ -1285,7 +2638,7 @@
 // ============================================================
 // CONFIG — À PERSONNALISER APRÈS DÉPLOIEMENT APPS SCRIPT
 // ============================================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTTSd6L6N9zYMabcSpm4a_GDmWACNPDPODWoFvDvebxLM4xkOy83cBgeEiB6Jl0zhH/exec'; 
+const SCRIPT_URL = ''; // ← Coller ici l'URL Apps Script après déploiement
 const PASSWORD = 'HOPBLANQUEFORT';
 
 // ============================================================
@@ -1295,6 +2648,8 @@ const state = {
   membres: [],
   reunions: [],
   ateliers: [],
+  liens: [],
+  thematiques: [],
   dashboard: null,
   votedAteliers: new Set(JSON.parse(localStorage.getItem('hop_votes') || '[]')),
   myEmail: localStorage.getItem('hop_email') || '',
@@ -1330,6 +2685,9 @@ if (sessionStorage.getItem('hop_auth') === '1') {
         btn.classList.add('active-admin');
         btn.textContent = '🔒 Admin : ' + (state.adminName || 'actif');
       }
+      const addBtn = document.getElementById('cal-add-reunion-btn');
+      if (addBtn) addBtn.style.display = 'inline-flex';
+      document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
     }
     init();
   });
@@ -1382,6 +2740,8 @@ async function loadAll() {
       state.membres = result.data.membres || [];
       state.reunions = result.data.reunions || [];
       state.ateliers = result.data.ateliers || [];
+      state.liens = result.data.liens || [];
+      state.thematiques = result.data.thematiques || [];
       state.dashboard = result.data.dashboard || null;
       renderAll();
       showLoadingState(false);
@@ -1429,7 +2789,7 @@ function loadDemoData() {
   state.reunions = [
     { ID: 'R2026-01', Date: '2026-05-13', Type: 'Classique', 'Lieu_réunion': '', 'Lieu_repas': '', 'Membre_présentateur': 'Laurence Borras', Statut: 'À venir' },
     { ID: 'R2026-02', Date: '2026-05-27', Type: 'Atelier', 'Lieu_réunion': 'Agence Mutuelle de Poitiers', 'Lieu_repas': '', 'Atelier_associé': 'A001', 'Membre_présentateur': '', Statut: 'À venir' },
-    { ID: 'R2026-03', Date: '2026-06-10', Type: 'Classique', 'Lieu_réunion': 'Agence Mutuelle de Poitiers', 'Lieu_repas': 'Côté Jardin', 'Membre_présentateur': 'Stéphanie Pascal', Statut: 'À venir' }
+    { ID: 'R2026-03', Date: '2026-06-10', Type: 'Classique', 'Lieu_réunion': '', 'Lieu_repas': '', 'Membre_présentateur': 'Stéphanie Pascal', Statut: 'À venir' }
   ];
   state.ateliers = [
     { ID: 'A001', Thématique: 'Optimiser ses réseaux sociaux', Description: 'Tactiques concrètes pour LinkedIn et Instagram', Votes: 7, Statut: 'Planifié', Date_prévue: '2026-05-27' },
@@ -1454,6 +2814,12 @@ function renderAll() {
   renderAteliers();
   renderAteliersPlanifies();
   renderPresence();
+  renderLiens();
+  renderThematiques();
+  // Si cockpit mobile ouvert, le rafraîchir aussi
+  if (document.getElementById('cockpit-mobile')?.classList.contains('active')) {
+    renderCockpitMobile();
+  }
 }
 
 function renderDashboard() {
@@ -1538,8 +2904,14 @@ function renderAteliers() {
 
 function atelierCard(a, withVote) {
   const voted = state.votedAteliers.has(a.ID);
+  const themaId = a.Thematique || '';
+  const thema = themaId ? getThematique(themaId) : null;
+  const themaColor = thema ? (thema.Couleur || '#94a3b8') : '#94a3b8';
+  const themaIcon = thema ? (thema.Icone || '🏷️') : '';
+  const themaNom = thema ? (thema.Nom || '') : '';
   return `
-    <div class="atelier-card">
+    <div class="atelier-card" style="border-left-color:${themaColor};">
+      ${thema ? `<div style="margin-bottom:10px;"><span class="thema-pill" style="background:${themaColor};">${themaIcon} ${themaNom}</span></div>` : ''}
       <div class="atelier-info">
         <h4>${a.Thématique}</h4>
         ${a.Description ? `<p>${a.Description}</p>` : ''}
@@ -1549,9 +2921,12 @@ function atelierCard(a, withVote) {
         <span class="label">votes</span>
       </div>
       ${withVote ? `
-        <button class="btn btn-vote" onclick="voteAtelier('${a.ID}')" ${voted ? 'disabled' : ''}>
-          ${voted ? '✓ Voté' : '+1 vote'}
-        </button>` : '<div></div>'}
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+          <button class="btn btn-vote" onclick="voteAtelier('${a.ID}')" ${voted ? 'disabled' : ''}>
+            ${voted ? '✓ Voté' : '+1 vote'}
+          </button>
+          ${adminMode ? `<button class="btn btn-secondary" style="font-size:11px;padding:6px 10px;" onclick="openPlanAtelier('${a.ID}')">📅 Planifier</button>` : ''}
+        </div>` : '<div></div>'}
     </div>
   `;
 }
@@ -1636,23 +3011,42 @@ function reload() { loadAll(); toast('Données actualisées'); }
 function openCockpit() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('cockpit').classList.add('active');
+
+  // Logo
+  const headerLogo = document.querySelector('.header-logo');
+  const cockpitLogo = document.getElementById('cockpit-logo');
+  if (headerLogo && cockpitLogo) cockpitLogo.src = headerLogo.src;
+
+  // Réunion en cours
   const prochaine = state.reunions.find(r => r.Statut === 'À venir');
-  document.getElementById('cockpit-date').textContent = prochaine ? formatDate(prochaine.Date) : '';
-  if (prochaine && prochaine.Membre_présentateur) {
-    const membre = state.membres.find(m => m.Nom === prochaine.Membre_présentateur);
-    document.getElementById('cockpit-intervenant-zone').innerHTML = `
-      <div class="cockpit-intervenant">${prochaine.Membre_présentateur}</div>
-      <div class="cockpit-activite">${membre ? membre.Activité || '' : ''}</div>
-    `;
+  if (prochaine) {
+    document.getElementById('cockpit-date').textContent = formatDate(prochaine.Date);
+    const lieuR = (prochaine['Lieu_réunion'] || prochaine.Lieu || '').trim();
+    const lieuRepas = (prochaine['Lieu_repas'] || '').trim();
+    let lieuTxt = '';
+    if (lieuR) lieuTxt += '📍 ' + lieuR;
+    if (lieuRepas) lieuTxt += (lieuTxt ? '<br>' : '') + '🍽️ ' + lieuRepas;
+    document.getElementById('cockpit-lieu').innerHTML = lieuTxt || 'Lieu à confirmer';
+
+    // Intervenant
+    const presNom = (prochaine['Membre_présentateur'] || '').trim();
+    const membre = presNom ? state.membres.find(m => m.Nom === presNom) : null;
+    document.getElementById('cockpit-presenter-name').textContent = presNom || 'À désigner';
+    document.getElementById('cockpit-presenter-activite').textContent = membre ? (membre['Activité'] || '') : '';
+  } else {
+    document.getElementById('cockpit-date').textContent = 'Aucune réunion à venir';
+    document.getElementById('cockpit-lieu').textContent = '';
+    document.getElementById('cockpit-presenter-name').textContent = '—';
+    document.getElementById('cockpit-presenter-activite').textContent = '';
   }
-  const d = state.dashboard;
-  if (d) {
-    document.getElementById('cockpit-stats').innerHTML = `
-      <div class="cockpit-stat"><span class="cockpit-stat-label">Membres actifs</span><span class="cockpit-stat-value">${d.total_membres}</span></div>
-      <div class="cockpit-stat"><span class="cockpit-stat-label">Réunions à venir</span><span class="cockpit-stat-value">${d.reunions_a_venir}</span></div>
-      <div class="cockpit-stat"><span class="cockpit-stat-label">Ateliers proposés</span><span class="cockpit-stat-value">${d.ateliers_en_vote}</span></div>
-    `;
-  }
+
+  // Stats
+  const actifs = state.membres.filter(m => m.Statut === 'Actif' || !m.Statut).length;
+  const reunionsAvenir = state.reunions.filter(r => r.Statut === 'À venir').length;
+  const ateliersVote = state.ateliers.filter(a => a.Statut === 'En vote').length;
+  document.getElementById('cw-stat-membres').textContent = actifs;
+  document.getElementById('cw-stat-reunions').textContent = reunionsAvenir;
+  document.getElementById('cw-stat-ateliers').textContent = ateliersVote;
 }
 function closeCockpit() {
   document.getElementById('cockpit').classList.remove('active');
@@ -1733,7 +3127,15 @@ async function toggleAdminMode() {
   const btn = document.getElementById('admin-toggle-btn');
   btn.classList.toggle('active-admin', adminMode);
   btn.textContent = adminMode ? '🔒 Admin : ' + state.adminName : '🔓 Mode admin';
-  renderCalendrier();
+  // Afficher/cacher le bouton Nouvelle réunion
+  const addBtn = document.getElementById('cal-add-reunion-btn');
+  if (addBtn) addBtn.style.display = adminMode ? 'inline-flex' : 'none';
+  // Afficher/cacher l'onglet Liens
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = adminMode ? '' : 'none';
+  });
+  // Re-render TOUT pour faire apparaître les boutons admin partout
+  renderAll();
   toast(adminMode ? `Mode admin activé (${state.adminName})` : 'Mode admin désactivé', adminMode ? 'success' : '');
 }
 
@@ -1991,6 +3393,932 @@ document.addEventListener('keydown', e => {
   }
 });
 
+
+
+
+
+
+// ============================================================
+// THÉMATIQUES — HELPER
+// ============================================================
+function getThematique(idOrNom) {
+  if (!idOrNom) return null;
+  return state.thematiques.find(t => t.ID === idOrNom || t.Nom === idOrNom);
+}
+
+function getThematiqueColor(idOrNom) {
+  const t = getThematique(idOrNom);
+  return t ? (t.Couleur || '#2c4374') : '#94a3b8';
+}
+
+function getThematiqueIcon(idOrNom) {
+  const t = getThematique(idOrNom);
+  return t ? (t.Icone || '🏷️') : '';
+}
+
+// ============================================================
+// PHOTOS MEMBRES (GitHub /photos/M001.jpg avec fallback initiales)
+// ============================================================
+function getMembrePhotoUrl(membreId) {
+  if (!membreId) return null;
+  // Essaie .jpg en premier (le plus courant)
+  return `photos/${membreId}.jpg`;
+}
+
+// Helper qui retourne soit <img> soit <div initiales> selon dispo de la photo
+function getAvatarHtml(membre, size = 'normal') {
+  const id = membre.ID;
+  const initials = getInitials(membre.Nom);
+  const url = getMembrePhotoUrl(id);
+  // Image avec fallback automatique sur initiales si load échoue
+  const sizes = {
+    small:  { class: 'avatar-small',  style: 'width:48px;height:48px;font-size:18px;' },
+    normal: { class: 'avatar-normal', style: 'width:56px;height:56px;font-size:20px;' },
+    large:  { class: 'avatar-large',  style: 'width:140px;height:140px;font-size:52px;' }
+  };
+  const s = sizes[size] || sizes.normal;
+  // On essaie d'abord la photo. Si erreur de chargement, on bascule sur les initiales.
+  return `
+    <div class="avatar-wrap ${s.class}" style="${s.style}position:relative;">
+      <img src="${url}" alt="${membre.Nom || ''}" class="avatar-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+           style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">
+      <div class="avatar-fallback" style="display:none;width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--hop-bleu),var(--hop-marine));color:white;align-items:center;justify-content:center;font-weight:700;font-family:'Montserrat',sans-serif;position:absolute;inset:0;">${initials}</div>
+    </div>`;
+}
+
+// ============================================================
+// TOUR DE PRÉSENTATION (remplace le Gamma figé)
+// ============================================================
+const tour = {
+  duration: 60,        // secondes par membre
+  mode: 'auto',        // 'auto' ou 'manual'
+  order: 'random',     // 'random' ou 'alpha'
+  membres: [],         // liste ordonnée pour le tour
+  currentIdx: 0,
+  remaining: 60,
+  paused: false,
+  timerId: null
+};
+
+function openTour() {
+  // Préparer la liste de membres actifs
+  const actifs = state.membres.filter(m => m.Statut === 'Actif' || !m.Statut);
+  if (actifs.length === 0) {
+    toast('Aucun membre actif', 'error');
+    return;
+  }
+  document.getElementById('tour-mode').classList.add('active');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('tour-setup').style.display = 'flex';
+  document.getElementById('tour-running').style.display = 'none';
+
+  // Mettre à jour les infos du setup
+  document.getElementById('tour-membre-count').textContent = `${actifs.length} membres`;
+  updateTimeEstimate();
+
+  // Charger le logo HOP! dans le footer (depuis le header de l'app)
+  const headerLogo = document.querySelector('.header-logo');
+  const footerLogo = document.getElementById('tour-footer-logo');
+  if (headerLogo && footerLogo) {
+    footerLogo.src = headerLogo.src;
+  }
+}
+
+function closeTour() {
+  if (tour.timerId) clearInterval(tour.timerId);
+  tour.timerId = null;
+  document.getElementById('tour-mode').classList.remove('active');
+  document.getElementById('app').style.display = 'block';
+}
+
+function setTourDuration(sec) {
+  tour.duration = sec;
+  document.querySelectorAll('[data-duration]').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.duration) === sec);
+  });
+  updateTimeEstimate();
+}
+
+function setTourMode(mode) {
+  tour.mode = mode;
+  document.querySelectorAll('[data-mode]').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+}
+
+function setTourOrder(order) {
+  tour.order = order;
+  document.querySelectorAll('[data-order]').forEach(b => {
+    b.classList.toggle('active', b.dataset.order === order);
+  });
+}
+
+function updateTimeEstimate() {
+  const actifs = state.membres.filter(m => m.Statut === 'Actif' || !m.Statut);
+  const totalSec = actifs.length * tour.duration;
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  document.getElementById('tour-time-estimate').textContent =
+    `~${min}${sec ? ' min ' + sec + ' sec' : ' min'} total`;
+}
+
+function startTour() {
+  // Préparer la liste de membres
+  const actifs = state.membres.filter(m => m.Statut === 'Actif' || !m.Statut);
+  if (tour.order === 'random') {
+    tour.membres = [...actifs].sort(() => Math.random() - 0.5);
+  } else {
+    tour.membres = [...actifs].sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
+  }
+  tour.currentIdx = 0;
+  tour.paused = false;
+
+  // Switcher d'écran
+  document.getElementById('tour-setup').style.display = 'none';
+  document.getElementById('tour-running').style.display = 'flex';
+
+  showCurrentMember();
+}
+
+function showCurrentMember() {
+  const m = tour.membres[tour.currentIdx];
+  if (!m) return;
+
+  // Avatar : photo si dispo, sinon initiales
+  const avatarEl = document.getElementById('tour-avatar');
+  const photoUrl = getMembrePhotoUrl(m.ID);
+  const initials = getInitials(m.Nom);
+  avatarEl.innerHTML = `
+    <img src="${photoUrl}" alt="${m.Nom}" 
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+         style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">
+    <div style="display:none;width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--hop-bleu),#0d7fb8);color:white;align-items:center;justify-content:center;font-weight:700;font-family:'Montserrat',sans-serif;font-size:52px;position:absolute;inset:0;">${initials}</div>`;
+  avatarEl.style.padding = '0';
+  avatarEl.style.overflow = 'hidden';
+  avatarEl.style.position = 'relative';
+  document.getElementById('tour-nom').textContent = m.Nom || '—';
+  document.getElementById('tour-activite').textContent = m['Activité'] || '';
+
+  // Contacts (uniquement les non-vides)
+  const contactsEl = document.getElementById('tour-contacts');
+  const lines = [];
+  if (m.Email) lines.push(`<div class="tour-contact-line">✉ <a href="mailto:${m.Email}">${m.Email}</a></div>`);
+  if (m['Téléphone']) {
+    const tel = String(m['Téléphone']);
+    lines.push(`<div class="tour-contact-line">📞 <a href="tel:${tel.replace(/\s/g, '')}">${tel}</a></div>`);
+  }
+  if (m.Site_web) {
+    const siteDisplay = m.Site_web.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+    lines.push(`<div class="tour-contact-line">🌐 <a href="${m.Site_web}" target="_blank" rel="noopener">${siteDisplay}</a></div>`);
+  }
+  contactsEl.innerHTML = lines.join('');
+
+  // Description (pitch métier)
+  const descEl = document.getElementById('tour-description');
+  if (descEl) {
+    descEl.textContent = m.Description || '';
+  }
+
+  // Missions (séparées par |)
+  const missEl = document.getElementById('tour-missions');
+  if (missEl) {
+    const missionsRaw = m.Missions || '';
+    if (missionsRaw) {
+      const missions = missionsRaw.split('|').map(x => x.trim()).filter(Boolean);
+      missEl.innerHTML = missions.map(mi => `<span class="tour-mission-pill">${mi}</span>`).join('');
+    } else {
+      missEl.innerHTML = '';
+    }
+  }
+
+  // Compteur
+  document.getElementById('tour-counter').textContent = `${tour.currentIdx + 1} / ${tour.membres.length}`;
+
+  // Forcer animation : reset DOM
+  const card = document.getElementById('tour-card');
+  card.style.animation = 'none';
+  void card.offsetWidth; // trigger reflow
+  card.style.animation = 'cardSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+
+  // Reset timer
+  tour.remaining = tour.duration;
+  updateTimerDisplay();
+  startTimer();
+}
+
+function startTimer() {
+  if (tour.timerId) clearInterval(tour.timerId);
+  if (tour.paused) return;
+  tour.timerId = setInterval(() => {
+    if (tour.paused) return;
+    tour.remaining--;
+    updateTimerDisplay();
+    if (tour.remaining <= 0) {
+      clearInterval(tour.timerId);
+      tour.timerId = null;
+      if (tour.mode === 'auto') {
+        if (tour.currentIdx < tour.membres.length - 1) {
+          tourNext();
+        } else {
+          tourEnd();
+        }
+      } else {
+        // Mode manuel : on reste sur le membre, timer à 0
+        document.getElementById('tour-timer').textContent = '0:00';
+      }
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const min = Math.floor(tour.remaining / 60);
+  const sec = tour.remaining % 60;
+  const display = `${min}:${sec.toString().padStart(2, '0')}`;
+  const timerEl = document.getElementById('tour-timer');
+  const barEl = document.getElementById('tour-progress-bar');
+  timerEl.textContent = display;
+
+  // Couleurs selon temps restant
+  timerEl.classList.remove('warning', 'danger');
+  if (barEl) barEl.classList.remove('warning', 'danger');
+  if (tour.remaining <= 10 && tour.remaining > 5) {
+    timerEl.classList.add('warning');
+    if (barEl) barEl.classList.add('warning');
+  } else if (tour.remaining <= 5) {
+    timerEl.classList.add('danger');
+    if (barEl) barEl.classList.add('danger');
+  }
+
+  // Barre de progression
+  if (barEl) {
+    const pct = (tour.remaining / tour.duration) * 100;
+    barEl.style.width = pct + '%';
+  }
+}
+
+function tourPause() {
+  tour.paused = !tour.paused;
+  const btn = document.getElementById('tour-pause');
+  btn.textContent = tour.paused ? '▶' : '⏸';
+  btn.title = tour.paused ? 'Reprendre' : 'Pause';
+  if (!tour.paused) startTimer();
+}
+
+function tourNext() {
+  if (tour.currentIdx < tour.membres.length - 1) {
+    tour.currentIdx++;
+    showCurrentMember();
+  } else {
+    tourEnd();
+  }
+}
+
+function tourPrev() {
+  if (tour.currentIdx > 0) {
+    tour.currentIdx--;
+    showCurrentMember();
+  }
+}
+
+function tourShuffle() {
+  if (!confirm('Mélanger l\'ordre des membres restants ?')) return;
+  // Garde l'ordre des membres déjà passés, mélange les suivants
+  const passed = tour.membres.slice(0, tour.currentIdx + 1);
+  const remaining = tour.membres.slice(tour.currentIdx + 1);
+  remaining.sort(() => Math.random() - 0.5);
+  tour.membres = [...passed, ...remaining];
+  toast('Ordre mélangé pour les membres restants', 'success');
+}
+
+function tourEnd() {
+  if (tour.timerId) clearInterval(tour.timerId);
+  tour.timerId = null;
+  toast('🎉 Tour de présentation terminé !', 'success');
+  setTimeout(closeTour, 2000);
+}
+
+
+// ============================================================
+// MINI-CALENDRIER + FILTRES
+// ============================================================
+const calState = {
+  currentMonth: null,    // Date du 1er du mois affiché
+  filter: 'all'          // all | venir | atelier | classique
+};
+
+function initCalState() {
+  if (!calState.currentMonth) {
+    const now = new Date();
+    calState.currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+}
+
+function renderMiniCal() {
+  initCalState();
+  const container = document.getElementById('mini-cal');
+  if (!container) return;
+
+  const d = new Date(calState.currentMonth);
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const monthNames = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const dowShort = ['L','M','M','J','V','S','D'];
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  // getDay : 0 = dimanche → on convertit pour lundi = 0
+  let startOffset = firstDay.getDay() - 1;
+  if (startOffset < 0) startOffset = 6;
+
+  // Construire un set des dates avec événement
+  const eventDates = {};
+  state.reunions.forEach(r => {
+    if (!r.Date) return;
+    const dt = new Date(r.Date);
+    if (dt.getFullYear() === year && dt.getMonth() === month) {
+      const day = dt.getDate();
+      eventDates[day] = r;
+    }
+  });
+
+  const today = new Date();
+  let html = `
+    <div class="mini-cal-header">
+      <button class="mini-cal-nav" onclick="miniCalPrev()" title="Mois précédent">‹</button>
+      <span class="mini-cal-month">${monthNames[month]} ${year}</span>
+      <button class="mini-cal-nav" onclick="miniCalNext()" title="Mois suivant">›</button>
+    </div>
+    <div class="mini-cal-grid">
+      ${dowShort.map(d => `<div class="mini-cal-dow">${d}</div>`).join('')}
+  `;
+
+  // Cellules vides avant le 1er
+  for (let i = 0; i < startOffset; i++) html += '<div class="mini-cal-day empty"></div>';
+
+  // Jours du mois
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    let cls = 'mini-cal-day';
+    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+    if (isToday) cls += ' today';
+    const evt = eventDates[day];
+    if (evt) {
+      cls += ' has-event';
+      if (evt.Type === 'Atelier') cls += ' has-event-atelier';
+    }
+    const onclick = evt ? `onclick="scrollToReunion('${evt.ID}')"` : '';
+    html += `<div class="${cls}" ${onclick} title="${evt ? formatDate(evt.Date) : ''}">${day}</div>`;
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function miniCalPrev() {
+  initCalState();
+  calState.currentMonth = new Date(calState.currentMonth.getFullYear(), calState.currentMonth.getMonth() - 1, 1);
+  renderMiniCal();
+}
+function miniCalNext() {
+  initCalState();
+  calState.currentMonth = new Date(calState.currentMonth.getFullYear(), calState.currentMonth.getMonth() + 1, 1);
+  renderMiniCal();
+}
+
+function setCalFilter(f) {
+  calState.filter = f;
+  document.querySelectorAll('.cal-filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderCalendrier();
+}
+
+function scrollToReunion(reunionId) {
+  // Mettre en surbrillance temporaire la card
+  const card = document.querySelector(`[data-reunion-id="${reunionId}"]`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.transition = 'box-shadow 0.3s';
+    card.style.boxShadow = '0 0 0 3px var(--hop-bleu)';
+    setTimeout(() => { card.style.boxShadow = ''; }, 1800);
+  }
+}
+
+// ============================================================
+// COCKPIT MOBILE (télécommande tactile)
+// ============================================================
+function openCockpitMobile() {
+  document.getElementById('cockpit-mobile').classList.add('active');
+  document.getElementById('app').style.display = 'none';
+  renderCockpitMobile();
+}
+
+function closeCockpitMobile() {
+  document.getElementById('cockpit-mobile').classList.remove('active');
+  document.getElementById('app').style.display = 'block';
+  closeIframeModal();
+}
+
+function renderCockpitMobile() {
+  const prochaine = state.reunions.find(r => r.Statut === 'À venir');
+
+  // Logo
+  const logoImg = document.querySelector('.header-logo');
+  if (logoImg) document.getElementById('cm-logo').src = logoImg.src;
+
+  // Date / Réunion
+  if (prochaine) {
+    document.getElementById('cm-date').textContent = formatDate(prochaine.Date);
+    const lieuR = (prochaine['Lieu_réunion'] || prochaine.Lieu || '').trim();
+    const lieuRepas = (prochaine['Lieu_repas'] || '').trim();
+    document.getElementById('cm-reunion-info').innerHTML = `
+      <div class="cm-reunion-date">${formatDate(prochaine.Date)}</div>
+      <div class="cm-reunion-meta">
+        ${lieuR
+        ? `📍 ${lieuR}`
+        : (adminMode
+            ? `<span class="cm-tap-edit" onclick="closeCockpitMobile(); switchView('calendrier'); setTimeout(() => openEditReunion('${prochaine.ID}'), 200);">⚠️ Lieu réunion à confirmer ✏️</span>`
+            : '⚠️ Lieu réunion à confirmer')}<br>
+        ${lieuRepas
+        ? `🍽️ ${lieuRepas}`
+        : (adminMode
+            ? `<span class="cm-tap-edit" onclick="closeCockpitMobile(); switchView('calendrier'); setTimeout(() => openEditReunion('${prochaine.ID}'), 200);">⚠️ Lieu repas à confirmer ✏️</span>`
+            : '⚠️ Lieu repas à confirmer')}
+      </div>
+    `;
+
+    // Intervenant
+    const presNom = (prochaine['Membre_présentateur'] || '').trim();
+    const membre = presNom ? state.membres.find(m => m.Nom === presNom) : null;
+    const presEditable = !presNom && adminMode;
+    document.getElementById('cm-intervenant').innerHTML = `
+      <div class="cm-intervenant-name${presEditable ? ' cm-tap-edit' : ''}" ${presEditable ? `onclick="closeCockpitMobile(); switchView('calendrier'); setTimeout(() => openEditReunion('${prochaine.ID}'), 200);"` : ''}>${presNom || 'À désigner'}${presEditable ? ' ✏️' : ''}</div>
+      <div class="cm-intervenant-activite">${membre ? (membre['Activité'] || '') : '—'}</div>
+    `;
+  } else {
+    document.getElementById('cm-date').textContent = 'Aucune réunion';
+  }
+
+  // Boutons de lancement (liens fixes + lien spécifique de la réunion)
+  const buttonsHtml = [];
+  // 1. BOUTON TOUR DE PRÉSENTATION (toujours en premier, remplace l'ancien Gamma figé)
+  buttonsHtml.push(`
+    <button class="cm-btn cm-btn-tour" onclick="closeCockpitMobile(); openTour();">
+      <span class="cm-btn-icon">🎤</span>
+      <span class="cm-btn-label">Lancer le tour de présentation</span>
+      <span class="cm-btn-arrow">→</span>
+    </button>
+  `);
+  // 2. Lien spécifique de la réunion (mis en avant)
+  if (prochaine && prochaine['Lien_specifique']) {
+    buttonsHtml.push(`
+      <button class="cm-btn cm-btn-specific" onclick="launchLink('${escapeJs(prochaine['Lien_specifique'])}', 'nouvel_onglet', 'Lien de la réunion')">
+        <span class="cm-btn-icon">⭐</span>
+        <span class="cm-btn-label">Lien de cette réunion</span>
+        <span class="cm-btn-arrow">→</span>
+      </button>
+    `);
+  }
+  // 3. Liens fixes globaux
+  if (state.liens && state.liens.length > 0) {
+    state.liens.forEach(l => {
+      const isActive = l.Actif === true || l.Actif === 'TRUE' || l.Actif === 'true';
+      if (!isActive) return;
+      buttonsHtml.push(`
+        <button class="cm-btn" onclick="launchLink('${escapeJs(l.URL)}', '${l.Type_ouverture || 'nouvel_onglet'}', '${escapeJs(l.Label || '')}')">
+          <span class="cm-btn-icon">${l.Icone || '🔗'}</span>
+          <span class="cm-btn-label">${l.Label || 'Sans titre'}</span>
+          <span class="cm-btn-arrow">→</span>
+        </button>
+      `);
+    });
+  }
+  if (buttonsHtml.length === 0) {
+    buttonsHtml.push('<div class="cm-loading">Aucun lien configuré.<br><small>Active le mode admin et va dans 🔗 Liens.</small></div>');
+  }
+  document.getElementById('cm-buttons').innerHTML = buttonsHtml.join('');
+
+  // Stats
+  if (prochaine) {
+    const stats = getStatsForReunion(prochaine.ID);
+    document.getElementById('cm-stats').innerHTML = `
+      <div class="cm-stat"><span class="cm-stat-num" style="color:#86efac;">${stats.yes}</span><span class="cm-stat-lbl">Présents</span></div>
+      <div class="cm-stat"><span class="cm-stat-num" style="color:#fca5a5;">${stats.no}</span><span class="cm-stat-lbl">Absents</span></div>
+      <div class="cm-stat"><span class="cm-stat-num">${state.membres.length}</span><span class="cm-stat-lbl">Membres</span></div>
+    `;
+  }
+
+  // Actions admin
+  document.getElementById('cm-admin-actions').style.display = adminMode ? 'block' : 'none';
+}
+
+function escapeJs(s) {
+  return String(s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function launchLink(url, type, title) {
+  if (!url) { toast('URL manquante', 'error'); return; }
+  if (type === 'iframe') {
+    document.getElementById('cm-iframe-title').textContent = title || 'Lien';
+    document.getElementById('cm-iframe').src = url;
+    document.getElementById('cm-iframe-modal').classList.add('active');
+  } else {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+}
+
+function closeIframeModal() {
+  const modal = document.getElementById('cm-iframe-modal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.getElementById('cm-iframe').src = '';
+  }
+}
+
+
+// ============================================================
+// THÉMATIQUES — RENDER ADMIN + CRUD
+// ============================================================
+function renderThematiques() {
+  const container = document.getElementById('thematiques-list');
+  if (!container) return;
+  if (!state.thematiques || state.thematiques.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🎨</div>Aucune thématique configurée.<br>Clique sur "Nouvelle thématique" pour commencer.</div>';
+    return;
+  }
+  const sorted = [...state.thematiques].sort((a, b) => (Number(a.Ordre) || 99) - (Number(b.Ordre) || 99));
+  container.innerHTML = sorted.map(t => {
+    const isActive = t.Actif === true || t.Actif === 'TRUE' || t.Actif === 'true';
+    return `
+      <div class="thema-admin-card" style="--thema-color:${t.Couleur || '#2c4374'};${isActive ? '' : 'opacity:0.5;'}">
+        <div class="thema-admin-icon" style="background:${t.Couleur || 'var(--hop-creme)'};color:white;">${t.Icone || '🏷️'}</div>
+        <div class="thema-admin-info">
+          <h4>${t.Nom || 'Sans nom'}</h4>
+          <div class="thema-admin-meta">
+            <span class="thema-color-swatch" style="background:${t.Couleur || '#ccc'};"></span>
+            <span>${t.Couleur || ''}</span>
+            <span>·</span>
+            <span>Ordre: ${t.Ordre || '?'}</span>
+            <span>·</span>
+            <span style="color:${isActive ? 'var(--hop-success)' : 'var(--hop-warn)'};">${isActive ? '✓ Active' : '✗ Désactivée'}</span>
+          </div>
+        </div>
+        <div class="thema-admin-actions">
+          <button class="btn btn-secondary" onclick="openEditThematique('${t.ID}')">✏️ Éditer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openCreateThematique() {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  document.getElementById('thema-modal-title').textContent = 'Nouvelle thématique';
+  document.getElementById('thema-edit-id').value = '';
+  document.getElementById('thema-icone').value = '🏷️';
+  document.getElementById('thema-ordre').value = (state.thematiques.length + 1).toString();
+  document.getElementById('thema-nom').value = '';
+  document.getElementById('thema-couleur').value = '#2c4374';
+  document.getElementById('thema-couleur-picker').value = '#2c4374';
+  document.getElementById('thema-actif').value = 'true';
+  document.getElementById('thema-delete-btn').style.display = 'none';
+  document.getElementById('thema-modal').style.display = 'flex';
+}
+
+function openEditThematique(id) {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  const t = state.thematiques.find(x => x.ID === id);
+  if (!t) return;
+  document.getElementById('thema-modal-title').textContent = 'Éditer la thématique';
+  document.getElementById('thema-edit-id').value = t.ID;
+  document.getElementById('thema-icone').value = t.Icone || '🏷️';
+  document.getElementById('thema-ordre').value = t.Ordre || 1;
+  document.getElementById('thema-nom').value = t.Nom || '';
+  const couleur = t.Couleur || '#2c4374';
+  document.getElementById('thema-couleur').value = couleur;
+  document.getElementById('thema-couleur-picker').value = couleur;
+  document.getElementById('thema-actif').value = (t.Actif === true || t.Actif === 'TRUE' || t.Actif === 'true') ? 'true' : 'false';
+  document.getElementById('thema-delete-btn').style.display = 'inline-flex';
+  document.getElementById('thema-modal').style.display = 'flex';
+}
+
+function closeThemaModal() {
+  document.getElementById('thema-modal').style.display = 'none';
+}
+
+async function saveThematique() {
+  const id = document.getElementById('thema-edit-id').value;
+  const params = {
+    admin_code: state.adminCode,
+    nom: document.getElementById('thema-nom').value.trim(),
+    icone: document.getElementById('thema-icone').value.trim() || '🏷️',
+    couleur: document.getElementById('thema-couleur').value.trim() || '#2c4374',
+    ordre: document.getElementById('thema-ordre').value || '99',
+    actif: document.getElementById('thema-actif').value
+  };
+  if (!params.nom) { toast('Nom obligatoire', 'error'); return; }
+
+  closeThemaModal();
+  toast('Enregistrement…', 'success');
+  if (id) {
+    params.thematique = id;
+    await postAPI('update_thematique', params);
+  } else {
+    await postAPI('add_thematique', params);
+  }
+  setTimeout(loadAll, 1500);
+}
+
+async function deleteThemaConfirm() {
+  const id = document.getElementById('thema-edit-id').value;
+  if (!id) return;
+  if (!confirm('Supprimer cette thématique ?')) return;
+  closeThemaModal();
+  toast('Suppression…', 'success');
+  await postAPI('delete_thematique', { thematique: id, admin_code: state.adminCode });
+  setTimeout(loadAll, 1500);
+}
+
+// ============================================================
+// GESTION LIENS (admin)
+// ============================================================
+function renderLiens() {
+  const container = document.getElementById('liens-list');
+  if (!container) return;
+  if (!state.liens || state.liens.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🔗</div>Aucun lien configuré.<br>Clique sur "Nouveau lien" pour commencer.</div>';
+    return;
+  }
+  const sorted = [...state.liens].sort((a, b) => (Number(a.Ordre) || 99) - (Number(b.Ordre) || 99));
+  container.innerHTML = sorted.map(l => {
+    const isActive = l.Actif === true || l.Actif === 'TRUE' || l.Actif === 'true';
+    return `
+      <div class="lien-card ${isActive ? '' : 'disabled'}">
+        <div class="lien-icon">${l.Icone || '🔗'}</div>
+        <div class="lien-info">
+          <h4>${l.Label || 'Sans titre'}</h4>
+          <div class="lien-url">${l.URL || ''}</div>
+          <div class="lien-meta">
+            <span class="badge badge-${l.Type_ouverture === 'iframe' ? 'bleu' : 'marine'}">
+              ${l.Type_ouverture === 'iframe' ? '📺 Iframe' : '🔗 Nouvel onglet'}
+            </span>
+            <span class="badge ${isActive ? 'badge-success' : 'badge-warn'}">
+              ${isActive ? '✓ Actif' : '✗ Désactivé'}
+            </span>
+            <span style="color:var(--hop-texte-mute);">Ordre: ${l.Ordre || '?'}</span>
+          </div>
+        </div>
+        <div class="lien-actions">
+          <button class="btn btn-secondary" onclick="openEditLien('${l.ID}')">✏️ Éditer</button>
+          <button class="btn btn-secondary" onclick="testLien('${escapeJs(l.URL)}', '${l.Type_ouverture}', '${escapeJs(l.Label)}')">▶ Tester</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function testLien(url, type, label) {
+  launchLink(url, type, label);
+}
+
+function openCreateLien() {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  document.getElementById('lien-modal-title').textContent = 'Nouveau lien';
+  document.getElementById('lien-edit-id').value = '';
+  document.getElementById('lien-icone').value = '🔗';
+  document.getElementById('lien-ordre').value = (state.liens.length + 1).toString();
+  document.getElementById('lien-label').value = '';
+  document.getElementById('lien-url').value = '';
+  document.getElementById('lien-type').value = 'nouvel_onglet';
+  document.getElementById('lien-actif').value = 'true';
+  document.getElementById('lien-delete-btn').style.display = 'none';
+  document.getElementById('lien-modal').style.display = 'flex';
+}
+
+function openEditLien(id) {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  const l = state.liens.find(x => x.ID === id);
+  if (!l) return;
+  document.getElementById('lien-modal-title').textContent = 'Éditer le lien';
+  document.getElementById('lien-edit-id').value = l.ID;
+  document.getElementById('lien-icone').value = l.Icone || '🔗';
+  document.getElementById('lien-ordre').value = l.Ordre || 1;
+  document.getElementById('lien-label').value = l.Label || '';
+  document.getElementById('lien-url').value = l.URL || '';
+  document.getElementById('lien-type').value = l.Type_ouverture || 'nouvel_onglet';
+  document.getElementById('lien-actif').value = (l.Actif === true || l.Actif === 'TRUE' || l.Actif === 'true') ? 'true' : 'false';
+  document.getElementById('lien-delete-btn').style.display = 'inline-flex';
+  document.getElementById('lien-modal').style.display = 'flex';
+}
+
+function closeLienModal() {
+  document.getElementById('lien-modal').style.display = 'none';
+}
+
+async function saveLien() {
+  const id = document.getElementById('lien-edit-id').value;
+  const params = {
+    admin_code: state.adminCode,
+    label: document.getElementById('lien-label').value.trim(),
+    url: document.getElementById('lien-url').value.trim(),
+    type_ouverture: document.getElementById('lien-type').value,
+    icone: document.getElementById('lien-icone').value.trim() || '🔗',
+    ordre: document.getElementById('lien-ordre').value || '99',
+    actif: document.getElementById('lien-actif').value
+  };
+  if (!params.label || !params.url) { toast('Label et URL obligatoires', 'error'); return; }
+
+  closeLienModal();
+  toast('Enregistrement…', 'success');
+  if (id) {
+    params.lien = id;
+    await postAPI('update_lien', params);
+  } else {
+    await postAPI('add_lien', params);
+  }
+  setTimeout(loadAll, 1500);
+}
+
+async function deleteLienConfirm() {
+  const id = document.getElementById('lien-edit-id').value;
+  if (!id) return;
+  if (!confirm('Supprimer ce lien ?')) return;
+  closeLienModal();
+  toast('Suppression…', 'success');
+  await postAPI('delete_lien', { lien: id, admin_code: state.adminCode });
+  setTimeout(loadAll, 1500);
+}
+
+// ============================================================
+// CRÉATION DE RÉUNION (admin)
+// ============================================================
+function openCreateReunion() {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  document.getElementById('create-date').value = '';
+  // Lieux par défaut HOP! Blanquefort
+  document.getElementById('create-lieu-reunion').value = 'Agence Mutuelle de Poitiers, 102 Av du 11 Novembre, 33290 Blanquefort';
+  document.getElementById('create-lieu-repas').value = 'Côté Jardin, 105 Av du 11 Novembre, 33290 Blanquefort';
+  document.getElementById('create-notes').value = '';
+  document.getElementById('create-type').value = 'Classique';
+
+  // Remplir intervenant
+  const presSel = document.getElementById('create-presentateur');
+  presSel.innerHTML = '<option value="">— À désigner —</option>' +
+    state.membres.map(m => `<option value="${m.Nom}">${m.Nom} (${m['Activité'] || ''})</option>`).join('');
+
+  // Remplir atelier
+  const ateSel = document.getElementById('create-atelier');
+  ateSel.innerHTML = '<option value="">— Aucun —</option>' +
+    state.ateliers.map(a => `<option value="${a.ID}">${a.ID} : ${a['Thématique']}</option>`).join('');
+
+  document.getElementById('create-modal').style.display = 'flex';
+}
+
+function closeCreateReunion() {
+  document.getElementById('create-modal').style.display = 'none';
+}
+
+async function saveCreateReunion() {
+  const date = document.getElementById('create-date').value;
+  if (!date) { toast('Date obligatoire', 'error'); return; }
+
+  const params = {
+    date: date,
+    type: document.getElementById('create-type').value,
+    lieu_reunion: document.getElementById('create-lieu-reunion').value.trim(),
+    lieu_repas: document.getElementById('create-lieu-repas').value.trim(),
+    presentateur: document.getElementById('create-presentateur').value,
+    atelier: document.getElementById('create-atelier').value,
+    notes: document.getElementById('create-notes').value.trim()
+  };
+
+  closeCreateReunion();
+  toast('Création en cours…', 'success');
+  await postAPI('add_reunion', params);
+  setTimeout(loadAll, 1500);
+}
+
+// ============================================================
+// ÉDITION MEMBRE (admin)
+// ============================================================
+function openEditMembre(membreId) {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  const m = state.membres.find(x => x.ID === membreId);
+  if (!m) { toast('Membre introuvable', 'error'); return; }
+
+  document.getElementById('edit-membre-id').value = m.ID;
+  document.getElementById('edit-membre-nom').value = m.Nom || '';
+  document.getElementById('edit-membre-activite').value = m['Activité'] || '';
+  document.getElementById('edit-membre-email').value = m.Email || '';
+  document.getElementById('edit-membre-tel').value = String(m['Téléphone'] || '');
+  document.getElementById('edit-membre-adresse').value = m.Adresse || '';
+  document.getElementById('edit-membre-site').value = m.Site_web || '';
+  document.getElementById('edit-membre-statut').value = m.Statut || 'Actif';
+  document.getElementById('edit-membre-description').value = m.Description || '';
+  document.getElementById('edit-membre-missions').value = m.Missions || '';
+
+  document.getElementById('edit-membre-modal').style.display = 'flex';
+}
+
+function closeEditMembre() {
+  document.getElementById('edit-membre-modal').style.display = 'none';
+}
+
+async function saveEditMembre() {
+  const params = {
+    membre: document.getElementById('edit-membre-id').value,
+    admin_code: state.adminCode,
+    nom: document.getElementById('edit-membre-nom').value.trim(),
+    activite: document.getElementById('edit-membre-activite').value.trim(),
+    email: document.getElementById('edit-membre-email').value.trim(),
+    telephone: document.getElementById('edit-membre-tel').value.trim(),
+    adresse: document.getElementById('edit-membre-adresse').value.trim(),
+    site_web: document.getElementById('edit-membre-site').value.trim(),
+    statut: document.getElementById('edit-membre-statut').value,
+    description: document.getElementById('edit-membre-description').value.trim(),
+    missions: document.getElementById('edit-membre-missions').value.trim()
+  };
+
+  // Optimistic UI
+  const m = state.membres.find(x => x.ID === params.membre);
+  if (m) {
+    m.Nom = params.nom;
+    m['Activité'] = params.activite;
+    m.Email = params.email;
+    m['Téléphone'] = params.telephone;
+    m.Adresse = params.adresse;
+    m.Site_web = params.site_web;
+    m.Statut = params.statut;
+    m.Description = params.description;
+    m.Missions = params.missions;
+  }
+
+  closeEditMembre();
+  renderAll();
+  toast('Membre mis à jour ✓', 'success');
+  await postAPI('update_membre', params);
+  setTimeout(loadAll, 1500);
+}
+
+// ============================================================
+// PLANIFICATION ATELIER (admin)
+// ============================================================
+function openPlanAtelier(atelierId) {
+  if (!adminMode) { toast('Active le mode admin', 'error'); return; }
+  const a = state.ateliers.find(x => x.ID === atelierId);
+  if (!a) return;
+
+  document.getElementById('plan-atelier-id').value = a.ID;
+  document.getElementById('plan-atelier-theme').value = a['Thématique'] || '';
+  document.getElementById('plan-atelier-statut').value = a.Statut || 'En vote';
+  document.getElementById('plan-atelier-date').value = a.Date_prévue ? new Date(a.Date_prévue).toISOString().split('T')[0] : '';
+
+  // Remplir le sélecteur de thématiques
+  const themaSel = document.getElementById('plan-atelier-thematique');
+  if (themaSel) {
+    const actives = state.thematiques.filter(t => t.Actif === true || t.Actif === 'TRUE' || t.Actif === 'true');
+    actives.sort((a, b) => (Number(a.Ordre) || 99) - (Number(b.Ordre) || 99));
+    themaSel.innerHTML = '<option value="">— Aucune thématique —</option>' +
+      actives.map(t => `<option value="${t.ID}">${t.Icone || '🏷️'} ${t.Nom}</option>`).join('');
+    themaSel.value = a.Thematique || '';
+  }
+
+  document.getElementById('plan-atelier-modal').style.display = 'flex';
+}
+
+function closePlanAtelier() {
+  document.getElementById('plan-atelier-modal').style.display = 'none';
+}
+
+async function savePlanAtelier() {
+  const themaSel = document.getElementById('plan-atelier-thematique');
+  const params = {
+    atelier: document.getElementById('plan-atelier-id').value,
+    admin_code: state.adminCode,
+    statut: document.getElementById('plan-atelier-statut').value,
+    date_prevue: document.getElementById('plan-atelier-date').value,
+    thematique: themaSel ? themaSel.value : ''
+  };
+
+  const a = state.ateliers.find(x => x.ID === params.atelier);
+  if (a) {
+    a.Statut = params.statut;
+    a.Date_prévue = params.date_prevue;
+    a.Thematique = params.thematique;
+  }
+
+  closePlanAtelier();
+  renderAll();
+  toast('Atelier mis à jour ✓', 'success');
+  await postAPI('update_atelier', params);
+  setTimeout(loadAll, 1500);
+}
+
+// Fermeture modals au clic overlay / Esc
+['create-modal', 'edit-membre-modal', 'plan-atelier-modal'].forEach(id => {
+  document.addEventListener('click', e => {
+    if (e.target.id === id) document.getElementById(id).style.display = 'none';
+  });
+});
+
 // ============================================================
 // ANNUAIRE
 // ============================================================
@@ -2054,13 +4382,19 @@ function membreCard(m) {
   return `
     <div class="membre-card">
       <div class="membre-header">
-        <div class="membre-avatar">${initials}</div>
+        <div class="membre-avatar" style="overflow:hidden;padding:0;position:relative;">
+        <img src="${getMembrePhotoUrl(m.ID)}" alt="${m.Nom}" 
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+             style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">
+        <div style="display:none;width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--hop-bleu),var(--hop-marine));color:white;align-items:center;justify-content:center;font-weight:700;font-family:'Montserrat',sans-serif;font-size:20px;position:absolute;inset:0;">${initials}</div>
+      </div>
         <div class="membre-identity">
           <div class="membre-nom">${m.Nom || ''}</div>
           <div class="membre-activite">${m['Activité'] || ''}</div>
         </div>
       </div>
       <div class="membre-contact">${contactLines}</div>
+      ${adminMode ? `<div style="margin-top: 8px;"><button class="btn btn-secondary" style="width:100%;justify-content:center;font-size:13px;padding:8px;" onclick="openEditMembre('${m.ID}')">✏️ Éditer</button></div>` : ''}
     </div>`;
 }
 
