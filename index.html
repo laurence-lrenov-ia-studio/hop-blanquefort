@@ -614,6 +614,63 @@
   .config-warn strong { color: #92400e; }
 
 
+
+  /* ============== MODAL ============== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26, 42, 79, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 640px; width: 100%;
+    max-height: 90vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    animation: modalSlideIn 0.25s ease;
+  }
+  @keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+  .modal-header {
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--hop-bord);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--hop-creme);
+  }
+  .modal-header h2 {
+    font-size: 22px; color: var(--hop-marine);
+    font-family: 'Fraunces', serif;
+  }
+  .modal-close {
+    background: transparent; border: none;
+    color: var(--hop-texte-sec); cursor: pointer;
+    width: 36px; height: 36px; border-radius: 8px;
+    font-size: 18px;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: var(--hop-bord); color: var(--hop-marine); }
+  .modal-body {
+    padding: 24px 28px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-body .form-group { margin-bottom: 14px; }
+  .modal-body .form-grid { gap: 14px; }
+  .modal-footer {
+    padding: 18px 28px;
+    border-top: 1px solid var(--hop-bord);
+    display: flex; justify-content: flex-end; gap: 10px;
+    background: var(--hop-creme);
+  }
+
   /* ============== CALENDRIER PRÉSENCE ============== */
   .reunion-cal-card {
     background: white;
@@ -1167,13 +1224,68 @@
   </div>
 </div>
 
+
+<!-- ============== MODAL ÉDITION RÉUNION ============== -->
+<div id="edit-modal" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Éditer la réunion</h2>
+      <button class="modal-close" onclick="closeEditReunion()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-reunion-id">
+      <div class="form-group full">
+        <label>Date</label>
+        <input type="text" id="edit-date-display" class="form-input" readonly style="background: var(--hop-creme); color: var(--hop-texte-sec);">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>📍 Lieu de la réunion</label>
+          <input type="text" id="edit-lieu-reunion" class="form-input" placeholder="Ex : Agence Mutuelle de Poitiers">
+        </div>
+        <div class="form-group">
+          <label>🍽️ Lieu du repas</label>
+          <input type="text" id="edit-lieu-repas" class="form-input" placeholder="Ex : Restaurant Côté Jardin">
+        </div>
+        <div class="form-group">
+          <label>🎤 Intervenant</label>
+          <select id="edit-presentateur" class="form-select">
+            <option value="">— Aucun —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>📝 Type</label>
+          <select id="edit-type" class="form-select">
+            <option value="Classique">Classique</option>
+            <option value="Atelier">Atelier</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>🎯 Atelier associé (si réunion atelier)</label>
+          <select id="edit-atelier" class="form-select">
+            <option value="">— Aucun —</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>📌 Notes internes</label>
+          <textarea id="edit-notes" class="form-textarea" placeholder="Notes pour le bureau, infos pratiques…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditReunion()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveEditReunion()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
 // CONFIG — À PERSONNALISER APRÈS DÉPLOIEMENT APPS SCRIPT
 // ============================================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTTSd6L6N9zYMabcSpm4a_GDmWACNPDPODWoFvDvebxLM4xkOy83cBgeEiB6Jl0zhH/exec'; // 
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTTSd6L6N9zYMabcSpm4a_GDmWACNPDPODWoFvDvebxLM4xkOy83cBgeEiB6Jl0zhH/exec'; // ← Coller ici l'URL Apps Script après déploiement
 const PASSWORD = 'HOPBLANQUEFORT';
 
 // ============================================================
@@ -1185,7 +1297,9 @@ const state = {
   ateliers: [],
   dashboard: null,
   votedAteliers: new Set(JSON.parse(localStorage.getItem('hop_votes') || '[]')),
-  myEmail: localStorage.getItem('hop_email') || ''
+  myEmail: localStorage.getItem('hop_email') || '',
+  adminCode: sessionStorage.getItem('hop_admin_code') || '',
+  adminName: sessionStorage.getItem('hop_admin_name') || ''
 };
 
 // ============================================================
@@ -1210,12 +1324,11 @@ if (sessionStorage.getItem('hop_auth') === '1') {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   window.addEventListener('DOMContentLoaded', () => {
-    // Restaurer état admin
     if (adminMode) {
       const btn = document.getElementById('admin-toggle-btn');
       if (btn) {
         btn.classList.add('active-admin');
-        btn.textContent = '🔒 Mode admin actif';
+        btn.textContent = '🔒 Admin : ' + (state.adminName || 'actif');
       }
     }
     init();
@@ -1259,17 +1372,52 @@ function postAPI(action, params = {}) {
 }
 
 async function loadAll() {
-  const [m, r, a, d] = await Promise.all([
-    fetchAPI('get_membres'),
-    fetchAPI('get_planning'),
-    fetchAPI('get_ateliers'),
-    fetchAPI('get_dashboard')
-  ]);
-  if (m.ok) state.membres = m.data || [];
-  if (r.ok) state.reunions = r.data || [];
-  if (a.ok) state.ateliers = a.data || [];
-  if (d.ok) state.dashboard = d.data;
-  renderAll();
+  // ⭐ V6 : 1 seul appel groupé pour résoudre les blocages de chargement
+  showLoadingState(true);
+  try {
+    // Timeout 12 secondes
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 12000));
+    const result = await Promise.race([fetchAPI('get_all'), timeout]);
+    if (result.ok && result.data) {
+      state.membres = result.data.membres || [];
+      state.reunions = result.data.reunions || [];
+      state.ateliers = result.data.ateliers || [];
+      state.dashboard = result.data.dashboard || null;
+      renderAll();
+      showLoadingState(false);
+    } else {
+      throw new Error(result.error || 'Réponse invalide');
+    }
+  } catch (err) {
+    console.error('loadAll error:', err);
+    showLoadingError(err.message);
+  }
+}
+
+function showLoadingState(loading) {
+  // Met les sections en loading state si besoin
+  if (!loading) return;
+  ['stats-grid', 'top-ateliers', 'planning-list', 'ateliers-list', 'presence-zone', 'annuaire-content', 'calendrier-content']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.innerHTML.includes('Chargement') && !el.innerHTML.includes('membre-card')) {
+        el.innerHTML = '<div class="loading">Chargement…</div>';
+      }
+    });
+}
+
+function showLoadingError(msg) {
+  const errorHTML = `<div class="empty" style="border-color: #fca5a5; background: #fef2f2; color: #991b1b;">
+    <div class="empty-icon">⚠️</div>
+    <strong>Impossible de charger les données</strong><br>
+    <small style="opacity: 0.8;">${msg}. Vérifie ta connexion ou réessaie.</small><br>
+    <button class="btn btn-primary" onclick="loadAll()" style="margin-top: 16px;">↻ Réessayer</button>
+  </div>`;
+  ['stats-grid', 'top-ateliers', 'planning-list', 'ateliers-list', 'annuaire-content', 'calendrier-content']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = errorHTML;
+    });
 }
 
 function loadDemoData() {
@@ -1279,9 +1427,9 @@ function loadDemoData() {
     { ID: 'M003', Nom: 'Meije Principaud', 'Activité': 'Photographe', Email: 'mprincipaud@gmail.com', 'Téléphone': '0631755937', Adresse: '51 bis Place des Martyrs de la Résistance', Site_web: '', Statut: 'Actif' }
   ];
   state.reunions = [
-    { ID: 'R2026-01', Date: '2026-05-13', Type: 'Classique', Lieu: '', Membre_présentateur: 'Laurence Borras', Statut: 'À venir' },
-    { ID: 'R2026-02', Date: '2026-05-27', Type: 'Atelier', Lieu: '', Atelier_associé: 'A001', Membre_présentateur: '', Statut: 'À venir' },
-    { ID: 'R2026-03', Date: '2026-06-10', Type: 'Classique', Lieu: 'Côté Jardin', Membre_présentateur: 'Stéphanie Pascal', Statut: 'À venir' }
+    { ID: 'R2026-01', Date: '2026-05-13', Type: 'Classique', 'Lieu_réunion': '', 'Lieu_repas': '', 'Membre_présentateur': 'Laurence Borras', Statut: 'À venir' },
+    { ID: 'R2026-02', Date: '2026-05-27', Type: 'Atelier', 'Lieu_réunion': 'Agence Mutuelle de Poitiers', 'Lieu_repas': '', 'Atelier_associé': 'A001', 'Membre_présentateur': '', Statut: 'À venir' },
+    { ID: 'R2026-03', Date: '2026-06-10', Type: 'Classique', 'Lieu_réunion': 'Agence Mutuelle de Poitiers', 'Lieu_repas': 'Côté Jardin', 'Membre_présentateur': 'Stéphanie Pascal', Statut: 'À venir' }
   ];
   state.ateliers = [
     { ID: 'A001', Thématique: 'Optimiser ses réseaux sociaux', Description: 'Tactiques concrètes pour LinkedIn et Instagram', Votes: 7, Statut: 'Planifié', Date_prévue: '2026-05-27' },
@@ -1355,7 +1503,12 @@ function renderPlanning() {
           <div class="card-title">${formatDate(r.Date)}</div>
           <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
             <span class="badge badge-${r.Type === 'Atelier' ? 'bleu' : 'marine'}">${r.Type}</span>
-            <span style="font-size: 13px; color: var(--hop-texte-sec);">📍 ${(r.Lieu && r.Lieu.trim()) ? r.Lieu : '⚠️ Lieu à définir'}</span>
+            ${(() => {
+              const lieuR = (r['Lieu_réunion'] || r.Lieu || '').trim();
+              const lieuRepas = (r['Lieu_repas'] || '').trim();
+              return `<span style="font-size: 13px; color: var(--hop-texte-sec);">📍 ${lieuR || '<span style="color:var(--hop-warn);font-weight:600;">Lieu réunion à confirmer</span>'}</span>` +
+                     (lieuRepas ? `<span style="font-size: 13px; color: var(--hop-texte-sec);">🍽️ ${lieuRepas}</span>` : `<span style="font-size: 13px; color: var(--hop-warn); font-weight: 600;">🍽️ Lieu repas à confirmer</span>`);
+            })()}
           </div>
         </div>
       </div>
@@ -1547,24 +1700,42 @@ function setCalendrierView(view) {
   renderCalendrier();
 }
 
-function toggleAdminMode() {
+async function toggleAdminMode() {
   if (!adminMode) {
-    const pwd = prompt('Mot de passe admin :');
-    if (pwd && pwd.toUpperCase().replace(/\s/g, '') === 'HOPADMIN') {
+    const pwd = prompt('Mot de passe admin :\n(Laurence, Stéphanie ou bureau)');
+    if (!pwd) return;
+    // Liste de fallback locale + validation Apps Script
+    const localAdmins = {
+      'HOPADMIN': 'Laurence',
+      'STEPHANIE2026': 'Stéphanie',
+      'BUREAU3': 'Bureau 3',
+      'BUREAU4': 'Bureau 4'
+    };
+    const code = pwd.toUpperCase().replace(/\s/g, '');
+    if (localAdmins[code]) {
       adminMode = true;
+      state.adminCode = code;
+      state.adminName = localAdmins[code];
       sessionStorage.setItem('hop_admin', '1');
-    } else if (pwd !== null) {
+      sessionStorage.setItem('hop_admin_code', code);
+      sessionStorage.setItem('hop_admin_name', localAdmins[code]);
+    } else {
       toast('Mot de passe admin incorrect', 'error');
       return;
-    } else return;
+    }
   } else {
     adminMode = false;
+    state.adminCode = '';
+    state.adminName = '';
     sessionStorage.removeItem('hop_admin');
+    sessionStorage.removeItem('hop_admin_code');
+    sessionStorage.removeItem('hop_admin_name');
   }
-  document.getElementById('admin-toggle-btn').classList.toggle('active-admin', adminMode);
-  document.getElementById('admin-toggle-btn').textContent = adminMode ? '🔒 Mode admin actif' : '🔓 Mode admin';
+  const btn = document.getElementById('admin-toggle-btn');
+  btn.classList.toggle('active-admin', adminMode);
+  btn.textContent = adminMode ? '🔒 Admin : ' + state.adminName : '🔓 Mode admin';
   renderCalendrier();
-  toast(adminMode ? 'Mode admin activé' : 'Mode admin désactivé', adminMode ? 'success' : '');
+  toast(adminMode ? `Mode admin activé (${state.adminName})` : 'Mode admin désactivé', adminMode ? 'success' : '');
 }
 
 function getPresence(reunionId, membreId) {
@@ -1619,7 +1790,10 @@ function renderCalendrierByReunion(container) {
     const month = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
     const stats = getStatsForReunion(r.ID);
     const isExpanded = expandedReunions.has(r.ID);
-    const lieu = (r.Lieu && r.Lieu.trim()) ? r.Lieu : '⚠️ Lieu à définir';
+    const lieuR = (r['Lieu_réunion'] || r.Lieu || '').trim();
+    const lieuRepas = (r['Lieu_repas'] || '').trim();
+    const lieuDisplay = lieuR || '⚠️ Lieu réunion à confirmer';
+    const repasDisplay = lieuRepas ? `🍽️ ${lieuRepas}` : '⚠️ Repas à confirmer';
     const presentateur = (r.Membre_présentateur && r.Membre_présentateur.trim()) ? r.Membre_présentateur : 'Intervenant à désigner';
 
     return `
@@ -1633,8 +1807,10 @@ function renderCalendrierByReunion(container) {
             <h4>${formatDate(r.Date)}</h4>
             <div class="meta">
               <span class="badge badge-${r.Type === 'Atelier' ? 'bleu' : 'marine'}">${r.Type}</span>
-              <span>📍 ${lieu}</span>
+              <span>📍 ${lieuDisplay}</span>
+              <span>${repasDisplay}</span>
               <span>🎤 ${presentateur}</span>
+              ${adminMode ? `<button class="btn-icon" style="padding:4px 10px;font-size:11px;" onclick="event.stopPropagation();openEditReunion('${r.ID}')">✏️ Éditer</button>` : ''}
             </div>
           </div>
           <div class="reunion-cal-stats">
@@ -1733,6 +1909,88 @@ function renderAteliersPlanifies() {
       </div>
     </div>`;
 }
+
+
+// ============================================================
+// MODAL ÉDITION RÉUNION (admin)
+// ============================================================
+function openEditReunion(reunionId) {
+  if (!adminMode) {
+    toast('Active le mode admin pour éditer', 'error');
+    return;
+  }
+  const r = state.reunions.find(x => x.ID === reunionId);
+  if (!r) { toast('Réunion introuvable', 'error'); return; }
+
+  document.getElementById('edit-reunion-id').value = r.ID;
+  document.getElementById('edit-date-display').value = formatDate(r.Date);
+  document.getElementById('edit-lieu-reunion').value = r['Lieu_réunion'] || r.Lieu || '';
+  document.getElementById('edit-lieu-repas').value = r['Lieu_repas'] || '';
+  document.getElementById('edit-type').value = r.Type || 'Classique';
+  document.getElementById('edit-notes').value = r.Notes || '';
+
+  // Remplir le select intervenant avec tous les membres
+  const presSel = document.getElementById('edit-presentateur');
+  presSel.innerHTML = '<option value="">— Aucun —</option>' +
+    state.membres.map(m => `<option value="${m.Nom}" ${r['Membre_présentateur'] === m.Nom ? 'selected' : ''}>${m.Nom} (${m['Activité'] || ''})</option>`).join('');
+
+  // Remplir le select atelier
+  const ateSel = document.getElementById('edit-atelier');
+  ateSel.innerHTML = '<option value="">— Aucun —</option>' +
+    state.ateliers.map(a => `<option value="${a.ID}" ${r['Atelier_associé'] === a.ID ? 'selected' : ''}>${a.ID} : ${a['Thématique']}</option>`).join('');
+
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditReunion() {
+  document.getElementById('edit-modal').style.display = 'none';
+}
+
+async function saveEditReunion() {
+  const id = document.getElementById('edit-reunion-id').value;
+  const params = {
+    reunion: id,
+    admin_code: state.adminCode,
+    lieu_reunion: document.getElementById('edit-lieu-reunion').value.trim(),
+    lieu_repas: document.getElementById('edit-lieu-repas').value.trim(),
+    presentateur: document.getElementById('edit-presentateur').value,
+    atelier: document.getElementById('edit-atelier').value,
+    type: document.getElementById('edit-type').value,
+    notes: document.getElementById('edit-notes').value.trim()
+  };
+
+  // Optimistic UI : mettre à jour state local immédiatement
+  const r = state.reunions.find(x => x.ID === id);
+  if (r) {
+    r['Lieu_réunion'] = params.lieu_reunion;
+    r['Lieu_repas'] = params.lieu_repas;
+    r['Membre_présentateur'] = params.presentateur;
+    r['Atelier_associé'] = params.atelier;
+    r.Type = params.type;
+    r.Notes = params.notes;
+  }
+
+  closeEditReunion();
+  renderAll();
+  toast('Réunion mise à jour ✓', 'success');
+
+  // Envoi au back via fetch (POST simulé en GET avec params)
+  await postAPI('update_reunion', params);
+
+  // Reload après 1.5s pour récupérer les vraies données
+  setTimeout(loadAll, 1500);
+}
+
+// Fermeture modal au clic sur overlay
+document.addEventListener('click', e => {
+  if (e.target.id === 'edit-modal') closeEditReunion();
+});
+// Fermeture modal au Esc
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('edit-modal').style.display === 'flex') {
+    closeEditReunion();
+  }
+});
 
 // ============================================================
 // ANNUAIRE
