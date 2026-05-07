@@ -1285,7 +1285,7 @@
 // ============================================================
 // CONFIG — À PERSONNALISER APRÈS DÉPLOIEMENT APPS SCRIPT
 // ============================================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTTSd6L6N9zYMabcSpm4a_GDmWACNPDPODWoFvDvebxLM4xkOy83cBgeEiB6Jl0zhH/exec'; // ← Coller ici l'URL Apps Script après déploiement
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTTSd6L6N9zYMabcSpm4a_GDmWACNPDPODWoFvDvebxLM4xkOy83cBgeEiB6Jl0zhH/exec';
 const PASSWORD = 'HOPBLANQUEFORT';
 
 // ============================================================
@@ -1706,10 +1706,9 @@ async function toggleAdminMode() {
     if (!pwd) return;
     // Liste de fallback locale + validation Apps Script
     const localAdmins = {
-      'HOPADMIN': 'Laurence',
-      'STEPHANIE2026': 'Stéphanie',
-      'BUREAU3': 'Bureau 3',
-      'BUREAU4': 'Bureau 4'
+      'HOPADMINBLK': 'Laurence',
+      'STEPHBLK': 'Stéphanie',
+      'FLOBLK': 'Florian'
     };
     const code = pwd.toUpperCase().replace(/\s/g, '');
     if (localAdmins[code]) {
