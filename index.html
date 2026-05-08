@@ -2816,6 +2816,7 @@ function renderAll() {
   renderPresence();
   renderLiens();
   renderThematiques();
+  if (typeof fillThematiquesSelects === 'function') fillThematiquesSelects();
   // Si cockpit mobile ouvert, le rafraîchir aussi
   if (document.getElementById('cockpit-mobile')?.classList.contains('active')) {
     renderCockpitMobile();
@@ -2840,11 +2841,6 @@ function renderDashboard() {
       <div class="stat-label">Ateliers en vote</div>
       <div class="stat-value">${d.ateliers_en_vote}</div>
       <div class="stat-suffix">propositions actives</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Réunions réalisées</div>
-      <div class="stat-value">${d.reunions_realisees}</div>
-      <div class="stat-suffix">depuis le début</div>
     </div>
   `;
 
@@ -3059,8 +3055,28 @@ function closeCockpit() {
 function switchView(view) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('view-' + view).classList.add('active');
-  document.querySelector(`.tab[data-view="${view}"]`).classList.add('active');
+  const v = document.getElementById('view-' + view);
+  if (v) v.classList.add('active');
+  const t = document.querySelector(`.tab[data-view="${view}"]`);
+  if (t) t.classList.add('active');
+
+  // Remplir les sélecteurs de thématiques quand on entre sur les vues qui en ont besoin
+  fillThematiquesSelects();
+}
+
+function fillThematiquesSelects() {
+  if (!state.thematiques) return;
+  const actives = state.thematiques
+    .filter(t => t.Actif === true || t.Actif === 'TRUE' || t.Actif === 'true')
+    .sort((a, b) => (Number(a.Ordre) || 99) - (Number(b.Ordre) || 99));
+  const opts = '<option value="">— Choisir une catégorie —</option>' +
+    actives.map(t => `<option value="${t.ID}">${t.Icone || '🏷️'} ${t.Nom}</option>`).join('');
+
+  // Sélecteur "Proposer un atelier"
+  const sel1 = document.getElementById('atelier-thematique-select');
+  if (sel1 && sel1.options.length <= 1) {
+    sel1.innerHTML = opts;
+  }
 }
 
 function formatDate(d) {
@@ -3170,12 +3186,41 @@ function getStatsForReunion(reunionId) {
 }
 
 function renderCalendrier() {
-  const container = document.getElementById('calendrier-content');
+  // 1. Mini-calendrier sidebar
+  if (typeof renderMiniCal === 'function') renderMiniCal();
+
+  // 2. Liste des réunions dans le bon container 'calendrier-list' (V16) ou 'calendrier-content' (legacy)
+  const container = document.getElementById('calendrier-list') || document.getElementById('calendrier-content');
   if (!container) return;
-  if (calendrierView === 'reunion') {
+
+  // Appliquer le filtre actif
+  const filter = (typeof calState !== 'undefined' && calState.filter) ? calState.filter : 'all';
+  const allReunions = state.reunions;
+  let filtered = [...allReunions];
+  if (filter === 'venir') {
+    filtered = filtered.filter(r => r.Statut === 'À venir');
+  } else if (filter === 'atelier') {
+    filtered = filtered.filter(r => r.Type === 'Atelier');
+  } else if (filter === 'classique') {
+    filtered = filtered.filter(r => r.Type === 'Classique' || !r.Type);
+  }
+  // Si 'all' : on prend toutes les réunions à venir + passées récentes
+  if (filter === 'all') {
+    filtered = filtered.filter(r => r.Statut === 'À venir' || r.Statut === 'Passée' || r.Statut === 'Réalisée');
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div>Aucune réunion ne correspond à ce filtre</div>';
+    return;
+  }
+
+  // Tromperie temporaire : on remplace state.reunions par les filtered, on appelle le rendu existant, on remet
+  const _origReunions = state.reunions;
+  state.reunions = filtered.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+  try {
     renderCalendrierByReunion(container);
-  } else {
-    renderCalendrierByMembre(container);
+  } finally {
+    state.reunions = _origReunions;
   }
 }
 
@@ -3565,8 +3610,11 @@ function showCurrentMember() {
   const lines = [];
   if (m.Email) lines.push(`<div class="tour-contact-line">✉ <a href="mailto:${m.Email}">${m.Email}</a></div>`);
   if (m['Téléphone']) {
-    const tel = String(m['Téléphone']);
-    lines.push(`<div class="tour-contact-line">📞 <a href="tel:${tel.replace(/\s/g, '')}">${tel}</a></div>`);
+    const telLink = formatTelLink(m['Téléphone']);
+    const telDisplay = formatTelDisplay(m['Téléphone']);
+    if (telDisplay) {
+      lines.push(`<div class="tour-contact-line">📞 <a href="tel:${telLink}">${telDisplay}</a></div>`);
+    }
   }
   if (m.Site_web) {
     const siteDisplay = m.Site_web.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
@@ -4338,6 +4386,38 @@ function getInitials(nom) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function formatTel(raw) {
+  if (raw === null || raw === undefined || raw === '') return '';
+  let s = String(raw).replace(/[^0-9+]/g, '');
+  // Cas 1 : commence par +33 → on garde tel quel
+  if (s.startsWith('+33')) return s;
+  // Cas 2 : commence par 33 (sans +) → on ajoute le +
+  if (s.startsWith('33') && s.length === 11) return '+' + s;
+  // Cas 3 : 9 chiffres (le 0 a sauté) → on ajoute le 0
+  if (s.length === 9) return '0' + s;
+  // Cas 4 : 10 chiffres → ok
+  if (s.length === 10) return s;
+  // Sinon, on retourne brut
+  return s;
+}
+
+function formatTelDisplay(raw) {
+  const t = formatTel(raw);
+  if (!t) return '';
+  // Format affichage : 06 09 22 57 11
+  if (t.length === 10) {
+    return t.match(/.{1,2}/g).join(' ');
+  }
+  return t;
+}
+
+function formatTelLink(raw) {
+  // Pour href="tel:..." : pas d'espaces
+  return formatTel(raw).replace(/\s/g, '');
+}
+
+
+
 function filterMembres() {
   const q = (document.getElementById('annuaire-search')?.value || '').toLowerCase().trim();
   if (!q) return state.membres;
@@ -4371,7 +4451,7 @@ function membreCard(m) {
 
   let contactLines = '';
   if (email) contactLines += `<a class="contact-line" href="mailto:${email}"><span class="contact-icon">✉</span><span>${email}</span></a>`;
-  if (tel) contactLines += `<a class="contact-line" href="tel:${tel.replace(/\s/g, '')}"><span class="contact-icon">📞</span><span>${tel}</span></a>`;
+  if (tel) contactLines += `<a class="contact-line" href="tel:${formatTelLink(tel)}"><span class="contact-icon">📞</span><span>${formatTelDisplay(tel)}</span></a>`;
   if (adresse) contactLines += `<a class="contact-line" href="https://maps.google.com/?q=${encodeURIComponent(adresse)}" target="_blank" rel="noopener"><span class="contact-icon">📍</span><span>${adresse}</span></a>`;
   if (site) {
     const siteDisplay = site.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
@@ -4409,7 +4489,7 @@ function renderAnnuaireList(list) {
           <td><strong style="color: var(--hop-marine);">${m.Nom || ''}</strong></td>
           <td>${m['Activité'] || ''}</td>
           <td>${m.Email ? `<a href="mailto:${m.Email}">${m.Email}</a>` : '—'}</td>
-          <td>${m['Téléphone'] ? `<a href="tel:${String(m['Téléphone']).replace(/\s/g, '')}">${String(m['Téléphone'])}</a>` : '—'}</td>
+          <td>${m['Téléphone'] ? `<a href="tel:${formatTelLink(m['Téléphone'])}">${formatTelDisplay(m['Téléphone'])}</a>` : '—'}</td>
           <td>${m.Site_web ? `<a href="${m.Site_web}" target="_blank" rel="noopener">↗ Site</a>` : '—'}</td>
         </tr>`).join('')}
     </tbody>
