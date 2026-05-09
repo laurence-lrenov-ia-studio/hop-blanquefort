@@ -2081,7 +2081,7 @@ main {
     <button class="login-btn" onclick="checkLogin()">Entrer</button>
     <div class="login-error" id="login-error"></div>
     <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--hop-bord);font-size:11px;color:var(--hop-texte-mute);text-align:center;">
-      💡 <em>Membres du bureau : saisis directement ton code admin pour le mode admin</em>
+      💡 <em>Membres du bureau : saisis ton code admin direct (HOPADMINBLK / STEPHBLK / FLOBLK) pour le mode admin</em>
     </div>
   </div>
 </div>
@@ -2898,7 +2898,7 @@ function checkLogin() {
   const pwd = document.getElementById('login-password').value.trim();
   const errEl = document.getElementById('login-error');
 
-  // Cas 1 : code admin → entrée directe en mode admin (sur le Tableau de bord)
+  // Cas 1 : code admin → entrée directe en mode admin
   if (ADMIN_CODES[pwd]) {
     sessionStorage.setItem('hop_authed', '1');
     state.user = {
@@ -2909,8 +2909,8 @@ function checkLogin() {
     };
     localStorage.setItem('hop_user', JSON.stringify(state.user));
     errEl.textContent = '';
-    state.currentView = 'dashboard'; // forcer le tableau de bord
-    enterApp(false);
+    state.currentView = 'dashboard';
+    enterApp();
     toast(`🔓 Bienvenue ${state.user.name}`, 'success');
     return;
   }
@@ -2919,7 +2919,30 @@ function checkLogin() {
   if (pwd === APP_PASSWORD) {
     sessionStorage.setItem('hop_authed', '1');
     errEl.textContent = '';
-    enterApp(false);
+
+    // Si pas encore identifié → entrée + ouverture du modal "Qui es-tu ?"
+    if (!state.user || !state.user.id) {
+      enterApp();
+      // Charger les membres avant d'ouvrir le modal (au cas où loadAll pas fini)
+      const tryOpenModal = () => {
+        if (state.membres && state.membres.length > 0) {
+          showIdentityModal(() => {
+            // Après identification : toast de bienvenue
+            const firstName = state.user.name ? state.user.name.split(' ')[0] : '';
+            toast(`Bienvenue ${firstName} 👋`, 'success');
+          });
+        } else {
+          // Pas encore chargé → réessayer dans 500ms
+          setTimeout(tryOpenModal, 500);
+        }
+      };
+      setTimeout(tryOpenModal, 300);
+    } else {
+      // Déjà identifié → entrée directe + bienvenue
+      enterApp();
+      const firstName = state.user.name ? state.user.name.split(' ')[0] : '';
+      toast(`Bienvenue ${firstName} 👋`, 'success');
+    }
     return;
   }
 
@@ -3038,13 +3061,9 @@ function enterApp() {
   applyAdminVisibility();
   switchView(state.currentView || 'dashboard');
 
-  // Lancer le chargement et forcer un re-render après
-  // (sur mobile/connexion lente, ça assure que les vues sont alimentées)
+  // Charger les données puis re-rendre (robuste mobile)
   loadAll().then(ok => {
-    if (ok) {
-      // Re-render explicite pour rattraper si la vue a été switchée pendant le load
-      renderAll();
-    }
+    if (ok) renderAll();
   });
 }
 
@@ -3173,10 +3192,12 @@ function switchView(view) {
   if (v) v.classList.add('active');
   const t = document.querySelector(`.tab[data-view="${view}"]`);
   if (t) t.classList.add('active');
-  // Re-remplir les sélecteurs au cas où on arrive sur une vue qui en a besoin
   if (view === 'proposer') {
     fillThematiquesSelects();
   }
+  // Fermer le burger menu mobile + scroll en haut
+  if (typeof closeMobileMenu === 'function') closeMobileMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ====================================================================
