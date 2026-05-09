@@ -642,6 +642,66 @@ main {
 
 
 /* ====================================================================
+   BURGER MENU MOBILE
+==================================================================== */
+.tabs-burger {
+  width: 100%;
+  background: white;
+  color: var(--hop-marine);
+  border: 1px solid var(--hop-bord);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: none;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  margin: 12px 0 0;
+  font-family: inherit;
+}
+.tabs-burger:hover, .tabs-burger:focus {
+  background: var(--hop-bleu-pale);
+  border-color: var(--hop-bleu);
+}
+
+@media (max-width: 768px) {
+  .tabs-burger { display: block; }
+  .nav {
+    display: none !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    background: white;
+    border: 1px solid var(--hop-bord);
+    border-radius: 12px;
+    padding: 8px;
+    margin-top: 8px;
+    box-shadow: var(--shadow-md);
+    overflow-x: visible !important;
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+  .nav.mobile-open {
+    display: flex !important;
+  }
+  .nav .tab {
+    width: 100%;
+    text-align: left;
+    border-bottom: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 15px;
+    flex: none !important;
+  }
+  .nav .tab.active {
+    background: var(--hop-bleu-pale);
+    color: var(--hop-bleu);
+    border-bottom: none;
+  }
+}
+
+
+/* ====================================================================
    TABLEAU DE BORD
 ==================================================================== */
 .dashboard-grid {
@@ -1187,6 +1247,83 @@ main {
 @media (max-width: 600px) {
   .atelier-card { flex-direction: column; align-items: stretch; }
   .atelier-actions { align-items: stretch; }
+}
+
+
+/* ====================================================================
+   MOBILE — RÉUNION CARDS (stack vertical)
+==================================================================== */
+@media (max-width: 768px) {
+  .reunion-card {
+    padding: 14px;
+  }
+  .reunion-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .reunion-date-block {
+    align-self: flex-start;
+    width: auto;
+    min-width: 80px;
+  }
+  .reunion-info {
+    width: 100%;
+  }
+  .reunion-meta {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 13px;
+  }
+  .reunion-meta span {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.3;
+  }
+  .reunion-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    margin-left: 0 !important;
+    width: 100%;
+    align-items: stretch;
+  }
+  .reunion-actions > * {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+  }
+  .my-presence {
+    display: flex;
+    gap: 8px;
+    flex: 1 1 100%;
+  }
+  .my-presence .btn-presence {
+    flex: 1;
+  }
+  /* Header app : permettre wrap des boutons */
+  .app-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  /* Empêcher overflow horizontal global */
+  body, html {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  main {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .reunion-actions > * {
+    flex: 1 1 100%;
+  }
+  .section-title {
+    font-size: 22px;
+  }
 }
 
 
@@ -1944,7 +2081,7 @@ main {
     <button class="login-btn" onclick="checkLogin()">Entrer</button>
     <div class="login-error" id="login-error"></div>
     <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--hop-bord);font-size:11px;color:var(--hop-texte-mute);text-align:center;">
-      💡 <em>Membres du bureau : saisis directement ton code admin pour accéder au Cockpit</em>
+      💡 <em>Membres du bureau : saisis directement ton code admin pour le mode admin</em>
     </div>
   </div>
 </div>
@@ -1992,7 +2129,8 @@ main {
     </div>
   </header>
 
-  <nav class="nav">
+  <button class="tabs-burger" id="tabs-burger" onclick="toggleMobileMenu()" aria-label="Menu">☰ Menu</button>
+  <nav class="nav" id="main-nav">
     <button class="tab" data-view="dashboard" onclick="switchView('dashboard')">Tableau de bord</button>
     <button class="tab" data-view="annuaire" onclick="switchView('annuaire')">Annuaire</button>
     <button class="tab" data-view="calendrier" onclick="switchView('calendrier')">📅 Calendrier</button>
@@ -2760,19 +2898,20 @@ function checkLogin() {
   const pwd = document.getElementById('login-password').value.trim();
   const errEl = document.getElementById('login-error');
 
-  // Cas 1 : code admin → entrée directe en mode admin + redirection cockpit
+  // Cas 1 : code admin → entrée directe en mode admin (sur le Tableau de bord)
   if (ADMIN_CODES[pwd]) {
     sessionStorage.setItem('hop_authed', '1');
     state.user = {
       type: 'admin',
       name: ADMIN_CODES[pwd],
       adminCode: pwd,
-      // ID du membre correspondant si on le trouve
       id: (state.membres.find(m => m.Nom && m.Nom.toLowerCase().includes(ADMIN_CODES[pwd].toLowerCase())) || {}).ID
     };
     localStorage.setItem('hop_user', JSON.stringify(state.user));
     errEl.textContent = '';
-    enterApp(true); // true = redirection cockpit
+    state.currentView = 'dashboard'; // forcer le tableau de bord
+    enterApp(false);
+    toast(`🔓 Bienvenue ${state.user.name}`, 'success');
     return;
   }
 
@@ -2886,31 +3025,25 @@ function checkAdminLogin() {
     applyAdminVisibility();
     renderAll();
     toast(`🔓 Mode admin (${state.user.name})`, 'success');
-    // Optionnel : ouvrir le cockpit direct (cohérent avec login admin direct)
-    setTimeout(() => openCockpit(), 250);
   } else {
     err.textContent = 'Code admin incorrect';
   }
 }
 
-function enterApp(redirectToCockpit) {
+function enterApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('active');
 
-  // Mettre à jour l'header user (peut être null = anonyme)
   refreshHeaderUser();
-
-  // Afficher/cacher les éléments admin
   applyAdminVisibility();
+  switchView(state.currentView || 'dashboard');
 
-  // Rendre la vue par défaut
-  switchView(state.currentView);
-
-  // Recharger les données puis ouvrir le cockpit si admin
-  loadAll().then(() => {
-    if (redirectToCockpit && isAdmin()) {
-      // Petit délai pour que le rendu soit fait
-      setTimeout(() => openCockpit(), 200);
+  // Lancer le chargement et forcer un re-render après
+  // (sur mobile/connexion lente, ça assure que les vues sont alimentées)
+  loadAll().then(ok => {
+    if (ok) {
+      // Re-render explicite pour rattraper si la vue a été switchée pendant le load
+      renderAll();
     }
   });
 }
@@ -2945,6 +3078,27 @@ function logout() {
 /* ====================================================================
    INIT
 ==================================================================== */
+
+
+
+/* ====================================================================
+   BURGER MENU MOBILE
+==================================================================== */
+function toggleMobileMenu() {
+  const nav = document.getElementById('main-nav');
+  if (!nav) return;
+  nav.classList.toggle('mobile-open');
+  const btn = document.getElementById('tabs-burger');
+  if (btn) {
+    btn.textContent = nav.classList.contains('mobile-open') ? '✕ Fermer' : '☰ Menu';
+  }
+}
+function closeMobileMenu() {
+  const nav = document.getElementById('main-nav');
+  if (nav) nav.classList.remove('mobile-open');
+  const btn = document.getElementById('tabs-burger');
+  if (btn) btn.textContent = '☰ Menu';
+}
 
 /* ====================================================================
    CLIC LOGO → MODE ADMIN (clé visible)
