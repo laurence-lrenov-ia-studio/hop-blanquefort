@@ -1328,6 +1328,147 @@ main {
 
 
 /* ====================================================================
+   AIDE — MODE D'EMPLOI
+==================================================================== */
+.aide-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--hop-bord);
+  flex-wrap: wrap;
+}
+.aide-tab {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--hop-texte-sec);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-family: inherit;
+  transition: all 0.15s;
+  border-radius: 8px 8px 0 0;
+}
+.aide-tab:hover {
+  background: var(--hop-bleu-pale);
+  color: var(--hop-bleu);
+}
+.aide-tab.active {
+  color: var(--hop-bleu);
+  border-bottom-color: var(--hop-bleu);
+  background: var(--hop-bleu-pale);
+}
+
+.aide-section {
+  display: none;
+}
+.aide-section.active {
+  display: block;
+}
+
+.aide-card {
+  background: white;
+  border: 1px solid var(--hop-bord);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.aide-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  font-family: 'Montserrat', sans-serif;
+}
+.aide-card p {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--hop-texte);
+}
+.aide-card ol, .aide-card ul {
+  margin: 10px 0;
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--hop-texte);
+}
+.aide-card li {
+  margin-bottom: 4px;
+}
+.aide-card code {
+  background: var(--hop-creme);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 13px;
+  color: var(--hop-marine);
+  border: 1px solid var(--hop-bord);
+  font-weight: 600;
+}
+.aide-card a {
+  color: var(--hop-bleu);
+  text-decoration: none;
+  font-weight: 600;
+}
+.aide-card a:hover {
+  text-decoration: underline;
+}
+.aide-card strong {
+  color: var(--hop-marine);
+  font-weight: 700;
+}
+.aide-tip {
+  background: linear-gradient(135deg, var(--hop-bleu-pale), white);
+  border-left: 3px solid var(--hop-bleu);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.aide-card.aide-admin-intro {
+  background: linear-gradient(135deg, #fef3c7, white);
+  border-left: 4px solid var(--hop-or);
+}
+.aide-card.aide-admin-intro h3 {
+  color: #d97706;
+}
+
+.aide-card.aide-help {
+  background: linear-gradient(135deg, #f0f7fc, white);
+  border-left: 4px solid var(--hop-bleu);
+}
+
+@media (max-width: 768px) {
+  .aide-tabs {
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+  }
+  .aide-tab {
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid var(--hop-bord);
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+  .aide-tab.active {
+    border-bottom: 2px solid var(--hop-bleu);
+  }
+  .aide-card {
+    padding: 16px 18px;
+  }
+  .aide-card h3 {
+    font-size: 16px;
+  }
+}
+
+
+/* ====================================================================
    COCKPIT MOBILE (admin)
 ==================================================================== */
 .cockpit-mobile {
@@ -2080,9 +2221,7 @@ main {
     <input type="password" class="login-input" id="login-password" placeholder="Mot de passe" autocomplete="off">
     <button class="login-btn" onclick="checkLogin()">Entrer</button>
     <div class="login-error" id="login-error"></div>
-    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--hop-bord);font-size:11px;color:var(--hop-texte-mute);text-align:center;">
-      💡 <em>Membres du bureau : saisis ton code admin direct (HOPADMINBLK / STEPHBLK / FLOBLK) pour le mode admin</em>
-    </div>
+
   </div>
 </div>
 
@@ -2136,6 +2275,7 @@ main {
     <button class="tab" data-view="calendrier" onclick="switchView('calendrier')">📅 Calendrier</button>
     <button class="tab" data-view="ateliers" onclick="switchView('ateliers')">Ateliers</button>
     <button class="tab" data-view="proposer" onclick="switchView('proposer')">Proposer</button>
+    <button class="tab" data-view="aide" onclick="switchView('aide')">❔ Aide</button>
     <button class="tab admin-only" data-view="thematiques" onclick="switchView('thematiques')" style="display:none;">🎨 Thématiques</button>
     <button class="tab admin-only" data-view="liens" onclick="switchView('liens')" style="display:none;">🔗 Liens</button>
   </nav>
@@ -2251,6 +2391,207 @@ main {
       </div>
       <div id="liens-list"><div class="loading">Chargement…</div></div>
     </div>
+  
+    <!-- AIDE -->
+    <div class="view" id="view-aide">
+      <h2 class="section-title">❔ Aide & mode d'emploi</h2>
+      <p class="section-subtitle">Comment utiliser l'app HOP! Club des Entrepreneurs</p>
+
+      <!-- Tabs interne (Membre / Admin) -->
+      <div class="aide-tabs">
+        <button class="aide-tab active" data-aide-tab="membre" onclick="switchAideTab('membre')">👤 Pour tous les membres</button>
+        <button class="aide-tab admin-only" data-aide-tab="admin" onclick="switchAideTab('admin')" style="display:none;">🔓 Pour les admins (Bureau)</button>
+      </div>
+
+      <!-- Section MEMBRE -->
+      <div class="aide-section active" id="aide-membre">
+        <div class="aide-card">
+          <h3>🚪 Se connecter à l'app</h3>
+          <ol>
+            <li>Ouvre l'URL : <code>laurence-lrenov-ia-studio.github.io/hop-blanquefort</code></li>
+            <li>Tape le mot de passe : <code>HOPBLANQUEFORT</code></li>
+            <li>La première fois, choisis ton nom dans la liste qui s'affiche → tu seras reconnu·e à chaque retour</li>
+          </ol>
+          <p class="aide-tip">💡 <strong>Astuce</strong> : ajoute le site à l'écran d'accueil de ton téléphone pour y accéder en 1 clic comme une vraie app.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>📅 Cocher ma présence aux réunions</h3>
+          <ol>
+            <li>Va sur l'onglet <strong>Calendrier</strong></li>
+            <li>Sur la prochaine réunion, clique <strong>✓ Oui</strong> ou <strong>✗ Non</strong></li>
+            <li>C'est tout — Stéphanie/Florian/Laurence voient en temps réel qui vient</li>
+          </ol>
+          <p class="aide-tip">💡 Tu peux changer ton avis à tout moment, il suffit de re-cliquer.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>💡 Proposer un atelier</h3>
+          <p>Tu as une idée de sujet pour un atelier collectif ? Propose-la à tout le club.</p>
+          <ol>
+            <li>Onglet <strong>Proposer</strong></li>
+            <li>Choisis une catégorie (Business, Finance, Juridique, etc.)</li>
+            <li>Donne un titre clair + une courte description (pourquoi c'est intéressant)</li>
+            <li>Soumets — les autres membres pourront voter pour</li>
+          </ol>
+        </div>
+
+        <div class="aide-card">
+          <h3>🎉 Proposer un événement</h3>
+          <p>Un afterwork, une visite, une soirée à organiser avec le club ?</p>
+          <ol>
+            <li>Onglet <strong>Calendrier</strong></li>
+            <li>Bouton <strong>🎉 Proposer un événement</strong> (en haut à droite)</li>
+            <li>Remplis : titre, date, heure, lieu, type, description</li>
+            <li>Ton événement passe en <strong>⏳ En attente</strong> — un admin du Bureau le validera avant publication</li>
+          </ol>
+          <p class="aide-tip">💡 Tu peux toujours éditer ou voir tes événements en attente dans le Calendrier.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>👥 Trouver un membre</h3>
+          <ol>
+            <li>Onglet <strong>Annuaire</strong></li>
+            <li>Recherche par nom ou activité dans la barre de recherche</li>
+            <li>Clique sur l'email/téléphone/site pour contacter directement</li>
+          </ol>
+        </div>
+
+        <div class="aide-card aide-help">
+          <h3>🆘 Un problème ? Une question ?</h3>
+          <p>Contacte Laurence Borras :</p>
+          <ul>
+            <li>📧 <a href="mailto:laurence@lrenov-ia.studio">laurence@lrenov-ia.studio</a></li>
+            <li>📱 Ou en réunion mercredi !</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Section ADMIN -->
+      <div class="aide-section" id="aide-admin">
+        <div class="aide-card aide-admin-intro">
+          <h3>🔓 Bienvenue dans la doc admin</h3>
+          <p>Tu es Laurence, Stéphanie ou Florian — tu as accès aux fonctions de pilotage du club. Voici comment t'en servir.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>🔑 Se connecter en mode admin</h3>
+          <p>Sur l'écran de login, saisis directement ton code admin (pas besoin de HOPBLANQUEFORT) :</p>
+          <ul>
+            <li>Laurence → <code>LAUBLK</code></li>
+            <li>Stéphanie → <code>STEPHBLK</code></li>
+            <li>Florian → <code>FLOBLK</code></li>
+          </ul>
+          <p class="aide-tip">💡 Tu arrives directement sur le Tableau de bord en mode admin. Le bouton 🔑 sur le logo devient 🔓 vert.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>📱 Cockpit de réunion (animation jour J)</h3>
+          <p>Le Cockpit est ton tableau de bord pour <strong>animer une réunion en direct</strong> depuis ton téléphone.</p>
+          <ol>
+            <li>Bouton <strong>📱 Cockpit</strong> en haut à droite</li>
+            <li>Tu vois en temps réel : qui est présent, qui parle, le timer du tour, les ateliers en vote</li>
+            <li>Tu peux désigner qui présente, lancer le tour de présentation, etc.</li>
+          </ol>
+          <p class="aide-tip">💡 Idéal en complément de la projection sur écran (voir ci-dessous).</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>▶ Mode Projection (écran de la réunion)</h3>
+          <p>À projeter sur l'écran de la salle pour que tout le monde voie l'info en grand.</p>
+          <ol>
+            <li>Bouton <strong>▶ Projection</strong> en haut à droite</li>
+            <li>L'app passe en mode plein écran avec : grand logo, prochaine réunion, stats du club</li>
+            <li>Bouton <strong>🎤 Lancer le tour de présentation</strong> → enchaîne automatiquement les fiches membres</li>
+          </ol>
+          <p class="aide-tip">💡 Branche ton ordi/tablette à l'écran de Mutuelle de Poitiers, lance la projection, et anime ton Cockpit depuis ton tel en parallèle.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>🎤 Le tour de présentation</h3>
+          <p>Pour les nouvelles personnes, ou pour faire le tour des membres :</p>
+          <ul>
+            <li>Chaque membre s'affiche en grand : photo, nom, métier, description, missions, contacts</li>
+            <li>Timer 1m30 par défaut</li>
+            <li>Boutons ⏮ Précédent / ⏸ Pause / ⏭ Suivant</li>
+          </ul>
+          <p class="aide-tip">💡 Pour que le tour soit beau : remplis bien la colonne <strong>Description</strong> et <strong>Missions</strong> de chaque membre dans le Sheet (ou via "Éditer" dans l'Annuaire).</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>✅ Valider un événement proposé par un membre</h3>
+          <p>Quand un membre propose un événement, tu reçois ça en "⏳ En attente" :</p>
+          <ol>
+            <li>Onglet <strong>Calendrier</strong> → tu vois la carte de l'événement avec badge "⏳ En attente"</li>
+            <li>Vérifie : la date, le lieu, le contenu sont OK ?</li>
+            <li>Si oui → bouton <strong>✓ Publier</strong> → l'événement devient visible par tous les membres</li>
+            <li>Si non → bouton <strong>✏️ Éditer</strong> pour corriger ou changer le statut en "Annulé"</li>
+          </ol>
+        </div>
+
+        <div class="aide-card">
+          <h3>✏️ Éditer une réunion / un membre</h3>
+          <p>En mode admin, partout où tu vois un bouton <strong>✏️ Éditer</strong>, tu peux modifier :</p>
+          <ul>
+            <li><strong>Réunions</strong> : changer la date, le lieu, le type (Classique/Atelier/Événement), désigner un présentateur</li>
+            <li><strong>Membres</strong> : corriger les infos de contact, ajouter description et missions</li>
+            <li><strong>Ateliers</strong> : changer le statut, désigner la date prévue</li>
+          </ul>
+        </div>
+
+        <div class="aide-card">
+          <h3>📊 Suivi du club</h3>
+          <p>Le <strong>Tableau de bord</strong> te donne en un coup d'œil :</p>
+          <ul>
+            <li>Nombre de membres actifs</li>
+            <li>Nombre de réunions à venir</li>
+            <li>Nombre d'ateliers en vote</li>
+            <li>Détail de la prochaine réunion + qui a déjà répondu</li>
+          </ul>
+          <p class="aide-tip">💡 Sur le Calendrier, bouton <strong>👥 Voir tous</strong> pour voir la matrice présence membre par membre.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>🎨 Gérer les thématiques d'ateliers</h3>
+          <p>Onglet <strong>🎨 Thématiques</strong> (visible que en mode admin)</p>
+          <ul>
+            <li>Ajouter une nouvelle catégorie (Business, Finance, etc.)</li>
+            <li>Modifier l'icône, la couleur, l'ordre</li>
+            <li>Activer/désactiver une thématique</li>
+          </ul>
+        </div>
+
+        <div class="aide-card">
+          <h3>🔗 Gérer les liens utiles du club</h3>
+          <p>Onglet <strong>🔗 Liens</strong> (visible que en mode admin)</p>
+          <p>Centralise les liens importants du club (drive partagé, groupe WhatsApp, charte, etc.) — visibles par tous les membres.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>📋 Le Google Sheet (source des données)</h3>
+          <p>Toutes les données de l'app sont stockées dans un Google Sheet. Tu peux y accéder pour consulter ou modifier en masse :</p>
+          <ul>
+            <li><strong>MEMBRES</strong> : la liste des 22 membres + leurs infos</li>
+            <li><strong>REUNIONS</strong> : 17 réunions de mai à décembre 2026</li>
+            <li><strong>ATELIERS_DEMANDES</strong> : les ateliers proposés et votes</li>
+            <li><strong>EVENEMENTS</strong> : les événements spéciaux</li>
+            <li><strong>PRESENCES</strong> : qui vient à quelle réunion</li>
+          </ul>
+          <p class="aide-tip">⚠️ Si tu modifies dans le Sheet, ferme bien l'app puis Ctrl+F5 pour voir les changements.</p>
+        </div>
+
+        <div class="aide-card aide-help">
+          <h3>🆘 Un bug ? Une question ?</h3>
+          <p>Contacte Laurence Borras :</p>
+          <ul>
+            <li>📧 <a href="mailto:laurence@lrenov-ia.studio">laurence@lrenov-ia.studio</a></li>
+            <li>📱 Ou WhatsApp / SMS</li>
+          </ul>
+          <p class="aide-tip">💡 Avant de m'écrire, fais Ctrl+F5 pour recharger l'app — ça résout 80% des "bugs".</p>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -2694,7 +3035,7 @@ main {
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTTSd6L6N9zYMabcSpm4a_GDmWACNPDPODWoFvDvebxLM4xkOy83cBgeEiB6Jl0zhH/exec';
 const APP_PASSWORD = 'HOPBLANQUEFORT';
 const ADMIN_CODES = {
-  'HOPADMINBLK': 'Laurence',
+  'LAUBLK': 'Laurence',
   'STEPHBLK':    'Stéphanie',
   'FLOBLK':      'Florian'
 };
@@ -3100,6 +3441,19 @@ function logout() {
 
 
 
+
+
+/* ====================================================================
+   AIDE — bascule sections membre/admin
+==================================================================== */
+function switchAideTab(tab) {
+  document.querySelectorAll('.aide-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.aide-section').forEach(s => s.classList.remove('active'));
+  const btn = document.querySelector('.aide-tab[data-aide-tab="' + tab + '"]');
+  const section = document.getElementById('aide-' + tab);
+  if (btn) btn.classList.add('active');
+  if (section) section.classList.add('active');
+}
 /* ====================================================================
    BURGER MENU MOBILE
 ==================================================================== */
