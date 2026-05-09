@@ -1695,85 +1695,150 @@ main {
 }
 .tour-card {
   text-align: center;
-  max-width: 720px;
+  max-width: 760px;
   width: 100%;
-  animation: cardIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 32px;
+  padding: 40px 36px 32px;
+  box-shadow: 0 24px 64px rgba(44, 67, 116, 0.12), 0 4px 12px rgba(44, 67, 116, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+.tour-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 6px;
+  background: linear-gradient(90deg, var(--hop-bleu), var(--hop-marine), var(--hop-bleu));
 }
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
   to { opacity: 1; transform: none; }
 }
 .tour-avatar {
-  width: 130px; height: 130px;
+  width: 150px; height: 150px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--hop-bleu), var(--hop-marine));
   color: white;
-  margin: 0 auto 24px;
-  font-size: 48px;
+  margin: 0 auto 22px;
+  font-size: 54px;
   font-weight: 700;
   font-family: 'Montserrat', sans-serif;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 16px 40px rgba(33, 150, 212, 0.4);
-  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 48px rgba(33, 150, 212, 0.35), 0 0 0 6px rgba(255, 255, 255, 0.9), 0 0 0 8px rgba(33, 150, 212, 0.15);
   overflow: hidden;
   position: relative;
 }
-.tour-avatar img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.tour-avatar img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; z-index: 1; }
 .tour-nom {
-  font-size: 50px;
-  font-weight: 700;
+  font-size: 52px;
+  font-weight: 800;
   color: var(--hop-marine);
   line-height: 1.05;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
 }
 .tour-activite {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--hop-bleu);
-  font-weight: 500;
-  margin-bottom: 24px;
+  font-weight: 600;
+  margin-bottom: 22px;
+  display: inline-block;
+  padding: 6px 18px;
+  background: var(--hop-bleu-pale);
+  border-radius: 24px;
+  letter-spacing: 0.02em;
 }
 .tour-description {
   max-width: 680px;
   margin: 0 auto 22px;
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 17px;
+  line-height: 1.6;
   color: var(--hop-marine);
-  background: rgba(255, 255, 255, 0.75);
-  padding: 14px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(44, 67, 116, 0.08);
+  background: linear-gradient(135deg, rgba(232, 244, 251, 0.6), rgba(255, 255, 255, 0.85));
+  padding: 18px 24px;
+  border-radius: 16px;
+  border-left: 4px solid var(--hop-bleu);
+  font-style: italic;
+  font-weight: 500;
+  text-align: left;
+  position: relative;
+}
+.tour-description::before {
+  content: '"';
+  font-family: 'Montserrat', serif;
+  font-size: 60px;
+  color: var(--hop-bleu);
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  opacity: 0.25;
+  font-weight: 800;
 }
 .tour-description:empty { display: none; }
+.tour-missions-label {
+  font-size: 11px;
+  color: var(--hop-bleu);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: block;
+}
 .tour-missions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
   max-width: 680px;
-  margin: 0 auto 22px;
+  margin: 0 auto 24px;
 }
 .tour-missions:empty { display: none; }
+.tour-missions:empty + .tour-missions-label { display: none; }
 .tour-mission-pill {
-  background: white;
-  border: 1px solid rgba(33, 150, 212, 0.2);
+  background: linear-gradient(135deg, white, var(--hop-creme));
+  border: 1px solid rgba(33, 150, 212, 0.25);
   color: var(--hop-marine);
-  padding: 7px 14px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 24px;
   font-size: 13px;
   font-weight: 600;
+  box-shadow: 0 2px 6px rgba(44, 67, 116, 0.06);
+  transition: transform 0.15s;
+}
+.tour-mission-pill:nth-child(3n+1) {
+  background: linear-gradient(135deg, var(--hop-bleu-pale), white);
+  border-color: rgba(33, 150, 212, 0.4);
+}
+.tour-mission-pill:nth-child(3n+2) {
+  background: linear-gradient(135deg, white, #f0f7fc);
+  border-color: rgba(33, 150, 212, 0.25);
 }
 .tour-contacts {
-  display: flex; flex-direction: column;
-  gap: 10px; align-items: center;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   font-size: 15px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hop-bord);
+  margin-top: 8px;
 }
 .tour-contact-line {
-  display: flex; align-items: center; gap: 10px;
+  display: inline-flex; align-items: center; gap: 8px;
   background: white;
-  padding: 9px 16px;
+  padding: 8px 14px;
   border-radius: 10px;
   border: 1px solid rgba(44, 67, 116, 0.1);
   box-shadow: var(--shadow-sm);
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.tour-contact-line:hover {
+  border-color: var(--hop-bleu);
+  box-shadow: 0 4px 12px rgba(33, 150, 212, 0.15);
+  transform: translateY(-1px);
 }
 .tour-contact-line a {
   color: var(--hop-marine);
@@ -1846,14 +1911,18 @@ main {
 }
 
 @media (max-width: 768px) {
-  .tour-nom { font-size: 32px; }
-  .tour-activite { font-size: 16px; }
+  .tour-card { padding: 28px 20px 24px; border-radius: 24px; }
+  .tour-nom { font-size: 30px; }
+  .tour-activite { font-size: 14px; padding: 4px 14px; }
   .tour-avatar { width: 100px; height: 100px; font-size: 36px; }
   .tour-timer { font-size: 26px; }
-  .tour-description { font-size: 14px; padding: 12px 16px; }
+  .tour-description { font-size: 14px; padding: 14px 18px; line-height: 1.55; }
+  .tour-description::before { font-size: 44px; top: -8px; left: 8px; }
   .tour-mission-pill { font-size: 12px; padding: 6px 12px; }
   .tour-ctrl-btn { width: 48px; height: 48px; font-size: 18px; }
   .tour-ctrl-btn.tour-pause, .tour-ctrl-btn.tour-next { width: 60px; height: 60px; font-size: 22px; }
+  .tour-contacts { gap: 8px; padding-top: 14px; }
+  .tour-contact-line { font-size: 12px; padding: 6px 12px; }
 }
 
 </style>
@@ -1874,6 +1943,9 @@ main {
     <input type="password" class="login-input" id="login-password" placeholder="Mot de passe" autocomplete="off">
     <button class="login-btn" onclick="checkLogin()">Entrer</button>
     <div class="login-error" id="login-error"></div>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--hop-bord);font-size:11px;color:var(--hop-texte-mute);text-align:center;">
+      💡 <em>Membres du bureau : saisis directement ton code admin pour accéder au Cockpit</em>
+    </div>
   </div>
 </div>
 
@@ -2155,6 +2227,7 @@ main {
         <h1 class="tour-nom" id="tour-nom">—</h1>
         <div class="tour-activite" id="tour-activite">—</div>
         <div class="tour-description" id="tour-description"></div>
+        <span class="tour-missions-label" id="tour-missions-label" style="display:none;">🎯 Mes missions</span>
         <div class="tour-missions" id="tour-missions"></div>
         <div class="tour-contacts" id="tour-contacts"></div>
       </div>
@@ -2625,10 +2698,11 @@ function buildAvatar(membre, size = 56) {
   if (!membre) return '';
   const url = getMembrePhotoUrl(membre.ID);
   const initials = getInitials(membre.Nom);
+  // Initiales en fond (z-index:0), image par-dessus (z-index:1) : si l'image charge bien, elle masque les initiales
   return `
+    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;">${initials}</span>
     <img src="${url}" alt="" onerror="this.style.display='none';"
-         style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
-    <span style="position:relative;z-index:1;">${initials}</span>`;
+         style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1;">`;
 }
 
 function getThematique(id) {
@@ -2683,17 +2757,35 @@ function toast(msg, type = '') {
    LOGIN / IDENTITÉ / SESSION
 ==================================================================== */
 function checkLogin() {
-  const pwd = document.getElementById('login-password').value;
+  const pwd = document.getElementById('login-password').value.trim();
   const errEl = document.getElementById('login-error');
 
+  // Cas 1 : code admin → entrée directe en mode admin + redirection cockpit
+  if (ADMIN_CODES[pwd]) {
+    sessionStorage.setItem('hop_authed', '1');
+    state.user = {
+      type: 'admin',
+      name: ADMIN_CODES[pwd],
+      adminCode: pwd,
+      // ID du membre correspondant si on le trouve
+      id: (state.membres.find(m => m.Nom && m.Nom.toLowerCase().includes(ADMIN_CODES[pwd].toLowerCase())) || {}).ID
+    };
+    localStorage.setItem('hop_user', JSON.stringify(state.user));
+    errEl.textContent = '';
+    enterApp(true); // true = redirection cockpit
+    return;
+  }
+
+  // Cas 2 : mot de passe app classique
   if (pwd === APP_PASSWORD) {
     sessionStorage.setItem('hop_authed', '1');
     errEl.textContent = '';
-    // On entre directement, pas de sélecteur d'identité forcé
-    enterApp();
-  } else {
-    errEl.textContent = 'Mot de passe incorrect';
+    enterApp(false);
+    return;
   }
+
+  // Sinon : erreur
+  errEl.textContent = 'Mot de passe incorrect';
 }
 
 // Stocke l'action en attente après identification (ex: cocher présence)
@@ -2794,12 +2886,14 @@ function checkAdminLogin() {
     applyAdminVisibility();
     renderAll();
     toast(`🔓 Mode admin (${state.user.name})`, 'success');
+    // Optionnel : ouvrir le cockpit direct (cohérent avec login admin direct)
+    setTimeout(() => openCockpit(), 250);
   } else {
     err.textContent = 'Code admin incorrect';
   }
 }
 
-function enterApp() {
+function enterApp(redirectToCockpit) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('active');
 
@@ -2812,8 +2906,13 @@ function enterApp() {
   // Rendre la vue par défaut
   switchView(state.currentView);
 
-  // Recharger les données
-  loadAll();
+  // Recharger les données puis ouvrir le cockpit si admin
+  loadAll().then(() => {
+    if (redirectToCockpit && isAdmin()) {
+      // Petit délai pour que le rendu soit fait
+      setTimeout(() => openCockpit(), 200);
+    }
+  });
 }
 
 function applyAdminVisibility() {
@@ -4302,11 +4401,19 @@ function showCurrentTourMember() {
   document.getElementById('tour-description').textContent = m.Description || '';
 
   const missEl = document.getElementById('tour-missions');
+  const missLabel = document.getElementById('tour-missions-label');
   if (m.Missions) {
     const missions = m.Missions.split('|').map(x => x.trim()).filter(Boolean);
-    missEl.innerHTML = missions.map(mi => `<span class="tour-mission-pill">${escapeHtml(mi)}</span>`).join('');
+    if (missions.length > 0) {
+      missEl.innerHTML = missions.map(mi => `<span class="tour-mission-pill">${escapeHtml(mi)}</span>`).join('');
+      if (missLabel) missLabel.style.display = 'block';
+    } else {
+      missEl.innerHTML = '';
+      if (missLabel) missLabel.style.display = 'none';
+    }
   } else {
     missEl.innerHTML = '';
+    if (missLabel) missLabel.style.display = 'none';
   }
 
   const lines = [];
