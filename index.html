@@ -1469,6 +1469,111 @@ main {
 
 
 /* ====================================================================
+   MATRICE PRÉSENCE — résumé statuts + groupes
+==================================================================== */
+.presence-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.presence-stat {
+  background: white;
+  border: 1px solid var(--hop-bord);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.presence-stat-num {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1;
+}
+.presence-stat-lbl {
+  font-size: 11px;
+  color: var(--hop-texte-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.presence-stat-yes {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.presence-stat-yes .presence-stat-num { color: #16a34a; }
+.presence-stat-no {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+.presence-stat-no .presence-stat-num { color: #dc2626; }
+.presence-stat-pending {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+.presence-stat-pending .presence-stat-num { color: #d97706; }
+
+.presence-group {
+  margin-bottom: 8px;
+  border: 1px solid var(--hop-bord);
+  border-radius: 10px;
+  background: white;
+}
+.presence-group-header {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 10px;
+  user-select: none;
+  list-style: none;
+}
+.presence-group-header::-webkit-details-marker { display: none; }
+.presence-group-header::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 8px;
+  transition: transform 0.15s;
+  font-size: 11px;
+  color: var(--hop-texte-mute);
+}
+.presence-group[open] .presence-group-header::before {
+  transform: rotate(90deg);
+}
+.presence-group-pending {
+  background: #fffbeb;
+  color: #d97706;
+}
+.presence-group-yes {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.presence-group-no {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.presence-group .presence-matrix {
+  padding: 4px 8px 8px;
+}
+
+@media (max-width: 480px) {
+  .presence-summary {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .presence-stat {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 14px;
+  }
+  .presence-stat-num { font-size: 20px; }
+}
+
+
+/* ====================================================================
    COCKPIT MOBILE (admin)
 ==================================================================== */
 .cockpit-mobile {
@@ -3908,25 +4013,68 @@ function evenementCard(e) {
 
 function renderPresenceMatrix(r) {
   const actifs = getActiveMembres();
-  return `
-    <div style="font-size:11px;color:var(--hop-texte-sec);text-transform:uppercase;font-weight:700;margin-bottom:10px;letter-spacing:0.06em;">
-      Présence des ${actifs.length} membres
-    </div>
-    <div class="presence-matrix">
-      ${actifs.map(m => {
-        const p = state.presences.find(x => x.ID_reunion === r.ID && x.ID_membre === m.ID);
-        const val = p ? (p['Présent'] === true || p['Présent'] === 'TRUE' || p['Présent'] === 'true' ? 'yes' :
-                         p['Présent'] === false || p['Présent'] === 'FALSE' || p['Présent'] === 'false' ? 'no' : null) : null;
-        return `
-          <div class="presence-row">
-            <span class="name">${escapeHtml(m.Nom)}</span>
-            <div class="actions">
-              <button class="btn-tiny yes ${val === 'yes' ? 'active' : ''}" onclick="setPresence('${r.ID}','${m.ID}','${escapeJs(m.Nom)}',true)">✓</button>
-              <button class="btn-tiny no ${val === 'no' ? 'active' : ''}" onclick="setPresence('${r.ID}','${m.ID}','${escapeJs(m.Nom)}',false)">✗</button>
-            </div>
-          </div>`;
-      }).join('')}
+  const groups = { yes: [], no: [], pending: [] };
+  actifs.forEach(m => {
+    const p = state.presences.find(x => x.ID_reunion === r.ID && x.ID_membre === m.ID);
+    const val = p ? (p['Présent'] === true || p['Présent'] === 'TRUE' || p['Présent'] === 'true' ? 'yes' :
+                     p['Présent'] === false || p['Présent'] === 'FALSE' || p['Présent'] === 'false' ? 'no' : null) : null;
+    if (val === 'yes') groups.yes.push(m);
+    else if (val === 'no') groups.no.push(m);
+    else groups.pending.push(m);
+  });
+
+  const renderRow = (m, val) => `
+    <div class="presence-row">
+      <span class="name">${escapeHtml(m.Nom)}</span>
+      <div class="actions">
+        <button class="btn-tiny yes ${val === 'yes' ? 'active' : ''}" onclick="setPresence('${r.ID}','${m.ID}','${escapeJs(m.Nom)}',true)">✓</button>
+        <button class="btn-tiny no ${val === 'no' ? 'active' : ''}" onclick="setPresence('${r.ID}','${m.ID}','${escapeJs(m.Nom)}',false)">✗</button>
+        ${val ? `<button class="btn-tiny" style="background:#f3f4f6;color:#6b7280;border-color:#e5e7eb;font-size:11px;" onclick="cancelPresence('${r.ID}','${m.ID}')" title="Annuler la réponse">↩</button>` : ''}
+      </div>
     </div>`;
+
+  return `
+    <div class="presence-summary">
+      <div class="presence-stat presence-stat-yes">
+        <span class="presence-stat-num">${groups.yes.length}</span>
+        <span class="presence-stat-lbl">✓ Présents</span>
+      </div>
+      <div class="presence-stat presence-stat-no">
+        <span class="presence-stat-num">${groups.no.length}</span>
+        <span class="presence-stat-lbl">✗ Absents</span>
+      </div>
+      <div class="presence-stat presence-stat-pending">
+        <span class="presence-stat-num">${groups.pending.length}</span>
+        <span class="presence-stat-lbl">⏳ Pas répondu</span>
+      </div>
+    </div>
+
+    ${groups.pending.length > 0 ? `
+      <details class="presence-group" open>
+        <summary class="presence-group-header presence-group-pending">⏳ Pas répondu (${groups.pending.length}) — à relancer</summary>
+        <div class="presence-matrix">
+          ${groups.pending.map(m => renderRow(m, null)).join('')}
+        </div>
+      </details>
+    ` : ''}
+
+    ${groups.yes.length > 0 ? `
+      <details class="presence-group">
+        <summary class="presence-group-header presence-group-yes">✓ Présents (${groups.yes.length})</summary>
+        <div class="presence-matrix">
+          ${groups.yes.map(m => renderRow(m, 'yes')).join('')}
+        </div>
+      </details>
+    ` : ''}
+
+    ${groups.no.length > 0 ? `
+      <details class="presence-group">
+        <summary class="presence-group-header presence-group-no">✗ Absents (${groups.no.length})</summary>
+        <div class="presence-matrix">
+          ${groups.no.map(m => renderRow(m, 'no')).join('')}
+        </div>
+      </details>
+    ` : ''}`;
 }
 
 function toggleReunionExpand(id) {
@@ -4031,8 +4179,28 @@ async function setMyPresence(reunionId, present) {
     showIdentityModal(() => setMyPresence(reunionId, present));
     return;
   }
-  // Optimistic
+
+  // Détecter le re-clic sur le même bouton = annulation
   const existing = state.presences.find(p => p.ID_reunion === reunionId && p.ID_membre === state.user.id);
+  const currentValue = existing
+    ? (existing['Présent'] === true || existing['Présent'] === 'TRUE' || existing['Présent'] === 'true')
+    : null;
+
+  if (existing && currentValue === present) {
+    // Re-clic sur le bouton actif → annulation
+    state.presences = state.presences.filter(p =>
+      !(p.ID_reunion === reunionId && p.ID_membre === state.user.id)
+    );
+    renderCalendrier();
+    await postAPI('delete_presence', {
+      reunion: reunionId,
+      membre: state.user.id
+    });
+    toast('↩️ Réponse annulée — à toi de revenir quand tu as décidé', '');
+    return;
+  }
+
+  // Sinon : enregistrement normal (création ou changement)
   if (existing) {
     existing['Présent'] = present;
   } else {
@@ -4052,12 +4220,21 @@ async function setMyPresence(reunionId, present) {
     nom: state.user.name,
     present: present ? 'true' : 'false'
   });
-  toast(present ? `✓ Présent` : `✗ Absent`, 'success');
+  toast(present ? `✓ Présent — re-clique sur Oui pour annuler` : `✗ Absent — re-clique sur Non pour annuler`, 'success');
 }
 
 async function setPresence(reunionId, membreId, membreNom, present) {
   if (!isAdmin()) return;
   const existing = state.presences.find(p => p.ID_reunion === reunionId && p.ID_membre === membreId);
+  const currentValue = existing
+    ? (existing['Présent'] === true || existing['Présent'] === 'TRUE' || existing['Présent'] === 'true')
+    : null;
+
+  // Re-clic admin sur même bouton = annule
+  if (existing && currentValue === present) {
+    return cancelPresence(reunionId, membreId);
+  }
+
   if (existing) {
     existing['Présent'] = present;
   } else {
@@ -4074,8 +4251,21 @@ async function setPresence(reunionId, membreId, membreNom, present) {
     reunion: reunionId,
     membre: membreId,
     nom: membreNom,
-    present: present ? 'true' : 'false'
+    present: present ? 'true' : 'false',
+    admin_code: state.user.adminCode
   });
+}
+
+async function cancelPresence(reunionId, membreId) {
+  if (!isAdmin() && (!state.user || state.user.id !== membreId)) return;
+  state.presences = state.presences.filter(p =>
+    !(p.ID_reunion === reunionId && p.ID_membre === membreId)
+  );
+  renderCalendrier();
+  const params = { reunion: reunionId, membre: membreId };
+  if (isAdmin()) params.admin_code = state.user.adminCode;
+  await postAPI('delete_presence', params);
+  toast('↩️ Réponse annulée', '');
 }
 
 /* ====================================================================
