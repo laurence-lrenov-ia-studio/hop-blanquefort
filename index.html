@@ -1966,6 +1966,7 @@ main {
 
       <div class="cal-toolbar">
         <div style="flex:1;"></div>
+        <button class="btn-icon" onclick="openCreateEvenement()" style="background:var(--hop-or);color:white;border-color:var(--hop-or);">🎉 Proposer un événement</button>
         <button class="btn-icon admin-only" id="add-reunion-btn" onclick="openCreateReunion()" style="display:none;">➕ Nouvelle réunion</button>
       </div>
 
@@ -2172,6 +2173,77 @@ main {
 </div>
 
 <!-- ============== MODALS ============== -->
+<!-- ============== MODAL ÉVÉNEMENT (création/édition) ============== -->
+<div id="evenement-modal" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="evenement-modal-title">🎉 Proposer un événement</h2>
+      <button class="modal-close" onclick="closeEvenementModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="evenement-id">
+      <div id="evenement-pending-info" style="display:none;background:#fef3c7;border-left:4px solid var(--hop-warn);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;color:var(--hop-warn);">
+        ⏳ Cet événement est en attente de validation par un admin avant publication.
+      </div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>🎉 Titre de l'événement *</label>
+          <input type="text" id="evenement-titre" class="form-input" placeholder="Ex : Afterwork de rentrée chez Laforêt">
+        </div>
+        <div class="form-group">
+          <label>📅 Date *</label>
+          <input type="date" id="evenement-date" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>🕐 Heure</label>
+          <input type="text" id="evenement-heure" class="form-input" placeholder="Ex : 19h00">
+        </div>
+        <div class="form-group full">
+          <label>📍 Lieu</label>
+          <input type="text" id="evenement-lieu" class="form-input" placeholder="Ex : Côté Jardin, 105 Av du 11 Novembre, Blanquefort">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="evenement-type" class="form-select">
+            <option value="Afterwork">🍺 Afterwork</option>
+            <option value="Soirée">🌙 Soirée</option>
+            <option value="Conférence">🎤 Conférence</option>
+            <option value="Salon">🎪 Salon</option>
+            <option value="Visite">🚶 Visite</option>
+            <option value="Autre">📌 Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Organisateur</label>
+          <input type="text" id="evenement-organisateur" class="form-input" placeholder="Ton nom ou un membre du club">
+        </div>
+        <div class="form-group full">
+          <label>📝 Description</label>
+          <textarea id="evenement-description" class="form-textarea" placeholder="Pourquoi cet événement, ce qu'on va y faire…"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>🔗 Lien d'inscription / info (optionnel)</label>
+          <input type="text" id="evenement-lien" class="form-input" placeholder="https://…">
+        </div>
+        <div class="form-group admin-only" id="evenement-statut-group" style="display:none;">
+          <label>Statut</label>
+          <select id="evenement-statut" class="form-select">
+            <option value="En attente">⏳ En attente</option>
+            <option value="Publié">✓ Publié</option>
+            <option value="Annulé">✗ Annulé</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary admin-only" id="evenement-delete-btn" onclick="deleteEvenementConfirm()" style="display:none;color:var(--hop-danger);">🗑️ Supprimer</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-secondary" onclick="closeEvenementModal()">Annuler</button>
+      <button class="btn btn-primary" id="evenement-save-btn" onclick="saveEvenement()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal édition réunion -->
 <div id="reunion-modal" class="modal-overlay" style="display:none;">
   <div class="modal">
@@ -2426,6 +2498,7 @@ const state = {
   presences: [],
   thematiques: [],
   liens: [],
+  evenements: [],
   dashboard: null,
   // Identité courante
   user: null,        // { type: 'membre' | 'admin', id?, name, adminCode? }
@@ -2474,6 +2547,7 @@ async function loadAll() {
     state.presences   = result.data.presences   || [];
     state.liens       = result.data.liens       || [];
     state.thematiques = result.data.thematiques || [];
+    state.evenements  = result.data.evenements  || [];
     state.dashboard   = result.data.dashboard   || null;
     renderAll();
     return true;
@@ -3024,24 +3098,52 @@ function renderCalendrier() {
   const container = document.getElementById('calendrier-list');
   if (!container) return;
 
+  // Merger réunions + événements visibles
   let reunions = [...state.reunions];
+  let evenements = [...(state.evenements || [])];
+
+  // Filtrer les événements selon admin/membre :
+  // - admin voit tout (En attente + Publié)
+  // - membre voit Publié uniquement (sauf ses propres événements en attente)
+  if (!isAdmin()) {
+    evenements = evenements.filter(e => {
+      if (e.Statut === 'Publié') return true;
+      if (e.Statut === 'En attente' && state.user && e.Organisateur === state.user.name) return true;
+      return false;
+    });
+  }
+
+  // Appliquer le filtre courant
   if (state.calFilter === 'venir') {
     reunions = reunions.filter(r => r.Statut === 'À venir');
+    evenements = evenements.filter(e => e.Statut !== 'Annulé' && e.Statut !== 'Réalisé');
   } else if (state.calFilter === 'atelier') {
     reunions = reunions.filter(r => r.Type === 'Atelier');
+    evenements = [];
   } else if (state.calFilter === 'evenement') {
-    reunions = reunions.filter(r => r.Type === 'Événement');
+    reunions = []; // afficher seulement les événements
+    // garder tous les événements après filtrage admin/membre
   } else if (state.calFilter === 'classique') {
     reunions = reunions.filter(r => r.Type === 'Classique' || !r.Type);
+    evenements = [];
   }
+  // 'all' : on garde tout
 
-  if (reunions.length === 0) {
-    container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div>Aucune réunion ne correspond à ce filtre</div>';
+  // Construire la liste mergée triée par date
+  const items = [
+    ...reunions.map(r => ({ kind: 'reunion', date: r.Date, data: r })),
+    ...evenements.map(e => ({ kind: 'evenement', date: e.Date, data: e }))
+  ];
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div>Aucune réunion ou événement ne correspond à ce filtre</div>';
     return;
   }
-  reunions.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+  items.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  container.innerHTML = reunions.map(reunionCard).join('');
+  container.innerHTML = items.map(item => {
+    return item.kind === 'reunion' ? reunionCard(item.data) : evenementCard(item.data);
+  }).join('');
 }
 
 function reunionCard(r) {
@@ -3057,9 +3159,9 @@ function reunionCard(r) {
   const typeBadge = r.Type === 'Événement' ? 'or' : (r.Type === 'Atelier' ? 'bleu' : 'marine');
   const typeLabel = r.Type === 'Événement' ? '🎉 Événement' : (r.Type === 'Atelier' ? '💡 Atelier' : '🤝 Classique');
 
-  // Boutons selon admin/membre
+  // Boutons présence — toujours visibles si la réunion est à venir (le clic déclenche l'identification si besoin)
   let actions = '';
-  if (state.user && !isPasse) {
+  if (!isPasse) {
     const my = getMyPresence(r.ID);
     actions = `
       <div class="my-presence">
@@ -3106,6 +3208,73 @@ function reunionCard(r) {
         </div>
       </div>
       ${body}
+    </div>`;
+}
+
+
+
+/* ====================================================================
+   ÉVÉNEMENTS — RENDER CARD
+==================================================================== */
+function evenementCard(e) {
+  const date = new Date(e.Date);
+  const day = isNaN(date) ? '?' : date.getDate();
+  const month = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+  const isPublie = e.Statut === 'Publié';
+  const isPending = e.Statut === 'En attente';
+  const isAnnule = e.Statut === 'Annulé';
+
+  const typeIcons = {
+    'Afterwork': '🍺',
+    'Soirée': '🌙',
+    'Conférence': '🎤',
+    'Salon': '🎪',
+    'Visite': '🚶',
+    'Autre': '📌'
+  };
+  const icon = typeIcons[e.Type] || '🎉';
+
+  // Bouton "Publier" pour admin si en attente
+  let actions = '';
+  if (isAdmin()) {
+    if (isPending) {
+      actions += `<button class="btn btn-primary" style="background:var(--hop-success);border-color:var(--hop-success);font-size:12px;padding:6px 12px;" onclick="publishEvenement('${e.ID}')">✓ Publier</button>`;
+    }
+    actions += `<button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;" onclick="openEditEvenement('${e.ID}')">✏️ Éditer</button>`;
+  } else if (state.user && e.Organisateur === state.user.name && isPending) {
+    actions += `<button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;" onclick="openEditEvenement('${e.ID}')">✏️ Éditer</button>`;
+  }
+
+  // Lien externe si présent
+  let lienHtml = '';
+  if (e.Lien && isPublie) {
+    lienHtml = `<a href="${escapeHtml(e.Lien)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--hop-bleu);font-weight:600;margin-top:6px;">🔗 Plus d'infos</a>`;
+  }
+
+  return `
+    <div class="reunion-card" style="border-left:4px solid var(--hop-or);${isAnnule ? 'opacity:0.5;' : ''}${isPending ? 'background:#fffbeb;' : ''}">
+      <div class="reunion-head">
+        <div class="reunion-date-block" style="background:#fef3c7;">
+          <div class="reunion-date-day" style="color:#92400e;">${day}</div>
+          <div class="reunion-date-month" style="color:#d97706;">${month}</div>
+        </div>
+        <div class="reunion-info">
+          <div class="reunion-title">${icon} ${escapeHtml(e.Titre || 'Événement sans titre')}</div>
+          <div class="reunion-meta">
+            <span class="badge badge-or">🎉 ${escapeHtml(e.Type || 'Événement')}</span>
+            ${isPending ? '<span class="badge badge-warn">⏳ En attente</span>' : ''}
+            ${isAnnule ? '<span class="badge" style="background:#fee2e2;color:var(--hop-danger);">✗ Annulé</span>' : ''}
+            ${e.Heure ? `<span>🕐 ${escapeHtml(e.Heure)}</span>` : ''}
+            ${e.Lieu ? `<span>📍 ${escapeHtml(e.Lieu)}</span>` : ''}
+          </div>
+          ${e.Organisateur ? `<div class="reunion-presentateur">👤 ${escapeHtml(e.Organisateur)}</div>` : ''}
+          ${e.Description ? `<div style="margin-top:8px;font-size:13px;color:var(--hop-texte-sec);line-height:1.5;">${escapeHtml(e.Description)}</div>` : ''}
+          ${lienHtml}
+        </div>
+        <div class="reunion-actions">
+          ${actions}
+        </div>
+      </div>
     </div>`;
 }
 
@@ -3163,6 +3332,19 @@ function renderMiniCal() {
     const dt = new Date(r.Date);
     if (dt.getFullYear() === year && dt.getMonth() === month) {
       eventDates[dt.getDate()] = r;
+    }
+  });
+  // Ajouter les événements visibles
+  (state.evenements || []).forEach(e => {
+    if (!e.Date) return;
+    if (e.Statut === 'Annulé') return;
+    if (!isAdmin() && e.Statut === 'En attente') return; // membres voient pas les en attente sauf le leur
+    const dt = new Date(e.Date);
+    if (dt.getFullYear() === year && dt.getMonth() === month) {
+      // Ne pas écraser une réunion existante, mais marquer qu'il y a un événement
+      if (!eventDates[dt.getDate()]) {
+        eventDates[dt.getDate()] = { Type: 'Événement', ID: 'EVT-' + e.ID };
+      }
     }
   });
 
@@ -3761,6 +3943,165 @@ async function deleteLienConfirm() {
   if (!confirm('Supprimer ce lien ?')) return;
   closeLienModal();
   await postAPI('delete_lien', { lien: id, admin_code: state.user.adminCode });
+  setTimeout(loadAll, 1500);
+}
+
+/* ====================================================================
+   ÉVÉNEMENTS — CRUD
+==================================================================== */
+function openCreateEvenement() {
+  document.getElementById('evenement-modal-title').textContent = '🎉 Proposer un événement';
+  document.getElementById('evenement-id').value = '';
+  document.getElementById('evenement-titre').value = '';
+  document.getElementById('evenement-date').value = '';
+  document.getElementById('evenement-heure').value = '';
+  document.getElementById('evenement-lieu').value = '';
+  document.getElementById('evenement-type').value = 'Afterwork';
+  // Pré-remplir l'organisateur si on connait l'utilisateur
+  document.getElementById('evenement-organisateur').value = state.user?.name || '';
+  document.getElementById('evenement-description').value = '';
+  document.getElementById('evenement-lien').value = '';
+  document.getElementById('evenement-statut').value = isAdmin() ? 'Publié' : 'En attente';
+
+  // Pour admin : afficher select statut + delete btn
+  document.getElementById('evenement-statut-group').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('evenement-delete-btn').style.display = 'none';
+  document.getElementById('evenement-pending-info').style.display = isAdmin() ? 'none' : 'block';
+
+  document.getElementById('evenement-modal').style.display = 'flex';
+}
+
+function openEditEvenement(id) {
+  const e = (state.evenements || []).find(x => x.ID === id);
+  if (!e) return;
+
+  // Sécurité : si pas admin, ne peut éditer que son propre événement en attente
+  if (!isAdmin()) {
+    if (e.Organisateur !== state.user?.name || e.Statut !== 'En attente') {
+      toast('Tu ne peux éditer que tes propres événements en attente', 'error');
+      return;
+    }
+  }
+
+  document.getElementById('evenement-modal-title').textContent = '🎉 Éditer l\'événement';
+  document.getElementById('evenement-id').value = e.ID;
+  document.getElementById('evenement-titre').value = e.Titre || '';
+  document.getElementById('evenement-date').value = e.Date ? new Date(e.Date).toISOString().split('T')[0] : '';
+  document.getElementById('evenement-heure').value = e.Heure || '';
+  document.getElementById('evenement-lieu').value = e.Lieu || '';
+  document.getElementById('evenement-type').value = e.Type || 'Afterwork';
+  document.getElementById('evenement-organisateur').value = e.Organisateur || '';
+  document.getElementById('evenement-description').value = e.Description || '';
+  document.getElementById('evenement-lien').value = e.Lien || '';
+  document.getElementById('evenement-statut').value = e.Statut || 'En attente';
+
+  document.getElementById('evenement-statut-group').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('evenement-delete-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('evenement-pending-info').style.display = (e.Statut === 'En attente') ? 'block' : 'none';
+
+  document.getElementById('evenement-modal').style.display = 'flex';
+}
+
+function closeEvenementModal() {
+  document.getElementById('evenement-modal').style.display = 'none';
+}
+
+async function saveEvenement() {
+  const id = document.getElementById('evenement-id').value;
+  const titre = document.getElementById('evenement-titre').value.trim();
+  const date = document.getElementById('evenement-date').value;
+  if (!titre) { toast('Titre obligatoire', 'error'); return; }
+  if (!date) { toast('Date obligatoire', 'error'); return; }
+
+  // Si membre simple sans identité, demander identification d'abord
+  if (!isAdmin() && (!state.user || !state.user.id)) {
+    closeEvenementModal();
+    showIdentityModal(() => {
+      // Re-ouvrir le modal après identification
+      openCreateEvenement();
+      // Pré-remplir avec ce qu'il avait saisi
+      setTimeout(() => {
+        document.getElementById('evenement-titre').value = titre;
+        document.getElementById('evenement-date').value = date;
+        document.getElementById('evenement-heure').value = document.getElementById('evenement-heure').value;
+        document.getElementById('evenement-organisateur').value = state.user.name;
+      }, 50);
+    });
+    return;
+  }
+
+  const params = {
+    titre: titre,
+    date: date,
+    heure: document.getElementById('evenement-heure').value.trim(),
+    lieu: document.getElementById('evenement-lieu').value.trim(),
+    type: document.getElementById('evenement-type').value,
+    organisateur: document.getElementById('evenement-organisateur').value.trim() || (state.user?.name || 'Anonyme'),
+    description: document.getElementById('evenement-description').value.trim(),
+    lien: document.getElementById('evenement-lien').value.trim(),
+    statut: isAdmin() ? document.getElementById('evenement-statut').value : 'En attente',
+    visible: 'true'
+  };
+
+  if (isAdmin()) {
+    params.admin_code = state.user.adminCode;
+  }
+
+  closeEvenementModal();
+  toast(isAdmin() ? 'Enregistrement…' : 'Proposition envoyée — en attente de validation', isAdmin() ? '' : 'success');
+
+  if (id) {
+    params.evenement = id;
+    // Optimistic update local
+    const local = state.evenements.find(x => x.ID === id);
+    if (local) {
+      Object.assign(local, {
+        Titre: params.titre, Date: params.date, Heure: params.heure,
+        Lieu: params.lieu, Type: params.type, Organisateur: params.organisateur,
+        Description: params.description, Lien: params.lien, Statut: params.statut
+      });
+      renderAll();
+    }
+    await postAPI('update_evenement', params);
+  } else {
+    // Optimistic : ajouter localement
+    const tempId = 'EVT-TEMP-' + Date.now();
+    state.evenements.push({
+      ID: tempId,
+      Titre: params.titre, Date: params.date, Heure: params.heure,
+      Lieu: params.lieu, Type: params.type, Organisateur: params.organisateur,
+      Description: params.description, Lien: params.lien,
+      Statut: params.statut, Visible: true
+    });
+    renderAll();
+    await postAPI('add_evenement', params);
+  }
+  setTimeout(loadAll, 1500);
+}
+
+async function publishEvenement(id) {
+  if (!isAdmin()) return;
+  if (!confirm('Publier cet événement (le rendre visible par tous les membres) ?')) return;
+  const e = state.evenements.find(x => x.ID === id);
+  if (!e) return;
+  e.Statut = 'Publié';
+  renderAll();
+  toast('✓ Événement publié', 'success');
+  await postAPI('update_evenement', {
+    admin_code: state.user.adminCode,
+    evenement: id,
+    statut: 'Publié'
+  });
+  setTimeout(loadAll, 1500);
+}
+
+async function deleteEvenementConfirm() {
+  if (!isAdmin()) return;
+  const id = document.getElementById('evenement-id').value;
+  if (!id) return;
+  if (!confirm('Supprimer cet événement ?')) return;
+  closeEvenementModal();
+  await postAPI('delete_evenement', { evenement: id, admin_code: state.user.adminCode });
   setTimeout(loadAll, 1500);
 }
 
