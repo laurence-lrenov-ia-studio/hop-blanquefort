@@ -582,6 +582,66 @@ main {
 
 
 /* ====================================================================
+   LOGO ADMIN (clé d'accès)
+==================================================================== */
+.header-logo-wrap {
+  border-radius: 10px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.header-logo-wrap:hover {
+  transform: scale(1.05);
+}
+.header-logo-wrap.no-logo {
+  /* Quand pas de vrai logo : bordure dorée pour signaler le bouton admin */
+  box-shadow: 0 0 0 2px var(--hop-or), 0 2px 8px rgba(212, 160, 74, 0.3);
+}
+.header-logo-key {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: var(--hop-or);
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+.header-logo-wrap.no-logo .header-logo-key {
+  /* Plus visible quand pas de logo */
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  bottom: -6px;
+  right: -6px;
+  animation: keyPulse 2s ease-in-out infinite;
+}
+@keyframes keyPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); box-shadow: 0 2px 8px rgba(212, 160, 74, 0.6); }
+}
+/* En mode admin actif : la clé devient verte (déverrouillé) */
+.header-logo-wrap.is-admin .header-logo-key {
+  background: var(--hop-success);
+  animation: none;
+}
+.header-logo-wrap.is-admin .header-logo-key::before {
+  content: '🔓';
+  position: absolute;
+  font-size: 10px;
+}
+.header-logo-wrap.is-admin .header-logo-key {
+  /* Vider le contenu emoji clé pour mettre cadenas ouvert */
+  color: transparent;
+}
+
+
+/* ====================================================================
    TABLEAU DE BORD
 ==================================================================== */
 .dashboard-grid {
@@ -1837,10 +1897,11 @@ main {
 <div class="app" id="app">
   <header class="header">
     <div class="header-left">
-      <div class="header-logo-wrap" id="header-logo-wrap" style="cursor:pointer;" onclick="handleLogoClick()" title="Logo HOP!">
+      <div class="header-logo-wrap" id="header-logo-wrap" onclick="handleLogoClick()" title="Accès admin" style="cursor:pointer;position:relative;width:44px;height:44px;flex-shrink:0;">
         <img class="header-logo" id="header-logo" src="logo.jpg" alt="HOP!"
-             onerror="this.style.display='none'; document.getElementById('header-logo-fallback').style.display='flex';">
+             onerror="this.style.display='none'; document.getElementById('header-logo-fallback').style.display='flex'; document.getElementById('header-logo-wrap').classList.add('no-logo');">
         <div id="header-logo-fallback" style="display:none;width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--hop-bleu),var(--hop-marine));color:white;align-items:center;justify-content:center;font-weight:800;font-size:13px;font-family:Montserrat,sans-serif;">HOP!</div>
+        <span class="header-logo-key" title="Cliquer pour accès admin">🔑</span>
       </div>
       <div class="header-text">
         <h1>Ici, c'est Blanquefort&nbsp;!</h1>
@@ -2682,10 +2743,16 @@ function enterApp() {
 }
 
 function applyAdminVisibility() {
-  const isAdmin = state.user && state.user.type === 'admin';
+  const isAdminMode = state.user && state.user.type === 'admin';
   document.querySelectorAll('.admin-only').forEach(el => {
-    el.style.display = isAdmin ? '' : 'none';
+    el.style.display = isAdminMode ? '' : 'none';
   });
+  // Mettre à jour la classe is-admin sur le wrapper du logo
+  const wrap = document.getElementById('header-logo-wrap');
+  if (wrap) {
+    if (isAdminMode) wrap.classList.add('is-admin');
+    else wrap.classList.remove('is-admin');
+  }
 }
 
 function isAdmin() {
@@ -2707,31 +2774,24 @@ function logout() {
 ==================================================================== */
 
 /* ====================================================================
-   TRIPLE-CLIC LOGO → MODE ADMIN
+   CLIC LOGO → MODE ADMIN (clé visible)
 ==================================================================== */
-let logoClicks = 0;
-let logoClickTimer = null;
 function handleLogoClick() {
-  logoClicks++;
-  if (logoClickTimer) clearTimeout(logoClickTimer);
-  logoClickTimer = setTimeout(() => { logoClicks = 0; }, 800);
-  if (logoClicks >= 3) {
-    logoClicks = 0;
-    if (logoClickTimer) { clearTimeout(logoClickTimer); logoClickTimer = null; }
-    if (state.user && state.user.type === 'admin') {
-      // Déjà admin : on propose de quitter le mode admin
-      if (confirm('Tu es déjà en mode admin. Quitter le mode admin ?')) {
-        state.user = state.user.id ? { type: 'membre', id: state.user.id, name: (state.membres.find(m=>m.ID===state.user.id)||{}).Nom || 'Membre' } : null;
-        if (state.user) localStorage.setItem('hop_user', JSON.stringify(state.user));
-        else localStorage.removeItem('hop_user');
-        applyAdminVisibility();
-        refreshHeaderUser();
-        renderAll();
-        toast('Mode admin désactivé', 'success');
-      }
-    } else {
-      showAdminLogin();
+  if (state.user && state.user.type === 'admin') {
+    // Déjà admin : proposer de quitter le mode admin
+    if (confirm('Tu es en mode admin. Quitter le mode admin ?')) {
+      state.user = state.user.id
+        ? { type: 'membre', id: state.user.id, name: (state.membres.find(m => m.ID === state.user.id) || {}).Nom || 'Membre' }
+        : null;
+      if (state.user) localStorage.setItem('hop_user', JSON.stringify(state.user));
+      else localStorage.removeItem('hop_user');
+      applyAdminVisibility();
+      refreshHeaderUser();
+      renderAll();
+      toast('Mode admin désactivé', 'success');
     }
+  } else {
+    showAdminLogin();
   }
 }
 
