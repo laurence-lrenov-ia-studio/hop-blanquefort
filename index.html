@@ -715,15 +715,8 @@ body.visitor-mode .header-logo-key {
   display: none !important;
 }
 
-/* Les modals (notamment trombino) doivent rester visibles même en mode visiteur */
-body.visitor-mode .modal-overlay,
-body.visitor-mode #trombino-modal {
-  display: flex !important;
-}
-body.visitor-mode #trombino-modal[style*="display: none"],
-body.visitor-mode .modal-overlay[style*="display: none"] {
-  display: none !important;
-}
+/* Mode visiteur : ne PAS forcer l'affichage des modals (laisse leur display inline normal) */
+/* Bug V2.21 corrigé en V2.23 : on supprime la règle qui forçait tous les modals à apparaître */
 body.visitor-mode .header-logo-wrap {
   pointer-events: none; /* Pas d'accès admin via le logo */
 }
@@ -6246,18 +6239,60 @@ async function unlinkInviteFromReunion(inviteId, reunionId) {
    TROMBINOSCOPE — affichage modal navigable
 ==================================================================== */
 function openTrombinoForReunion(reunionId) {
+  console.log('[TROMBINO] openTrombinoForReunion(' + reunionId + ')');
   currentTrombinoReunion = reunionId;
-  renderTrombino(reunionId);
   document.getElementById('trombino-modal').style.display = 'flex';
+  // Render après ouverture du modal pour que les éléments DOM soient visibles
+  setTimeout(() => renderTrombino(reunionId), 50);
 }
 
 function closeTrombinoModal() {
   document.getElementById('trombino-modal').style.display = 'none';
 }
 
+
+function renderTrombinoAnnuaireMode() {
+  document.getElementById('trombino-modal-title').textContent = '👥 Trombinoscope du club';
+  const actifs = getActiveMembres();
+  const container = document.getElementById('trombino-content');
+  container.innerHTML = `
+    <div class="trombino-info-bar" style="margin-bottom:14px;">
+      <div style="flex:1;">
+        <strong style="color:var(--hop-marine);font-size:14px;">${actifs.length} membres du club</strong>
+        <div style="font-size:12px;color:var(--hop-texte-sec);margin-top:4px;">Aucune réunion programmée actuellement</div>
+      </div>
+    </div>
+    <div class="trombino-section">
+      <h3 class="trombino-section-title">
+        <span class="trombino-section-icon" style="background:var(--hop-bleu);">👥</span>
+        Tous les membres
+      </h3>
+      <div class="trombino-grid">${actifs.map(m => trombinoCardMembreEnriched(m, 'pending')).join('')}</div>
+    </div>
+  `;
+}
+
 function renderTrombino(reunionId) {
-  const r = state.reunions.find(x => x.ID === reunionId);
-  if (!r) return;
+  let r = state.reunions.find(x => x.ID === reunionId);
+
+  // Fallback intelligent : si la réunion demandée n'existe pas, prendre la prochaine à venir
+  if (!r) {
+    console.warn('[TROMBINO] Réunion ' + reunionId + ' introuvable, fallback');
+    r = state.reunions
+      .filter(x => x.Statut === 'À venir')
+      .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0];
+    if (r) {
+      currentTrombinoReunion = r.ID;
+      console.log('[TROMBINO] Fallback OK :', r.ID);
+    }
+  }
+
+  // Si même pas de réunion à venir, afficher tous les membres en mode "annuaire trombino"
+  if (!r) {
+    console.warn('[TROMBINO] Aucune réunion disponible, mode annuaire');
+    renderTrombinoAnnuaireMode();
+    return;
+  }
 
   // Titre
   const dateStr = r.Date ? new Date(r.Date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
