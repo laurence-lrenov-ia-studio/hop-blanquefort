@@ -5899,20 +5899,23 @@ function trombinoCardMembreEnriched(m, status) {
 
   const cardClass = status === 'no' ? 'trombino-card trombino-card-grey' : 'trombino-card';
 
-  // Boutons de contact
+  // Boutons de contact (cast string pour éviter les erreurs si Sheets renvoie un nombre)
   const contactButtons = [];
-  if (m.Téléphone) {
-    const telClean = m.Téléphone.replace(/\s/g, '');
+  const telRaw = m.Téléphone ? String(m.Téléphone).trim() : '';
+  if (telRaw) {
+    const telClean = telRaw.replace(/\s/g, '');
     contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
     // WhatsApp : formater le numéro (33...)
     const waClean = telClean.replace(/^0/, '33').replace(/[^0-9]/g, '');
-    contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
+    if (waClean) contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
   }
-  if (m.Email) {
-    contactButtons.push(`<a href="mailto:${escapeHtml(m.Email)}" class="trombino-contact-btn" title="Email">✉️</a>`);
+  const emailRaw = m.Email ? String(m.Email).trim() : '';
+  if (emailRaw) {
+    contactButtons.push(`<a href="mailto:${escapeHtml(emailRaw)}" class="trombino-contact-btn" title="Email">✉️</a>`);
   }
-  if (m['Site_web']) {
-    let site = m['Site_web'];
+  const siteRaw = m['Site_web'] ? String(m['Site_web']).trim() : '';
+  if (siteRaw) {
+    let site = siteRaw;
     if (!site.startsWith('http')) site = 'https://' + site;
     contactButtons.push(`<a href="${escapeHtml(site)}" target="_blank" rel="noopener" class="trombino-contact-btn" title="Site web">🌐</a>`);
   }
@@ -5941,14 +5944,16 @@ function trombinoCardInviteEnriched(inv, reunionId) {
     : '';
 
   const contactButtons = [];
-  if (inv.Telephone) {
-    const telClean = inv.Telephone.replace(/\s/g, '');
+  const telRaw = inv.Telephone ? String(inv.Telephone).trim() : '';
+  if (telRaw) {
+    const telClean = telRaw.replace(/\s/g, '');
     contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
     const waClean = telClean.replace(/^0/, '33').replace(/[^0-9]/g, '');
-    contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
+    if (waClean) contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
   }
-  if (inv.Email) {
-    contactButtons.push(`<a href="mailto:${escapeHtml(inv.Email)}" class="trombino-contact-btn" title="Email">✉️</a>`);
+  const emailRaw = inv.Email ? String(inv.Email).trim() : '';
+  if (emailRaw) {
+    contactButtons.push(`<a href="mailto:${escapeHtml(emailRaw)}" class="trombino-contact-btn" title="Email">✉️</a>`);
   }
 
   return `
@@ -5986,16 +5991,16 @@ function downloadVcard(membreId) {
   vcard += 'VERSION:3.0\n';
   vcard += `FN:${m.Nom}\n`;
   vcard += `N:${nom};${prenom};;;\n`;
-  if (m['Activité']) vcard += `ORG:${m['Activité']}\n`;
-  if (m.Email) vcard += `EMAIL:${m.Email}\n`;
-  if (m.Téléphone) vcard += `TEL:${m.Téléphone}\n`;
+  if (m['Activité']) vcard += `ORG:${String(m['Activité'])}\n`;
+  if (m.Email) vcard += `EMAIL:${String(m.Email).trim()}\n`;
+  if (m.Téléphone) vcard += `TEL:${String(m.Téléphone).trim()}\n`;
   if (m['Site_web']) {
-    let site = m['Site_web'];
-    if (!site.startsWith('http')) site = 'https://' + site;
-    vcard += `URL:${site}\n`;
+    let site = String(m['Site_web']).trim();
+    if (site && !site.startsWith('http')) site = 'https://' + site;
+    if (site) vcard += `URL:${site}\n`;
   }
-  if (m.Adresse) vcard += `ADR:;;${m.Adresse};;;;\n`;
-  if (m.Description) vcard += `NOTE:${m.Description.replace(/\n/g, ' ')}\n`;
+  if (m.Adresse) vcard += `ADR:;;${String(m.Adresse)};;;;\n`;
+  if (m.Description) vcard += `NOTE:${String(m.Description).replace(/\n/g, ' ')}\n`;
   vcard += 'END:VCARD\n';
 
   const blob = new Blob([vcard], { type: 'text/vcard' });
