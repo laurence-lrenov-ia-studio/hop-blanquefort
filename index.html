@@ -2106,18 +2106,21 @@ body.visitor-mode main {
 .trombino-proj-status-pending { background: #d97706; }
 .trombino-proj-status-invite { background: var(--hop-or); left: auto; right: 12px; }
 
-/* === MEDIA PRINT === */
+/* === MEDIA PRINT — FICHE PAPIER 2 COLONNES === */
 @media print {
-  /* Page setup */
+  /* Page A4 portrait */
   @page {
     size: A4;
-    margin: 12mm 10mm;
+    margin: 10mm 10mm 10mm 10mm;
   }
 
   body {
     background: white !important;
     margin: 0 !important;
     padding: 0 !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 10pt !important;
+    color: #000 !important;
   }
 
   /* CACHER TOUT par défaut */
@@ -2126,18 +2129,19 @@ body.visitor-mode main {
   #identity-modal, #admin-login-modal, #invite-modal,
   #evenement-modal, #reunion-modal, #membre-modal,
   #atelier-modal, #thematique-modal, #lien-modal,
+  #codes-members-modal,
   #cockpit-mobile, #projection,
   .tour-screen, .trombino-projection-screen,
   .toast, .toast-container,
   main, header, nav, footer { display: none !important; }
 
-  /* RÉAFFICHER UNIQUEMENT le modal trombino et tout son contenu */
+  /* RÉAFFICHER UNIQUEMENT le modal trombino */
   #trombino-modal,
   #trombino-modal .modal,
   #trombino-modal .modal-body,
   #trombino-modal .modal-body * { display: revert !important; }
 
-  /* Forcer la modale trombino en mode plein document */
+  /* Layout plein document */
   #trombino-modal {
     position: static !important;
     background: white !important;
@@ -2156,6 +2160,7 @@ body.visitor-mode main {
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
+    border-radius: 0 !important;
   }
   #trombino-modal .modal-body {
     overflow: visible !important;
@@ -2163,21 +2168,23 @@ body.visitor-mode main {
     max-height: none !important;
   }
 
-  /* Header modal trombino : juste le titre, pas les boutons */
+  /* Header simple */
   #trombino-modal .modal-header {
     display: flex !important;
-    border-bottom: 2px solid var(--hop-bleu) !important;
-    padding: 0 0 8px 0 !important;
-    margin-bottom: 14px !important;
+    border-bottom: 2px solid #1a2a4f !important;
+    padding: 0 0 6px 0 !important;
+    margin-bottom: 10px !important;
+    page-break-after: avoid;
   }
   #trombino-modal .modal-header h2 {
-    font-size: 18px !important;
+    font-size: 16pt !important;
     margin: 0 !important;
+    color: #1a2a4f !important;
   }
   #trombino-modal .modal-header > div,
   #trombino-modal .modal-header button { display: none !important; }
 
-  /* Cacher tous les boutons et footer */
+  /* Tout cacher d'inutile en print */
   #trombino-modal .modal-footer,
   .trombino-actions-bar,
   .trombino-filter-bar,
@@ -2185,53 +2192,206 @@ body.visitor-mode main {
   .trombino-contacts-row,
   button { display: none !important; }
 
-  /* Bandeau info + QR : affiché en haut */
+  /* Bandeau résumé + QR : juste le QR + intro (réduit) */
   .trombino-info-bar {
     display: flex !important;
-    border: 2px solid var(--hop-bleu) !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 14px !important;
+    border: 1.5pt solid #2196d4 !important;
+    border-radius: 6px !important;
     page-break-inside: avoid;
-    margin-bottom: 16px !important;
+    margin-bottom: 12px !important;
     background: white !important;
-    padding: 10px 14px !important;
+    padding: 8px 12px !important;
   }
-  .trombino-stats,
-  .trombino-stats * { display: revert !important; }
-  .trombino-qr-block,
-  .trombino-qr-block * { display: revert !important; }
+  .trombino-stats {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    flex: 1;
+  }
+  .trombino-stat-badge {
+    display: inline-block !important;
+    padding: 2px 8px !important;
+    border-radius: 10px !important;
+    font-size: 9pt !important;
+    border: 1pt solid #999 !important;
+    background: white !important;
+  }
+  .trombino-qr-block {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  .trombino-qr-img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  .trombino-qr-info {
+    font-size: 8pt !important;
+    line-height: 1.3 !important;
+  }
+  .trombino-qr-info button { display: none !important; }
 
-  /* Sections : 3 colonnes */
-  .trombino-section { display: block !important; page-break-inside: avoid; margin-bottom: 14px !important; }
+  /* Titres de section (Présents / Non confirmés / Excusés) */
+  .trombino-section {
+    display: block !important;
+    page-break-inside: auto;
+    margin-bottom: 10px !important;
+  }
   .trombino-section-title {
     display: flex !important;
-    font-size: 13px !important;
-    margin-bottom: 8px !important;
+    font-size: 12pt !important;
+    margin: 8px 0 6px 0 !important;
+    color: #1a2a4f !important;
+    page-break-after: avoid;
   }
+  .trombino-section-icon {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 10pt !important;
+  }
+
+  /* === LA GRILLE : 2 COLONNES === */
   .trombino-grid {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6mm !important;
   }
+
+  /* === FICHE PAPIER (refonte totale) === */
   .trombino-card {
-    display: flex !important;
-    page-break-inside: avoid;
+    display: block !important;
+    page-break-inside: avoid !important;
     box-shadow: none !important;
-    border: 1px solid #ccc !important;
-    padding: 10px 8px !important;
+    border: 0.5pt solid #999 !important;
+    border-radius: 4px !important;
+    padding: 6mm !important;
+    background: white !important;
+    text-align: left !important;
+    min-height: 48mm;
+    position: relative !important;
   }
-  .trombino-card * { display: revert !important; }
-  .trombino-card .trombino-contacts-row,
-  .trombino-card .trombino-edit-row,
-  .trombino-card button { display: none !important; }
 
-  /* Compacter en print */
-  .trombino-desc { -webkit-line-clamp: 2 !important; font-size: 10px !important; }
-  .trombino-nom { font-size: 12px !important; }
-  .trombino-activite { font-size: 10px !important; }
-  .trombino-avatar { width: 60px !important; height: 60px !important; font-size: 18px !important; }
-  .trombino-mission-pill { font-size: 8px !important; padding: 1px 5px !important; }
+  /* Statut en haut à droite */
+  .trombino-card .trombino-status {
+    position: absolute !important;
+    top: 4mm !important;
+    right: 4mm !important;
+    left: auto !important;
+    font-size: 8pt !important;
+    padding: 1px 6px !important;
+    border-radius: 8px !important;
+    color: #555 !important;
+    background: #f5f5f5 !important;
+    border: 0.5pt solid #ccc !important;
+    font-weight: 600 !important;
+  }
 
-  /* Statut badge bien visible */
-  .trombino-status { display: inline-block !important; }
+  /* Photo : 40px ronde en haut à gauche */
+  .trombino-card .trombino-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    float: left !important;
+    margin-right: 4mm !important;
+    margin-bottom: 2mm !important;
+    overflow: hidden !important;
+    position: relative !important;
+    box-shadow: none !important;
+    border: 0.5pt solid #ddd !important;
+    font-size: 12pt !important;
+    background: #f0f0f0 !important;
+    color: #1a2a4f !important;
+  }
+  .trombino-card .trombino-avatar img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .trombino-card-grey .trombino-avatar { filter: grayscale(100%) !important; opacity: 0.6 !important; }
+
+  /* Nom : à droite de la photo, gros */
+  .trombino-card .trombino-nom {
+    font-size: 11pt !important;
+    font-weight: 700 !important;
+    color: #1a2a4f !important;
+    line-height: 1.15 !important;
+    margin: 0 0 1mm 0 !important;
+    text-align: left !important;
+  }
+
+  /* Activité */
+  .trombino-card .trombino-activite {
+    font-size: 9pt !important;
+    color: #555 !important;
+    line-height: 1.2 !important;
+    margin: 0 0 2mm 0 !important;
+    text-align: left !important;
+    font-style: italic !important;
+  }
+
+  /* Description : optionnelle, courte */
+  .trombino-card .trombino-desc {
+    display: none !important; /* on retire pour gagner de la place */
+  }
+
+  /* Missions : retirées en print */
+  .trombino-card .trombino-missions-row {
+    display: none !important;
+  }
+
+  /* === COORDONNÉES EN CLAIR (CSS pseudo-content) === */
+  /* On affiche les coordonnées via les data-attributes injectés en JS */
+  .trombino-card .print-contacts {
+    display: block !important;
+    clear: both;
+    margin-top: 3mm !important;
+    padding-top: 2mm !important;
+    border-top: 0.5pt dashed #ddd !important;
+    font-size: 8.5pt !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
+  }
+  .trombino-card .print-contacts > div {
+    margin-bottom: 0.8mm !important;
+  }
+
+  /* === ZONE DE NOTES (3 lignes) === */
+  .trombino-card .print-notes {
+    display: block !important;
+    clear: both;
+    margin-top: 3mm !important;
+  }
+  .trombino-card .print-notes-label {
+    font-size: 7pt !important;
+    color: #999 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin-bottom: 1.5mm !important;
+    font-weight: 600 !important;
+  }
+  .trombino-card .print-note-line {
+    display: block !important;
+    border-bottom: 0.4pt dotted #aaa !important;
+    height: 5mm !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Forcer l'affichage des blocs print (qui ont display:none inline pour cacher à l'écran) */
+  .trombino-card .print-contacts { display: block !important; }
+  .trombino-card .print-notes { display: block !important; }
+  .trombino-card .print-contacts > div { display: block !important; }
+  .trombino-card .print-notes-label { display: block !important; }
+  .trombino-card .print-note-line { display: block !important; }
+
+  /* Cacher les éléments propres à l'écran qu'on garde dans le DOM mais pas en print */
+  .screen-only { display: none !important; }
 }
 
 /* === MOBILE === */
@@ -2251,6 +2411,122 @@ body.visitor-mode main {
   .trombino-proj-qr-title { font-size: 12px; }
   .trombino-proj-qr-code { font-size: 11px; }
   .trombino-proj-status { font-size: 9px; padding: 2px 6px; }
+}
+
+
+/* ====================================================================
+   CODES MEMBRES — admin (format bristol découpable)
+==================================================================== */
+.codes-intro {
+  background: var(--hop-bleu-pale);
+  border-left: 4px solid var(--hop-bleu);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+.codes-intro code {
+  background: white;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--hop-marine);
+  font-weight: 700;
+}
+.codes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.code-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px dashed var(--hop-bord);
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.15s;
+}
+.code-card:hover {
+  border-color: var(--hop-bleu);
+  border-style: solid;
+}
+.code-card-missing {
+  background: #fffbeb;
+  border-color: var(--hop-warn);
+}
+.code-card-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--hop-bleu), var(--hop-marine));
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.code-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.code-card-nom {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  line-height: 1.2;
+}
+.code-card-activite {
+  font-size: 11px;
+  color: var(--hop-texte-mute);
+  margin: 2px 0 6px 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.code-card-code {
+  display: inline-block;
+  background: var(--hop-marine);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.code-card-missing .code-card-code {
+  background: var(--hop-warn);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+/* === IMPRESSION CODES MEMBRES === */
+@media print {
+  /* Quand on imprime depuis le modal codes membres, on cache tout sauf lui */
+  #codes-members-modal:not([style*="display: none"]) ~ * { display: none !important; }
+  #codes-members-modal[style*="display: flex"] {
+    position: static !important;
+    background: white !important;
+    width: 100% !important;
+    inset: auto !important;
+  }
+  #codes-members-modal[style*="display: flex"] ~ #trombino-modal { display: none !important; }
+  .codes-intro { page-break-after: avoid; }
+  .codes-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .code-card {
+    page-break-inside: avoid;
+    border-style: dashed !important;
+    box-shadow: none !important;
+  }
 }
 
 
@@ -3078,6 +3354,7 @@ body.visitor-mode main {
         <h3>📅 Prochaine réunion</h3>
         <div id="dash-next-reunion"><div class="loading">Chargement…</div></div>
       </div>
+      <div class="dash-section admin-only" id="dash-admin-tools" style="display:none;"></div>
     </div>
 
     <!-- ANNUAIRE -->
@@ -3563,6 +3840,32 @@ body.visitor-mode main {
       <div style="flex:1;"></div>
       <button class="btn btn-secondary" onclick="closeInviteModal()">Annuler</button>
       <button class="btn btn-primary" id="invite-save-btn" onclick="saveInvite()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============== MODAL CODES MEMBRES (admin) ============== -->
+<div id="codes-members-modal" class="modal-overlay" style="display:none;">
+  <div class="modal" style="max-width:920px;width:95%;max-height:92vh;">
+    <div class="modal-header">
+      <h2>🔐 Codes d'accès des membres</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-secondary" onclick="window.print()" style="font-size:13px;padding:8px 14px;">🖨️ Imprimer</button>
+        <button class="modal-close" onclick="closeCodesMembersModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="codes-intro">
+        <p style="margin:0 0 8px 0;font-size:13px;color:var(--hop-texte-sec);">
+          Chaque membre dispose d'un code personnel pour se connecter à l'app.
+          Format : <code>PRENOMBLK</code> (en cas de doublon : <code>PRENOMNBLK</code> où N = 1ère lettre du nom).
+        </p>
+        <p style="margin:0;font-size:12px;color:var(--hop-texte-mute);font-style:italic;">
+          Imprime cette page (avec le bouton ci-dessus) pour découper et distribuer en réunion.
+        </p>
+      </div>
+      <div id="codes-members-grid" class="codes-grid"></div>
     </div>
   </div>
 </div>
@@ -4113,8 +4416,9 @@ function toast(msg, type = '') {
 /* ====================================================================
    LOGIN / IDENTITÉ / SESSION
 ==================================================================== */
-function checkLogin() {
-  const pwd = document.getElementById('login-password').value.trim();
+async function checkLogin() {
+  const pwdRaw = document.getElementById('login-password').value.trim();
+  const pwd = pwdRaw.toUpperCase();
   const errEl = document.getElementById('login-error');
 
   // Cas 0 : code visiteur (INVBLK) → mode lecture seule trombino du jour
@@ -4123,19 +4427,16 @@ function checkLogin() {
     sessionStorage.setItem('hop_visitor', '1');
     state.user = { type: 'visitor', name: 'Visiteur' };
     errEl.textContent = '';
-    // Marquer body en mode visiteur IMMÉDIATEMENT (avant tout rendu)
     document.body.classList.add('visitor-mode');
-    // Vérifier si une URL ?trombino=... est présente
     const params = new URLSearchParams(window.location.search);
     const trombinoReunionId = params.get('trombino');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('active');
-    applyAdminVisibility(); // cache nav, header, etc. dès maintenant
+    applyAdminVisibility();
     loadAll().then(() => {
       if (trombinoReunionId) {
         openTrombinoForReunion(trombinoReunionId);
       } else {
-        // Pas de réunion dans l'URL → ouvre la prochaine réunion à venir
         const next = state.reunions
           .filter(r => r.Statut === 'À venir')
           .sort((a,b) => new Date(a.Date) - new Date(b.Date))[0];
@@ -4146,7 +4447,7 @@ function checkLogin() {
     return;
   }
 
-  // Cas 1 : code admin → entrée directe en mode admin
+  // Cas 1 : code admin (LAUBLK, STEPHBLK, FLOBLK) → mode admin
   if (ADMIN_CODES[pwd]) {
     sessionStorage.setItem('hop_authed', '1');
     state.user = {
@@ -4163,30 +4464,24 @@ function checkLogin() {
     return;
   }
 
-  // Cas 2 : mot de passe app classique
+  // Cas 2 : code découverte HOPBLANQUEFORT → identification via modal
   if (pwd === APP_PASSWORD) {
     sessionStorage.setItem('hop_authed', '1');
     errEl.textContent = '';
-
-    // Si pas encore identifié → entrée + ouverture du modal "Qui es-tu ?"
     if (!state.user || !state.user.id) {
       enterApp();
-      // Charger les membres avant d'ouvrir le modal (au cas où loadAll pas fini)
       const tryOpenModal = () => {
         if (state.membres && state.membres.length > 0) {
           showIdentityModal(() => {
-            // Après identification : toast de bienvenue
             const firstName = state.user.name ? state.user.name.split(' ')[0] : '';
             toast(`Bienvenue ${firstName} 👋`, 'success');
           });
         } else {
-          // Pas encore chargé → réessayer dans 500ms
           setTimeout(tryOpenModal, 500);
         }
       };
       setTimeout(tryOpenModal, 300);
     } else {
-      // Déjà identifié → entrée directe + bienvenue
       enterApp();
       const firstName = state.user.name ? state.user.name.split(' ')[0] : '';
       toast(`Bienvenue ${firstName} 👋`, 'success');
@@ -4194,8 +4489,45 @@ function checkLogin() {
     return;
   }
 
+  // Cas 3 : code individuel membre (PRENOMBLK)
+  // Vérifie en local d'abord (rapide), fallback API si membres pas chargés
+  let foundMember = null;
+  if (state.membres && state.membres.length > 0) {
+    foundMember = state.membres.find(m =>
+      String(m.Code_acces || '').toUpperCase().trim() === pwd
+    );
+  }
+
+  if (!foundMember) {
+    errEl.textContent = '⏳ Vérification...';
+    try {
+      const result = await postAPI('check_member_code', { code: pwd });
+      if (result.ok && result.membre) {
+        foundMember = result.membre;
+      }
+    } catch (e) {
+      console.error('check_member_code error:', e);
+    }
+  }
+
+  if (foundMember) {
+    sessionStorage.setItem('hop_authed', '1');
+    state.user = {
+      type: 'membre',
+      id: foundMember.ID,
+      name: foundMember.Nom,
+      memberCode: pwd
+    };
+    localStorage.setItem('hop_user', JSON.stringify(state.user));
+    errEl.textContent = '';
+    enterApp();
+    const firstName = foundMember.Nom ? foundMember.Nom.split(' ')[0] : '';
+    toast(`Bienvenue ${firstName} 👋`, 'success');
+    return;
+  }
+
   // Sinon : erreur
-  errEl.textContent = 'Mot de passe incorrect';
+  errEl.textContent = 'Code incorrect';
 }
 
 // Stocke l'action en attente après identification (ex: cocher présence)
@@ -4553,6 +4885,25 @@ function renderDashboard() {
     `;
   } else {
     nextEl.innerHTML = '<div class="empty">Aucune réunion à venir</div>';
+  }
+
+  // Bouton admin "Codes d'accès des membres"
+  const adminBox = document.getElementById('dash-admin-tools');
+  if (adminBox) {
+    if (isAdmin()) {
+      adminBox.style.display = 'block';
+      adminBox.innerHTML = `
+        <h3 style="font-size:14px;color:var(--hop-marine);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;font-family:'Montserrat',sans-serif;">
+          <span style="background:var(--hop-marine);color:white;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;">🔐</span>
+          Outils admin
+        </h3>
+        <button class="btn btn-secondary" onclick="openCodesMembersModal()" style="font-size:13px;">
+          📋 Voir / imprimer les codes des membres
+        </button>
+      `;
+    } else {
+      adminBox.style.display = 'none';
+    }
   }
 }
 
@@ -5606,6 +5957,52 @@ async function deleteLienConfirm() {
 }
 
 /* ====================================================================
+   CODES MEMBRES — admin (liste imprimable)
+==================================================================== */
+function openCodesMembersModal() {
+  if (!isAdmin()) return;
+
+  const actifs = getActiveMembres().sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
+  const grid = document.getElementById('codes-members-grid');
+  if (!grid) return;
+
+  // Vérifier si la colonne Code_acces est configurée
+  const hasAnyCode = actifs.some(m => m.Code_acces);
+  if (!hasAnyCode) {
+    grid.innerHTML = `
+      <div class="empty" style="padding:30px;text-align:center;">
+        <p style="margin:0 0 12px 0;">⚠️ Les codes ne sont pas encore générés.</p>
+        <p style="margin:0;font-size:13px;color:var(--hop-texte-sec);">
+          Va dans le Sheet → Apps Script → exécute <code>addCodeColumn()</code> puis <code>assignCodesToAllMembers()</code>,
+          puis recharge l'app (Ctrl+F5).
+        </p>
+      </div>
+    `;
+  } else {
+    grid.innerHTML = actifs.map(m => {
+      const code = m.Code_acces || '— Non généré —';
+      const noCode = !m.Code_acces;
+      return `
+        <div class="code-card ${noCode ? 'code-card-missing' : ''}">
+          <div class="code-card-avatar">${buildAvatar(m, 56)}</div>
+          <div class="code-card-info">
+            <div class="code-card-nom">${escapeHtml(m.Nom)}</div>
+            <div class="code-card-activite">${escapeHtml(m['Activité'] || '')}</div>
+            <div class="code-card-code">${escapeHtml(code)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('codes-members-modal').style.display = 'flex';
+}
+
+function closeCodesMembersModal() {
+  document.getElementById('codes-members-modal').style.display = 'none';
+}
+
+/* ====================================================================
    INVITÉS — CRUD + TROMBINOSCOPE
 ==================================================================== */
 
@@ -6043,7 +6440,18 @@ function trombinoCardMembreEnriched(m, status) {
         m.Missions.split('|').map(x => x.trim()).filter(Boolean).slice(0, 4)
           .map(mi => `<span class="trombino-mission-pill">${escapeHtml(mi)}</span>`).join('')
       }</div>` : ''}
-      <div class="trombino-contacts-row">${contactButtons.join('')}</div>
+      <div class="trombino-contacts-row screen-only">${contactButtons.join('')}</div>
+      <div class="print-contacts" style="display:none;">
+        ${telRaw ? `<div>📞 ${escapeHtml(telRaw)}</div>` : ''}
+        ${emailRaw ? `<div>✉️ ${escapeHtml(emailRaw)}</div>` : ''}
+        ${siteRaw ? `<div>🌐 ${escapeHtml(siteRaw.replace(/^https?:\/\//, ''))}</div>` : ''}
+      </div>
+      <div class="print-notes" style="display:none;">
+        <div class="print-notes-label">Notes</div>
+        <div class="print-note-line"></div>
+        <div class="print-note-line"></div>
+        <div class="print-note-line"></div>
+      </div>
     </div>`;
 }
 
@@ -6077,9 +6485,19 @@ function trombinoCardInviteEnriched(inv, reunionId) {
       <div class="trombino-activite">${escapeHtml(inv.Activite || '')}</div>
       ${inv.Notes ? `<div class="trombino-desc">${escapeHtml(inv.Notes)}</div>` : ''}
       ${inv.Invite_par ? `<div class="trombino-meta">invité par ${escapeHtml(inv.Invite_par)}</div>` : ''}
-      <div class="trombino-contacts-row">${contactButtons.join('')}</div>
+      <div class="trombino-contacts-row screen-only">${contactButtons.join('')}</div>
+      <div class="print-contacts" style="display:none;">
+        ${telRaw ? `<div>📞 ${escapeHtml(telRaw)}</div>` : ''}
+        ${emailRaw ? `<div>✉️ ${escapeHtml(emailRaw)}</div>` : ''}
+      </div>
+      <div class="print-notes" style="display:none;">
+        <div class="print-notes-label">Notes</div>
+        <div class="print-note-line"></div>
+        <div class="print-note-line"></div>
+        <div class="print-note-line"></div>
+      </div>
       ${!isVisitor() ? `
-        <div class="trombino-edit-row">
+        <div class="trombino-edit-row screen-only">
           <button class="btn btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="openInviteModal('${inv.ID}', '${reunionId}')">✏️ Éditer</button>
           <button class="btn btn-secondary" style="font-size:11px;padding:4px 8px;color:var(--hop-danger);" onclick="unlinkInviteFromReunion('${inv.ID}', '${reunionId}')">✕ Retirer</button>
         </div>
