@@ -702,6 +702,20 @@ main {
 
 
 /* ====================================================================
+   MODE VISITEUR (INVBLK) — interface limitée
+==================================================================== */
+body.visitor-mode .header-actions {
+  /* Cacher les boutons admin du header en mode visiteur */
+}
+body.visitor-mode .header-logo-wrap {
+  pointer-events: none; /* Pas d'accès admin via le logo */
+}
+body.visitor-mode .header-logo-key {
+  display: none;
+}
+
+
+/* ====================================================================
    TABLEAU DE BORD
 ==================================================================== */
 .dashboard-grid {
@@ -1574,6 +1588,568 @@ main {
 
 
 /* ====================================================================
+   TROMBINOSCOPE — grille modal + mode projection
+==================================================================== */
+.trombino-section {
+  margin-bottom: 28px;
+}
+.trombino-section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--hop-marine);
+  margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Montserrat', sans-serif;
+}
+.trombino-section-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 800;
+  font-size: 13px;
+}
+.trombino-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+.trombino-card {
+  background: white;
+  border: 1px solid var(--hop-bord);
+  border-radius: 14px;
+  padding: 16px 12px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.trombino-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.trombino-card-invite {
+  background: linear-gradient(135deg, #fffbeb, white);
+  border-color: var(--hop-or);
+}
+.trombino-badge-invite {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--hop-or);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+}
+.trombino-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hop-bleu), var(--hop-marine));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(33, 150, 212, 0.2);
+}
+.trombino-avatar-invite {
+  background: linear-gradient(135deg, var(--hop-or), #b8761c);
+  box-shadow: 0 4px 12px rgba(212, 160, 74, 0.25);
+}
+.trombino-nom {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  line-height: 1.2;
+  margin-top: 6px;
+}
+.trombino-activite {
+  font-size: 12px;
+  color: var(--hop-bleu);
+  line-height: 1.3;
+  font-weight: 500;
+}
+.trombino-meta {
+  font-size: 10px;
+  color: var(--hop-texte-mute);
+  font-style: italic;
+  margin-top: 2px;
+}
+.trombino-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* === MODE PROJECTION PLEIN ÉCRAN === */
+.trombino-projection-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #f0f7fc, #e8f4fb);
+  z-index: 99999;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.trombino-proj-close {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  background: white;
+  border: 1px solid var(--hop-bord);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+  font-family: inherit;
+}
+.trombino-proj-close:hover {
+  background: var(--hop-bleu-pale);
+}
+.trombino-proj-header {
+  text-align: center;
+  padding: 32px 20px 20px;
+}
+.trombino-proj-header h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--hop-marine);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+  font-family: 'Montserrat', sans-serif;
+}
+#trombino-proj-subtitle {
+  font-size: 20px;
+  color: var(--hop-bleu);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.trombino-proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+.trombino-proj-card {
+  background: white;
+  border: 2px solid var(--hop-bord);
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(44, 67, 116, 0.08);
+}
+.trombino-proj-card-invite {
+  background: linear-gradient(135deg, #fffbeb, white);
+  border-color: var(--hop-or);
+}
+.trombino-proj-badge-invite {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--hop-or);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 14px;
+}
+.trombino-proj-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hop-bleu), var(--hop-marine));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 44px;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 28px rgba(33, 150, 212, 0.25);
+  border: 4px solid white;
+}
+.trombino-proj-avatar-invite {
+  background: linear-gradient(135deg, var(--hop-or), #b8761c);
+  box-shadow: 0 10px 28px rgba(212, 160, 74, 0.3);
+}
+.trombino-proj-nom {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--hop-marine);
+  line-height: 1.15;
+  margin-top: 6px;
+}
+.trombino-proj-activite {
+  font-size: 14px;
+  color: var(--hop-bleu);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .trombino-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  .trombino-card { padding: 12px 8px 10px; }
+  .trombino-avatar { width: 64px; height: 64px; font-size: 20px; }
+  .trombino-nom { font-size: 12px; }
+  .trombino-activite { font-size: 11px; }
+  .trombino-proj-header { padding: 20px 16px 10px; }
+  .trombino-proj-header h1 { font-size: 26px; }
+  #trombino-proj-subtitle { font-size: 14px; }
+  .trombino-proj-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 16px;
+  }
+  .trombino-proj-card { padding: 16px 12px 12px; }
+  .trombino-proj-avatar { width: 90px; height: 90px; font-size: 28px; }
+  .trombino-proj-nom { font-size: 14px; }
+  .trombino-proj-activite { font-size: 11px; }
+  .trombino-proj-close { top: 12px; right: 12px; padding: 8px 12px; font-size: 12px; }
+}
+
+
+/* ====================================================================
+   TROMBINOSCOPE — VERSION ENRICHIE
+==================================================================== */
+.trombino-info-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--hop-bleu-pale), white);
+  border: 1px solid var(--hop-bleu);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.trombino-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 200px;
+}
+.trombino-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.trombino-stat-yes { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+.trombino-stat-no { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
+.trombino-stat-pending { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+.trombino-stat-invite { background: #fef3c7; color: #d97706; border: 1px solid var(--hop-or); }
+
+.trombino-qr-block {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--hop-bord);
+}
+.trombino-qr-img {
+  width: 80px;
+  height: 80px;
+}
+.trombino-qr-info {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.trombino-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.trombino-filter-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding: 12px;
+  background: var(--hop-creme);
+  border-radius: 12px;
+}
+.trombino-filter-label {
+  font-size: 12px;
+  color: var(--hop-marine);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.trombino-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid var(--hop-bord);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hop-marine);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.trombino-chip:hover {
+  border-color: var(--hop-bleu);
+  background: var(--hop-bleu-pale);
+}
+.trombino-chip.active {
+  background: var(--hop-bleu);
+  color: white;
+  border-color: var(--hop-bleu);
+}
+
+/* Cartes enrichies */
+.trombino-card {
+  /* hérité de l'ancien CSS mais on ajoute */
+  position: relative;
+}
+.trombino-card-grey .trombino-avatar { filter: grayscale(80%); opacity: 0.85; }
+.trombino-card-grey .trombino-nom { opacity: 0.85; }
+
+.trombino-status {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.02em;
+  z-index: 2;
+}
+.trombino-status-yes { background: #16a34a; color: white; }
+.trombino-status-no { background: #9ca3af; color: white; }
+.trombino-status-pending { background: #d97706; color: white; }
+.trombino-status-invite { background: var(--hop-or); color: white; right: 8px; left: auto; }
+
+.trombino-desc {
+  font-size: 11px;
+  color: var(--hop-texte-sec);
+  line-height: 1.4;
+  font-style: italic;
+  margin-top: 4px;
+  padding: 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.trombino-missions-row {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 6px 0;
+}
+.trombino-mission-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: var(--hop-bleu-pale);
+  color: var(--hop-marine);
+  font-size: 9px;
+  font-weight: 600;
+}
+.trombino-contacts-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.trombino-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--hop-bord);
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--hop-marine);
+}
+.trombino-contact-btn:hover {
+  border-color: var(--hop-bleu);
+  background: var(--hop-bleu-pale);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 212, 0.2);
+}
+.trombino-edit-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  justify-content: center;
+}
+
+/* === BANDEAU QR EN PROJECTION === */
+.trombino-proj-qr-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(44, 67, 116, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 2px solid var(--hop-bleu);
+  max-width: 360px;
+  z-index: 100;
+}
+.trombino-proj-qr-img {
+  width: 110px;
+  height: 110px;
+}
+.trombino-proj-qr-text {
+  font-family: 'Montserrat', sans-serif;
+}
+.trombino-proj-qr-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  line-height: 1.3;
+}
+.trombino-proj-qr-code {
+  font-size: 13px;
+  color: var(--hop-bleu);
+  margin-top: 8px;
+  font-weight: 600;
+}
+.trombino-proj-qr-code strong {
+  background: var(--hop-creme);
+  padding: 2px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  color: var(--hop-marine);
+}
+
+/* Cartes projection avec statuts */
+.trombino-proj-card { position: relative; }
+.trombino-proj-card-grey .trombino-proj-avatar { filter: grayscale(70%); opacity: 0.85; }
+.trombino-proj-status {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  color: white;
+}
+.trombino-proj-status-yes { background: #16a34a; }
+.trombino-proj-status-no { background: #9ca3af; }
+.trombino-proj-status-pending { background: #d97706; }
+.trombino-proj-status-invite { background: var(--hop-or); left: auto; right: 12px; }
+
+/* === MEDIA PRINT === */
+@media print {
+  body { background: white !important; }
+  /* Cacher TOUT sauf le contenu trombino */
+  .app-header, .nav, .tabs-burger, #login-screen, .toast,
+  .trombino-actions-bar, .trombino-filter-bar,
+  .modal-header button, .modal-footer, .trombino-edit-row,
+  .trombino-contact-btn[onclick] { display: none !important; }
+
+  /* Forcer la modale trombino en mode plein document */
+  .modal-overlay { position: static !important; background: white !important; display: block !important; }
+  .modal { box-shadow: none !important; max-width: 100% !important; max-height: none !important; }
+  .modal-body { overflow: visible !important; padding: 0 !important; }
+
+  /* Bandeau info + QR : afficher en haut */
+  .trombino-info-bar {
+    border: 2px solid var(--hop-bleu) !important;
+    page-break-inside: avoid;
+    margin-bottom: 18px;
+  }
+
+  /* Grilles : 3 colonnes en print */
+  .trombino-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+  .trombino-card {
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  .trombino-section { page-break-inside: avoid; margin-bottom: 16px; }
+  .trombino-section-title { font-size: 14px !important; }
+
+  /* Petites améliorations */
+  .trombino-desc { -webkit-line-clamp: 2 !important; }
+  .trombino-contacts-row { display: none !important; } /* Pas utile en print */
+}
+
+/* === MOBILE === */
+@media (max-width: 768px) {
+  .trombino-info-bar { flex-direction: column; align-items: flex-start; }
+  .trombino-qr-block { width: 100%; justify-content: center; }
+  .trombino-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; }
+  .trombino-desc { font-size: 10px; }
+  .trombino-mission-pill { font-size: 8px; padding: 2px 5px; }
+  .trombino-contact-btn { width: 28px; height: 28px; font-size: 12px; }
+  .trombino-proj-qr-banner {
+    bottom: 12px; right: 12px;
+    padding: 10px 14px;
+    max-width: 240px;
+  }
+  .trombino-proj-qr-img { width: 80px; height: 80px; }
+  .trombino-proj-qr-title { font-size: 12px; }
+  .trombino-proj-qr-code { font-size: 11px; }
+  .trombino-proj-status { font-size: 9px; padding: 2px 6px; }
+}
+
+
+/* ====================================================================
    COCKPIT MOBILE (admin)
 ==================================================================== */
 .cockpit-mobile {
@@ -2373,8 +2949,8 @@ main {
     </div>
   </header>
 
-  <button class="tabs-burger" id="tabs-burger" onclick="toggleMobileMenu()" aria-label="Menu">☰ Menu</button>
-  <nav class="nav" id="main-nav">
+  <button class="tabs-burger visitor-hidden" id="tabs-burger" onclick="toggleMobileMenu()" aria-label="Menu">☰ Menu</button>
+  <nav class="nav visitor-hidden" id="main-nav">
     <button class="tab" data-view="dashboard" onclick="switchView('dashboard')">Tableau de bord</button>
     <button class="tab" data-view="annuaire" onclick="switchView('annuaire')">Annuaire</button>
     <button class="tab" data-view="calendrier" onclick="switchView('calendrier')">📅 Calendrier</button>
@@ -2830,6 +3406,93 @@ main {
 </div>
 
 <!-- ============== MODALS ============== -->
+<!-- ============== MODAL INVITÉ (création/édition) ============== -->
+<div id="invite-modal" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="invite-modal-title">👥 Ajouter un invité</h2>
+      <button class="modal-close" onclick="closeInviteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="invite-id">
+      <input type="hidden" id="invite-reunion-context">
+      <div id="invite-existing-warning" style="display:none;background:#fffbeb;border-left:4px solid var(--hop-warn);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;color:#92400e;">
+        💡 Cet invité existe déjà — tu peux re-cocher sa présence à cette nouvelle réunion.
+      </div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>👤 Nom complet *</label>
+          <input type="text" id="invite-nom" class="form-input" placeholder="Ex : Marc Dupont" oninput="checkExistingInvite()">
+          <div id="invite-existing-list" style="display:none;margin-top:8px;"></div>
+        </div>
+        <div class="form-group full">
+          <label>💼 Activité / Métier</label>
+          <input type="text" id="invite-activite" class="form-input" placeholder="Ex : Architecte d'intérieur">
+        </div>
+        <div class="form-group">
+          <label>📧 Email</label>
+          <input type="email" id="invite-email" class="form-input" placeholder="marc@exemple.fr">
+        </div>
+        <div class="form-group">
+          <label>📱 Téléphone</label>
+          <input type="text" id="invite-telephone" class="form-input" placeholder="06 ...">
+        </div>
+        <div class="form-group full">
+          <label>📸 URL photo (optionnel)</label>
+          <input type="text" id="invite-photo-url" class="form-input" placeholder="https://... (laisser vide pour initiales)">
+        </div>
+        <div class="form-group full">
+          <label>👤 Invité par</label>
+          <select id="invite-par-select" class="form-select">
+            <option value="">— Choisir un membre —</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>📝 Notes (optionnel)</label>
+          <textarea id="invite-notes" class="form-textarea" placeholder="Pourquoi cet invité, ce qu'il cherche..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary admin-only" id="invite-delete-btn" onclick="deleteInviteConfirm()" style="display:none;color:var(--hop-danger);">🗑️ Supprimer</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-secondary" onclick="closeInviteModal()">Annuler</button>
+      <button class="btn btn-primary" id="invite-save-btn" onclick="saveInvite()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODAL TROMBINOSCOPE ============== -->
+<div id="trombino-modal" class="modal-overlay" style="display:none;">
+  <div class="modal" style="max-width:1100px;width:95%;max-height:92vh;">
+    <div class="modal-header">
+      <h2 id="trombino-modal-title">👥 Trombinoscope du jour</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-secondary" onclick="openTrombinoProjection()" style="font-size:13px;padding:8px 14px;">▶ Mode projection</button>
+        <button class="modal-close" onclick="closeTrombinoModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div id="trombino-content"></div>
+    </div>
+    <div class="modal-footer">
+      <div style="flex:1;"></div>
+      <button class="btn btn-primary" onclick="openAddInviteForTrombino()">➕ Ajouter un invité</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODE PROJECTION TROMBINOSCOPE ============== -->
+<div id="trombino-projection" class="trombino-projection-screen" style="display:none;">
+  <button class="trombino-proj-close" onclick="closeTrombinoProjection()">✕ Quitter</button>
+  <div class="trombino-proj-header">
+    <h1 id="trombino-proj-title">Trombinoscope du jour</h1>
+    <div id="trombino-proj-subtitle"></div>
+  </div>
+  <div id="trombino-proj-grid" class="trombino-proj-grid"></div>
+  <div id="trombino-proj-qr-banner" class="trombino-proj-qr-banner"></div>
+</div>
+
 <!-- ============== MODAL ÉVÉNEMENT (création/édition) ============== -->
 <div id="evenement-modal" class="modal-overlay" style="display:none;">
   <div class="modal">
@@ -3145,6 +3808,9 @@ const ADMIN_CODES = {
   'FLOBLK':      'Florian'
 };
 
+// Code visiteur (lecture seule du trombino du jour)
+const VISITOR_CODE = 'INVBLK';
+
 /* ====================================================================
    STATE
 ==================================================================== */
@@ -3156,6 +3822,7 @@ const state = {
   thematiques: [],
   liens: [],
   evenements: [],
+  invites: [],
   dashboard: null,
   // Identité courante
   user: null,        // { type: 'membre' | 'admin', id?, name, adminCode? }
@@ -3205,6 +3872,7 @@ async function loadAll() {
     state.liens       = result.data.liens       || [];
     state.thematiques = result.data.thematiques || [];
     state.evenements  = result.data.evenements  || [];
+    state.invites     = result.data.invites     || [];
     state.dashboard   = result.data.dashboard   || null;
     renderAll();
     return true;
@@ -3343,6 +4011,32 @@ function toast(msg, type = '') {
 function checkLogin() {
   const pwd = document.getElementById('login-password').value.trim();
   const errEl = document.getElementById('login-error');
+
+  // Cas 0 : code visiteur (INVBLK) → mode lecture seule trombino du jour
+  if (pwd === VISITOR_CODE) {
+    sessionStorage.setItem('hop_authed', '1');
+    sessionStorage.setItem('hop_visitor', '1');
+    state.user = { type: 'visitor', name: 'Visiteur' };
+    errEl.textContent = '';
+    // Vérifier si une URL ?trombino=... est présente → ouvrir direct
+    const params = new URLSearchParams(window.location.search);
+    const trombinoReunionId = params.get('trombino');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+    loadAll().then(() => {
+      if (trombinoReunionId) {
+        openTrombinoForReunion(trombinoReunionId);
+      } else {
+        // Pas de réunion dans l'URL → ouvre la prochaine réunion à venir
+        const next = state.reunions
+          .filter(r => r.Statut === 'À venir')
+          .sort((a,b) => new Date(a.Date) - new Date(b.Date))[0];
+        if (next) openTrombinoForReunion(next.ID);
+        else toast('Pas de réunion à venir', 'error');
+      }
+    });
+    return;
+  }
 
   // Cas 1 : code admin → entrée directe en mode admin
   if (ADMIN_CODES[pwd]) {
@@ -3515,15 +4209,27 @@ function enterApp() {
 
 function applyAdminVisibility() {
   const isAdminMode = state.user && state.user.type === 'admin';
+  const isVisitorMode = state.user && state.user.type === 'visitor';
+
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = isAdminMode ? '' : 'none';
   });
+
+  // Mode visiteur : cacher la nav et certains éléments
+  document.querySelectorAll('.visitor-hidden').forEach(el => {
+    el.style.display = isVisitorMode ? 'none' : '';
+  });
+
   // Mettre à jour la classe is-admin sur le wrapper du logo
   const wrap = document.getElementById('header-logo-wrap');
   if (wrap) {
     if (isAdminMode) wrap.classList.add('is-admin');
     else wrap.classList.remove('is-admin');
   }
+
+  // Mode visiteur : ajouter class CSS sur body pour styles spécifiques
+  if (isVisitorMode) document.body.classList.add('visitor-mode');
+  else document.body.classList.remove('visitor-mode');
 }
 
 function isAdmin() {
@@ -3604,6 +4310,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Restaurer la session si elle existe
   const authed = sessionStorage.getItem('hop_authed') === '1';
   const userStr = localStorage.getItem('hop_user');
+  const isVisitor = sessionStorage.getItem('hop_visitor') === '1';
+
+  // Cas : URL ?trombino=... présente + session visiteur active → ouvrir direct
+  const urlParams = new URLSearchParams(window.location.search);
+  const trombinoReunionId = urlParams.get('trombino');
+
+  if (authed && isVisitor && trombinoReunionId) {
+    state.user = { type: 'visitor', name: 'Visiteur' };
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+    loadAll().then(() => openTrombinoForReunion(trombinoReunionId));
+    return;
+  }
+
+  // Cas : URL ?trombino=... sans session → message d'invitation sur l'écran login
+  if (trombinoReunionId && !authed) {
+    const titleEl = document.querySelector('.login-card h1');
+    const subEl = document.querySelector('.login-card .login-subtitle');
+    if (titleEl) titleEl.textContent = '👋 Bienvenue, visiteur';
+    if (subEl) subEl.innerHTML = 'Pour voir le trombinoscope du jour,<br>tape le code visiteur';
+  }
 
   if (authed && userStr) {
     try {
@@ -3613,6 +4340,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Si parse fail, repartir login
       sessionStorage.removeItem('hop_authed');
       localStorage.removeItem('hop_user');
+      sessionStorage.removeItem('hop_visitor');
     }
   }
 
@@ -3902,6 +4630,9 @@ function reunionCard(r) {
         <button class="btn-presence no ${my === 'no' ? 'active' : ''}" onclick="setMyPresence('${r.ID}', false)">✗ Non</button>
       </div>`;
   }
+  // Trombinoscope (visible par tous)
+  actions += `<button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;background:var(--hop-bleu-pale);border-color:var(--hop-bleu);color:var(--hop-bleu);font-weight:700;" onclick="openTrombinoForReunion('${r.ID}')">👥 Trombino</button>`;
+
   if (isAdmin()) {
     actions += `
       <button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;" onclick="openEditReunion('${r.ID}')">✏️ Éditer</button>
@@ -4762,6 +5493,628 @@ async function deleteLienConfirm() {
   closeLienModal();
   await postAPI('delete_lien', { lien: id, admin_code: state.user.adminCode });
   setTimeout(loadAll, 1500);
+}
+
+/* ====================================================================
+   INVITÉS — CRUD + TROMBINOSCOPE
+==================================================================== */
+
+// État courant : ID de la réunion pour laquelle on consulte le trombino
+let currentTrombinoReunion = null;
+
+function openAddInviteForReunion(reunionId) {
+  openInviteModal(null, reunionId);
+}
+
+function openAddInviteForTrombino() {
+  openInviteModal(null, currentTrombinoReunion);
+}
+
+function openInviteModal(inviteId, reunionContext) {
+  // Remplir le select "Invité par" avec les membres actifs
+  const select = document.getElementById('invite-par-select');
+  const actifs = getActiveMembres().sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
+  select.innerHTML = '<option value="">— Choisir un membre —</option>' +
+    actifs.map(m => `<option value="${m.ID}">${escapeHtml(m.Nom)}</option>`).join('');
+
+  document.getElementById('invite-existing-warning').style.display = 'none';
+  document.getElementById('invite-existing-list').style.display = 'none';
+  document.getElementById('invite-reunion-context').value = reunionContext || '';
+
+  if (inviteId) {
+    // Édition
+    const inv = (state.invites || []).find(x => x.ID === inviteId);
+    if (!inv) return;
+    document.getElementById('invite-modal-title').textContent = '✏️ Éditer l\'invité';
+    document.getElementById('invite-id').value = inv.ID;
+    document.getElementById('invite-nom').value = inv.Nom || '';
+    document.getElementById('invite-activite').value = inv.Activite || '';
+    document.getElementById('invite-email').value = inv.Email || '';
+    document.getElementById('invite-telephone').value = inv.Telephone || '';
+    document.getElementById('invite-photo-url').value = inv.Photo_url || '';
+    document.getElementById('invite-par-select').value = inv.Invite_par_id || '';
+    document.getElementById('invite-notes').value = inv.Notes || '';
+    document.getElementById('invite-delete-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  } else {
+    // Création
+    document.getElementById('invite-modal-title').textContent = '👥 Ajouter un invité';
+    document.getElementById('invite-id').value = '';
+    document.getElementById('invite-nom').value = '';
+    document.getElementById('invite-activite').value = '';
+    document.getElementById('invite-email').value = '';
+    document.getElementById('invite-telephone').value = '';
+    document.getElementById('invite-photo-url').value = '';
+    // Pré-sélectionner le membre courant comme "Invité par"
+    if (state.user && state.user.id) {
+      document.getElementById('invite-par-select').value = state.user.id;
+    } else {
+      document.getElementById('invite-par-select').value = '';
+    }
+    document.getElementById('invite-notes').value = '';
+    document.getElementById('invite-delete-btn').style.display = 'none';
+  }
+
+  document.getElementById('invite-modal').style.display = 'flex';
+}
+
+function closeInviteModal() {
+  document.getElementById('invite-modal').style.display = 'none';
+}
+
+// Détecter si un invité du même nom existe déjà (pour proposer la réutilisation)
+function checkExistingInvite() {
+  const nom = document.getElementById('invite-nom').value.trim().toLowerCase();
+  const list = document.getElementById('invite-existing-list');
+  if (!nom || nom.length < 3) {
+    list.style.display = 'none';
+    return;
+  }
+  const matches = (state.invites || []).filter(inv =>
+    (inv.Nom || '').toLowerCase().includes(nom)
+  ).slice(0, 5);
+
+  if (matches.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--hop-bleu);margin-bottom:6px;">💡 Invité(s) existant(s) au nom similaire</div>' +
+    matches.map(inv => `
+      <button type="button" onclick="reuseExistingInvite('${inv.ID}')"
+              style="display:flex;width:100%;text-align:left;padding:8px 10px;border:1px solid var(--hop-bord);border-radius:8px;background:white;margin-bottom:4px;cursor:pointer;gap:10px;align-items:center;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--hop-bleu-pale);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:var(--hop-marine);">
+          ${getInitials(inv.Nom)}
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:600;color:var(--hop-marine);font-size:13px;">${escapeHtml(inv.Nom)}</div>
+          <div style="font-size:11px;color:var(--hop-texte-mute);">${escapeHtml(inv.Activite || '')} ${inv.Invite_par ? '· invité par ' + escapeHtml(inv.Invite_par) : ''}</div>
+        </div>
+        <span style="font-size:11px;color:var(--hop-bleu);font-weight:700;">→ Réutiliser</span>
+      </button>
+    `).join('');
+  list.style.display = 'block';
+}
+
+// Réutiliser un invité existant : le lier à la réunion courante sans créer de doublon
+async function reuseExistingInvite(inviteId) {
+  const reunionId = document.getElementById('invite-reunion-context').value;
+  if (!reunionId) {
+    toast('Pas de réunion contextuelle, impossible de lier', 'error');
+    return;
+  }
+  closeInviteModal();
+  toast('Liaison de l\'invité à la réunion…');
+
+  // Mettre à jour localement
+  const inv = state.invites.find(x => x.ID === inviteId);
+  if (inv) {
+    const list = (inv.Reunions || '').split('|').filter(x => x.trim());
+    if (!list.includes(reunionId)) {
+      list.push(reunionId);
+      inv.Reunions = list.join('|');
+    }
+  }
+  // Re-render trombino
+  if (currentTrombinoReunion === reunionId) {
+    renderTrombino(reunionId);
+  }
+
+  await postAPI('link_invite', { invite: inviteId, reunion: reunionId });
+  setTimeout(loadAll, 1500);
+}
+
+async function saveInvite() {
+  const id = document.getElementById('invite-id').value;
+  const nom = document.getElementById('invite-nom').value.trim();
+  if (!nom) { toast('Nom obligatoire', 'error'); return; }
+
+  const reunionContext = document.getElementById('invite-reunion-context').value;
+  const inviteParId = document.getElementById('invite-par-select').value;
+  const inviteParName = inviteParId ? ((state.membres.find(m => m.ID === inviteParId) || {}).Nom || '') : '';
+
+  const params = {
+    nom: nom,
+    activite: document.getElementById('invite-activite').value.trim(),
+    email: document.getElementById('invite-email').value.trim(),
+    telephone: document.getElementById('invite-telephone').value.trim(),
+    photo_url: document.getElementById('invite-photo-url').value.trim(),
+    invite_par: inviteParName,
+    invite_par_id: inviteParId,
+    notes: document.getElementById('invite-notes').value.trim()
+  };
+
+  // Si on crée ET qu'on a une réunion contextuelle → lier directement
+  if (!id && reunionContext) {
+    params.reunion = reunionContext;
+  }
+
+  closeInviteModal();
+  toast(id ? 'Enregistrement…' : 'Invité ajouté');
+
+  if (id) {
+    params.invite = id;
+    // Optimistic update
+    const local = state.invites.find(x => x.ID === id);
+    if (local) {
+      Object.assign(local, {
+        Nom: params.nom, Activite: params.activite, Email: params.email,
+        Telephone: params.telephone, Photo_url: params.photo_url,
+        Invite_par: params.invite_par, Invite_par_id: params.invite_par_id,
+        Notes: params.notes
+      });
+      if (currentTrombinoReunion) renderTrombino(currentTrombinoReunion);
+    }
+    await postAPI('update_invite', params);
+  } else {
+    // Optimistic : ajouter localement
+    const tempId = 'I-TEMP-' + Date.now();
+    state.invites.push({
+      ID: tempId,
+      Nom: params.nom, Activite: params.activite, Email: params.email,
+      Telephone: params.telephone, Photo_url: params.photo_url,
+      Invite_par: params.invite_par, Invite_par_id: params.invite_par_id,
+      Reunions: reunionContext || '',
+      Notes: params.notes
+    });
+    if (currentTrombinoReunion) renderTrombino(currentTrombinoReunion);
+    await postAPI('add_invite', params);
+  }
+  setTimeout(loadAll, 1500);
+}
+
+async function deleteInviteConfirm() {
+  if (!isAdmin()) return;
+  const id = document.getElementById('invite-id').value;
+  if (!id) return;
+  if (!confirm('Supprimer définitivement cet invité de toutes les réunions ?')) return;
+  closeInviteModal();
+  await postAPI('delete_invite', { invite: id, admin_code: state.user.adminCode });
+  setTimeout(loadAll, 1500);
+}
+
+// Délier un invité d'une réunion (sans supprimer sa fiche)
+async function unlinkInviteFromReunion(inviteId, reunionId) {
+  if (!confirm('Retirer cet invité de cette réunion ? (sa fiche reste, il pourra revenir à une autre réunion)')) return;
+
+  // Optimistic
+  const inv = state.invites.find(x => x.ID === inviteId);
+  if (inv) {
+    const list = (inv.Reunions || '').split('|').filter(x => x.trim() && x !== reunionId);
+    inv.Reunions = list.join('|');
+  }
+  renderTrombino(reunionId);
+
+  await postAPI('unlink_invite', { invite: inviteId, reunion: reunionId });
+  setTimeout(loadAll, 1500);
+}
+
+/* ====================================================================
+   TROMBINOSCOPE — affichage modal navigable
+==================================================================== */
+function openTrombinoForReunion(reunionId) {
+  currentTrombinoReunion = reunionId;
+  renderTrombino(reunionId);
+  document.getElementById('trombino-modal').style.display = 'flex';
+}
+
+function closeTrombinoModal() {
+  document.getElementById('trombino-modal').style.display = 'none';
+}
+
+function renderTrombino(reunionId) {
+  const r = state.reunions.find(x => x.ID === reunionId);
+  if (!r) return;
+
+  // Titre
+  const dateStr = r.Date ? new Date(r.Date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  document.getElementById('trombino-modal-title').textContent = `👥 Trombino du ${dateStr}`;
+
+  // Calcul statuts pour les 22 membres
+  const actifs = getActiveMembres();
+  const presencesMap = {};
+  (state.presences || []).forEach(p => {
+    if (p.ID_reunion === reunionId) {
+      const v = p['Présent'];
+      if (v === true || v === 'TRUE' || v === 'true') presencesMap[p.ID_membre] = 'yes';
+      else if (v === false || v === 'FALSE' || v === 'false') presencesMap[p.ID_membre] = 'no';
+    }
+  });
+
+  const groups = { yes: [], no: [], pending: [] };
+  actifs.forEach(m => {
+    const status = presencesMap[m.ID];
+    if (status === 'yes') groups.yes.push(m);
+    else if (status === 'no') groups.no.push(m);
+    else groups.pending.push(m);
+  });
+
+  // Invités du jour
+  const invitesDuJour = (state.invites || []).filter(inv => {
+    const list = (inv.Reunions || '').split('|').filter(x => x.trim());
+    return list.includes(reunionId);
+  });
+
+  // Filtre activité courant
+  const filterActivite = state.trombinoActiviteFilter || '';
+
+  // Liste des activités uniques pour les chips
+  const allActivites = new Set();
+  actifs.forEach(m => {
+    if (m['Activité']) {
+      // Garder le mot principal (avant la parenthèse)
+      const main = m['Activité'].split('(')[0].trim();
+      if (main) allActivites.add(main);
+    }
+  });
+
+  // Application du filtre
+  const matchesFilter = (m) => {
+    if (!filterActivite) return true;
+    const act = (m['Activité'] || m.Activite || '').toLowerCase();
+    return act.includes(filterActivite.toLowerCase());
+  };
+
+  const filteredYes = groups.yes.filter(matchesFilter);
+  const filteredNo = groups.no.filter(matchesFilter);
+  const filteredPending = groups.pending.filter(matchesFilter);
+  const filteredInvites = invitesDuJour.filter(matchesFilter);
+
+  // URL du trombino pour cette réunion (pour QR code et partage)
+  const trombinoUrl = window.location.origin + window.location.pathname + '?trombino=' + reunionId;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(trombinoUrl)}`;
+
+  const container = document.getElementById('trombino-content');
+  container.innerHTML = `
+    <!-- Bandeau info + QR code + actions -->
+    <div class="trombino-info-bar">
+      <div class="trombino-stats">
+        <span class="trombino-stat-badge trombino-stat-yes">✓ ${groups.yes.length} Présent${groups.yes.length > 1 ? 's' : ''}</span>
+        <span class="trombino-stat-badge trombino-stat-pending">⏳ ${groups.pending.length} Non confirmé${groups.pending.length > 1 ? 's' : ''}</span>
+        <span class="trombino-stat-badge trombino-stat-no">✗ ${groups.no.length} Excusé${groups.no.length > 1 ? 's' : ''}</span>
+        ${invitesDuJour.length > 0 ? `<span class="trombino-stat-badge trombino-stat-invite">★ ${invitesDuJour.length} Invité${invitesDuJour.length > 1 ? 's' : ''}</span>` : ''}
+      </div>
+      <div class="trombino-qr-block">
+        <img src="${qrCodeUrl}" alt="QR Code" class="trombino-qr-img">
+        <div class="trombino-qr-info">
+          <div style="font-size:11px;color:var(--hop-texte-mute);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Partage</div>
+          <div style="font-size:13px;color:var(--hop-marine);font-weight:700;margin-top:2px;">Scanne le QR</div>
+          <div style="font-size:11px;color:var(--hop-texte-sec);margin-top:2px;">code visiteur : <code style="background:var(--hop-creme);padding:1px 6px;border-radius:4px;font-size:11px;">INVBLK</code></div>
+          <button class="btn-link" onclick="copyTrombinoLink('${trombinoUrl}')" style="font-size:11px;margin-top:6px;color:var(--hop-bleu);background:none;border:none;cursor:pointer;text-decoration:underline;">📋 Copier le lien</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="trombino-actions-bar">
+      <button class="btn btn-secondary" onclick="window.print()" style="font-size:13px;">🖨️ Imprimer le trombino</button>
+      <button class="btn btn-secondary" onclick="openTrombinoProjection()" style="font-size:13px;">▶ Mode projection</button>
+      ${!isVisitor() ? `<button class="btn btn-primary" onclick="openAddInviteForTrombino()" style="font-size:13px;">➕ Ajouter un invité</button>` : ''}
+    </div>
+
+    <!-- Filtre par activité -->
+    ${allActivites.size > 0 ? `
+      <div class="trombino-filter-bar">
+        <span class="trombino-filter-label">🔍 Filtrer par activité :</span>
+        <button class="trombino-chip ${!filterActivite ? 'active' : ''}" onclick="setTrombinoFilter('')">Tous</button>
+        ${[...allActivites].sort().map(a => `
+          <button class="trombino-chip ${filterActivite === a ? 'active' : ''}" onclick="setTrombinoFilter('${escapeJs(a)}')">${escapeHtml(a)}</button>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    <!-- Section Présents -->
+    ${filteredYes.length > 0 ? `
+      <div class="trombino-section">
+        <h3 class="trombino-section-title">
+          <span class="trombino-section-icon" style="background:#16a34a;">✓</span>
+          Présents (${filteredYes.length})
+        </h3>
+        <div class="trombino-grid">${filteredYes.map(m => trombinoCardMembreEnriched(m, 'yes')).join('')}</div>
+      </div>
+    ` : ''}
+
+    <!-- Section Invités -->
+    ${filteredInvites.length > 0 ? `
+      <div class="trombino-section">
+        <h3 class="trombino-section-title">
+          <span class="trombino-section-icon" style="background:var(--hop-or);">★</span>
+          Invités du jour (${filteredInvites.length})
+        </h3>
+        <div class="trombino-grid">${filteredInvites.map(i => trombinoCardInviteEnriched(i, reunionId)).join('')}</div>
+      </div>
+    ` : ''}
+
+    <!-- Section Non confirmés -->
+    ${filteredPending.length > 0 ? `
+      <div class="trombino-section">
+        <h3 class="trombino-section-title">
+          <span class="trombino-section-icon" style="background:#d97706;">⏳</span>
+          Non confirmés (${filteredPending.length})
+        </h3>
+        <div class="trombino-grid">${filteredPending.map(m => trombinoCardMembreEnriched(m, 'pending')).join('')}</div>
+      </div>
+    ` : ''}
+
+    <!-- Section Excusés -->
+    ${filteredNo.length > 0 ? `
+      <div class="trombino-section">
+        <h3 class="trombino-section-title">
+          <span class="trombino-section-icon" style="background:#9ca3af;">✗</span>
+          Excusés (${filteredNo.length})
+        </h3>
+        <div class="trombino-grid">${filteredNo.map(m => trombinoCardMembreEnriched(m, 'no')).join('')}</div>
+      </div>
+    ` : ''}
+  `;
+}
+
+function isVisitor() {
+  return state.user && state.user.type === 'visitor';
+}
+
+function setTrombinoFilter(activite) {
+  state.trombinoActiviteFilter = activite;
+  renderTrombino(currentTrombinoReunion);
+}
+
+function copyTrombinoLink(url) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      toast('📋 Lien copié dans le presse-papier', 'success');
+    }).catch(() => {
+      prompt('Copie ce lien :', url);
+    });
+  } else {
+    prompt('Copie ce lien :', url);
+  }
+}
+
+// Carte membre enrichie avec tous les contacts + statut
+function trombinoCardMembreEnriched(m, status) {
+  const statusBadge = status === 'yes'
+    ? `<span class="trombino-status trombino-status-yes">✓ Présent</span>`
+    : status === 'no'
+    ? `<span class="trombino-status trombino-status-no">✗ Excusé</span>`
+    : `<span class="trombino-status trombino-status-pending">⏳ Non confirmé</span>`;
+
+  const cardClass = status === 'no' ? 'trombino-card trombino-card-grey' : 'trombino-card';
+
+  // Boutons de contact
+  const contactButtons = [];
+  if (m.Téléphone) {
+    const telClean = m.Téléphone.replace(/\s/g, '');
+    contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
+    // WhatsApp : formater le numéro (33...)
+    const waClean = telClean.replace(/^0/, '33').replace(/[^0-9]/g, '');
+    contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
+  }
+  if (m.Email) {
+    contactButtons.push(`<a href="mailto:${escapeHtml(m.Email)}" class="trombino-contact-btn" title="Email">✉️</a>`);
+  }
+  if (m['Site_web']) {
+    let site = m['Site_web'];
+    if (!site.startsWith('http')) site = 'https://' + site;
+    contactButtons.push(`<a href="${escapeHtml(site)}" target="_blank" rel="noopener" class="trombino-contact-btn" title="Site web">🌐</a>`);
+  }
+  // vCard
+  contactButtons.push(`<button class="trombino-contact-btn" onclick="downloadVcard('${m.ID}')" title="Télécharger contact">📇</button>`);
+
+  return `
+    <div class="${cardClass}">
+      ${statusBadge}
+      <div class="trombino-avatar">${buildAvatar(m, 80)}</div>
+      <div class="trombino-nom">${escapeHtml(m.Nom)}</div>
+      <div class="trombino-activite">${escapeHtml(m['Activité'] || '')}</div>
+      ${m.Description ? `<div class="trombino-desc">${escapeHtml(m.Description)}</div>` : ''}
+      ${m.Missions ? `<div class="trombino-missions-row">${
+        m.Missions.split('|').map(x => x.trim()).filter(Boolean).slice(0, 4)
+          .map(mi => `<span class="trombino-mission-pill">${escapeHtml(mi)}</span>`).join('')
+      }</div>` : ''}
+      <div class="trombino-contacts-row">${contactButtons.join('')}</div>
+    </div>`;
+}
+
+function trombinoCardInviteEnriched(inv, reunionId) {
+  const initials = getInitials(inv.Nom);
+  const photoBlock = inv.Photo_url
+    ? `<img src="${escapeHtml(inv.Photo_url)}" alt="" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1;">`
+    : '';
+
+  const contactButtons = [];
+  if (inv.Telephone) {
+    const telClean = inv.Telephone.replace(/\s/g, '');
+    contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
+    const waClean = telClean.replace(/^0/, '33').replace(/[^0-9]/g, '');
+    contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
+  }
+  if (inv.Email) {
+    contactButtons.push(`<a href="mailto:${escapeHtml(inv.Email)}" class="trombino-contact-btn" title="Email">✉️</a>`);
+  }
+
+  return `
+    <div class="trombino-card trombino-card-invite">
+      <span class="trombino-status trombino-status-invite">★ Invité</span>
+      <div class="trombino-avatar trombino-avatar-invite">
+        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;font-weight:700;">${initials}</span>
+        ${photoBlock}
+      </div>
+      <div class="trombino-nom">${escapeHtml(inv.Nom)}</div>
+      <div class="trombino-activite">${escapeHtml(inv.Activite || '')}</div>
+      ${inv.Notes ? `<div class="trombino-desc">${escapeHtml(inv.Notes)}</div>` : ''}
+      ${inv.Invite_par ? `<div class="trombino-meta">invité par ${escapeHtml(inv.Invite_par)}</div>` : ''}
+      <div class="trombino-contacts-row">${contactButtons.join('')}</div>
+      ${!isVisitor() ? `
+        <div class="trombino-edit-row">
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 8px;" onclick="openInviteModal('${inv.ID}', '${reunionId}')">✏️ Éditer</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 8px;color:var(--hop-danger);" onclick="unlinkInviteFromReunion('${inv.ID}', '${reunionId}')">✕ Retirer</button>
+        </div>
+      ` : ''}
+    </div>`;
+}
+
+// Téléchargement vCard
+function downloadVcard(membreId) {
+  const m = state.membres.find(x => x.ID === membreId);
+  if (!m) return;
+
+  // Séparer prénom / nom
+  const parts = (m.Nom || '').split(' ');
+  const prenom = parts[0] || '';
+  const nom = parts.slice(1).join(' ') || '';
+
+  let vcard = 'BEGIN:VCARD\n';
+  vcard += 'VERSION:3.0\n';
+  vcard += `FN:${m.Nom}\n`;
+  vcard += `N:${nom};${prenom};;;\n`;
+  if (m['Activité']) vcard += `ORG:${m['Activité']}\n`;
+  if (m.Email) vcard += `EMAIL:${m.Email}\n`;
+  if (m.Téléphone) vcard += `TEL:${m.Téléphone}\n`;
+  if (m['Site_web']) {
+    let site = m['Site_web'];
+    if (!site.startsWith('http')) site = 'https://' + site;
+    vcard += `URL:${site}\n`;
+  }
+  if (m.Adresse) vcard += `ADR:;;${m.Adresse};;;;\n`;
+  if (m.Description) vcard += `NOTE:${m.Description.replace(/\n/g, ' ')}\n`;
+  vcard += 'END:VCARD\n';
+
+  const blob = new Blob([vcard], { type: 'text/vcard' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${m.Nom.replace(/\s/g, '_')}.vcf`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`📇 Contact ${m.Nom.split(' ')[0]} téléchargé`, 'success');
+}
+
+
+
+
+
+/* ====================================================================
+   TROMBINOSCOPE — mode projection plein écran
+==================================================================== */
+function openTrombinoProjection() {
+  if (!currentTrombinoReunion) return;
+  const r = state.reunions.find(x => x.ID === currentTrombinoReunion);
+  if (!r) return;
+
+  const dateStr = r.Date ? new Date(r.Date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  document.getElementById('trombino-proj-title').textContent = 'HOP! Club des Entrepreneurs';
+  document.getElementById('trombino-proj-subtitle').textContent = dateStr;
+
+  // Calcul statuts
+  const actifs = getActiveMembres();
+  const presencesMap = {};
+  (state.presences || []).forEach(p => {
+    if (p.ID_reunion === currentTrombinoReunion) {
+      const v = p['Présent'];
+      if (v === true || v === 'TRUE' || v === 'true') presencesMap[p.ID_membre] = 'yes';
+      else if (v === false || v === 'FALSE' || v === 'false') presencesMap[p.ID_membre] = 'no';
+    }
+  });
+
+  const groups = { yes: [], no: [], pending: [] };
+  actifs.forEach(m => {
+    const status = presencesMap[m.ID];
+    if (status === 'yes') groups.yes.push(m);
+    else if (status === 'no') groups.no.push(m);
+    else groups.pending.push(m);
+  });
+
+  const invitesDuJour = (state.invites || []).filter(inv => {
+    const list = (inv.Reunions || '').split('|').filter(x => x.trim());
+    return list.includes(currentTrombinoReunion);
+  });
+
+  // URL et QR
+  const trombinoUrl = window.location.origin + window.location.pathname + '?trombino=' + currentTrombinoReunion;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=8&data=${encodeURIComponent(trombinoUrl)}`;
+
+  const grid = document.getElementById('trombino-proj-grid');
+
+  // Construire les cartes membres avec leur statut
+  const membresCards = actifs.map(m => {
+    const status = presencesMap[m.ID];
+    const isAbsent = status === 'no';
+    const isPending = !status;
+
+    let statusBadge = '';
+    if (status === 'yes') statusBadge = '<span class="trombino-proj-status trombino-proj-status-yes">✓ Présent</span>';
+    else if (status === 'no') statusBadge = '<span class="trombino-proj-status trombino-proj-status-no">✗ Excusé</span>';
+    else statusBadge = '<span class="trombino-proj-status trombino-proj-status-pending">⏳ Non confirmé</span>';
+
+    return `
+      <div class="trombino-proj-card ${isAbsent ? 'trombino-proj-card-grey' : ''}">
+        ${statusBadge}
+        <div class="trombino-proj-avatar">${buildAvatar(m, 140)}</div>
+        <div class="trombino-proj-nom">${escapeHtml(m.Nom)}</div>
+        <div class="trombino-proj-activite">${escapeHtml(m['Activité'] || '')}</div>
+      </div>
+    `;
+  });
+
+  // Cartes invités
+  const invitesCards = invitesDuJour.map(inv => {
+    const initials = getInitials(inv.Nom);
+    const photoBlock = inv.Photo_url
+      ? `<img src="${escapeHtml(inv.Photo_url)}" alt="" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1;">`
+      : '';
+    return `
+      <div class="trombino-proj-card trombino-proj-card-invite">
+        <span class="trombino-proj-status trombino-proj-status-invite">★ Invité</span>
+        <div class="trombino-proj-avatar trombino-proj-avatar-invite">
+          <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;">${initials}</span>
+          ${photoBlock}
+        </div>
+        <div class="trombino-proj-nom">${escapeHtml(inv.Nom)}</div>
+        <div class="trombino-proj-activite">${escapeHtml(inv.Activite || '')}</div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = [...membresCards, ...invitesCards].join('');
+
+  // Bandeau QR en bas
+  const qrBanner = document.getElementById('trombino-proj-qr-banner');
+  if (qrBanner) {
+    qrBanner.innerHTML = `
+      <img src="${qrCodeUrl}" alt="QR" class="trombino-proj-qr-img">
+      <div class="trombino-proj-qr-text">
+        <div class="trombino-proj-qr-title">📲 Scanne pour avoir<br>le trombino sur ton tel</div>
+        <div class="trombino-proj-qr-code">Code visiteur : <strong>INVBLK</strong></div>
+      </div>
+    `;
+  }
+
+  document.getElementById('trombino-projection').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTrombinoProjection() {
+  document.getElementById('trombino-projection').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 /* ====================================================================
