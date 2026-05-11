@@ -704,14 +704,27 @@ main {
 /* ====================================================================
    MODE VISITEUR (INVBLK) — interface limitée
 ==================================================================== */
-body.visitor-mode .header-actions {
-  /* Cacher les boutons admin du header en mode visiteur */
+body.visitor-mode .nav,
+body.visitor-mode .tabs-burger,
+body.visitor-mode #main-nav,
+body.visitor-mode .view,
+body.visitor-mode main > section,
+body.visitor-mode .header-actions,
+body.visitor-mode #header-user,
+body.visitor-mode .header-logo-key {
+  display: none !important;
 }
 body.visitor-mode .header-logo-wrap {
   pointer-events: none; /* Pas d'accès admin via le logo */
 }
-body.visitor-mode .header-logo-key {
-  display: none;
+body.visitor-mode .app-header {
+  /* Le header se réduit : juste le logo et le titre */
+  justify-content: center;
+}
+body.visitor-mode main {
+  /* Pas de contenu principal en mode visiteur, juste le modal trombino */
+  padding: 0 !important;
+  min-height: 0 !important;
 }
 
 
@@ -2095,38 +2108,130 @@ body.visitor-mode .header-logo-key {
 
 /* === MEDIA PRINT === */
 @media print {
-  body { background: white !important; }
-  /* Cacher TOUT sauf le contenu trombino */
-  .app-header, .nav, .tabs-burger, #login-screen, .toast,
-  .trombino-actions-bar, .trombino-filter-bar,
-  .modal-header button, .modal-footer, .trombino-edit-row,
-  .trombino-contact-btn[onclick] { display: none !important; }
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 12mm 10mm;
+  }
+
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* CACHER TOUT par défaut */
+  body > *,
+  .app-header, .nav, .tabs-burger, #login-screen,
+  #identity-modal, #admin-login-modal, #invite-modal,
+  #evenement-modal, #reunion-modal, #membre-modal,
+  #atelier-modal, #thematique-modal, #lien-modal,
+  #cockpit-mobile, #projection,
+  .tour-screen, .trombino-projection-screen,
+  .toast, .toast-container,
+  main, header, nav, footer { display: none !important; }
+
+  /* RÉAFFICHER UNIQUEMENT le modal trombino et tout son contenu */
+  #trombino-modal,
+  #trombino-modal .modal,
+  #trombino-modal .modal-body,
+  #trombino-modal .modal-body * { display: revert !important; }
 
   /* Forcer la modale trombino en mode plein document */
-  .modal-overlay { position: static !important; background: white !important; display: block !important; }
-  .modal { box-shadow: none !important; max-width: 100% !important; max-height: none !important; }
-  .modal-body { overflow: visible !important; padding: 0 !important; }
+  #trombino-modal {
+    position: static !important;
+    background: white !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    inset: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #trombino-modal .modal {
+    box-shadow: none !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  #trombino-modal .modal-body {
+    overflow: visible !important;
+    padding: 0 !important;
+    max-height: none !important;
+  }
 
-  /* Bandeau info + QR : afficher en haut */
+  /* Header modal trombino : juste le titre, pas les boutons */
+  #trombino-modal .modal-header {
+    display: flex !important;
+    border-bottom: 2px solid var(--hop-bleu) !important;
+    padding: 0 0 8px 0 !important;
+    margin-bottom: 14px !important;
+  }
+  #trombino-modal .modal-header h2 {
+    font-size: 18px !important;
+    margin: 0 !important;
+  }
+  #trombino-modal .modal-header > div,
+  #trombino-modal .modal-header button { display: none !important; }
+
+  /* Cacher tous les boutons et footer */
+  #trombino-modal .modal-footer,
+  .trombino-actions-bar,
+  .trombino-filter-bar,
+  .trombino-edit-row,
+  .trombino-contacts-row,
+  button { display: none !important; }
+
+  /* Bandeau info + QR : affiché en haut */
   .trombino-info-bar {
+    display: flex !important;
     border: 2px solid var(--hop-bleu) !important;
     page-break-inside: avoid;
-    margin-bottom: 18px;
+    margin-bottom: 16px !important;
+    background: white !important;
+    padding: 10px 14px !important;
   }
+  .trombino-stats,
+  .trombino-stats * { display: revert !important; }
+  .trombino-qr-block,
+  .trombino-qr-block * { display: revert !important; }
 
-  /* Grilles : 3 colonnes en print */
-  .trombino-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+  /* Sections : 3 colonnes */
+  .trombino-section { display: block !important; page-break-inside: avoid; margin-bottom: 14px !important; }
+  .trombino-section-title {
+    display: flex !important;
+    font-size: 13px !important;
+    margin-bottom: 8px !important;
+  }
+  .trombino-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
   .trombino-card {
+    display: flex !important;
     page-break-inside: avoid;
     box-shadow: none !important;
-    border: 1px solid #ddd !important;
+    border: 1px solid #ccc !important;
+    padding: 10px 8px !important;
   }
-  .trombino-section { page-break-inside: avoid; margin-bottom: 16px; }
-  .trombino-section-title { font-size: 14px !important; }
+  .trombino-card * { display: revert !important; }
+  .trombino-card .trombino-contacts-row,
+  .trombino-card .trombino-edit-row,
+  .trombino-card button { display: none !important; }
 
-  /* Petites améliorations */
-  .trombino-desc { -webkit-line-clamp: 2 !important; }
-  .trombino-contacts-row { display: none !important; } /* Pas utile en print */
+  /* Compacter en print */
+  .trombino-desc { -webkit-line-clamp: 2 !important; font-size: 10px !important; }
+  .trombino-nom { font-size: 12px !important; }
+  .trombino-activite { font-size: 10px !important; }
+  .trombino-avatar { width: 60px !important; height: 60px !important; font-size: 18px !important; }
+  .trombino-mission-pill { font-size: 8px !important; padding: 1px 5px !important; }
+
+  /* Statut badge bien visible */
+  .trombino-status { display: inline-block !important; }
 }
 
 /* === MOBILE === */
@@ -4018,11 +4123,14 @@ function checkLogin() {
     sessionStorage.setItem('hop_visitor', '1');
     state.user = { type: 'visitor', name: 'Visiteur' };
     errEl.textContent = '';
-    // Vérifier si une URL ?trombino=... est présente → ouvrir direct
+    // Marquer body en mode visiteur IMMÉDIATEMENT (avant tout rendu)
+    document.body.classList.add('visitor-mode');
+    // Vérifier si une URL ?trombino=... est présente
     const params = new URLSearchParams(window.location.search);
     const trombinoReunionId = params.get('trombino');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('active');
+    applyAdminVisibility(); // cache nav, header, etc. dès maintenant
     loadAll().then(() => {
       if (trombinoReunionId) {
         openTrombinoForReunion(trombinoReunionId);
@@ -4318,8 +4426,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (authed && isVisitor && trombinoReunionId) {
     state.user = { type: 'visitor', name: 'Visiteur' };
+    document.body.classList.add('visitor-mode');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('active');
+    applyAdminVisibility();
     loadAll().then(() => openTrombinoForReunion(trombinoReunionId));
     return;
   }
