@@ -2534,6 +2534,91 @@ body.visitor-mode main {
 
 
 /* ====================================================================
+   ÉVÉNEMENTS — Photo bannière + Lightbox
+==================================================================== */
+.evenement-photo-banner {
+  position: relative;
+  width: 100%;
+  max-height: 280px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  margin: -16px -16px 12px -16px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #fef3c7, #fffbeb);
+}
+.evenement-photo-banner img {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+.evenement-photo-banner:hover img {
+  transform: scale(1.02);
+}
+.evenement-photo-overlay {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.evenement-photo-banner:hover .evenement-photo-overlay {
+  opacity: 1;
+}
+
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  padding: 20px;
+}
+.photo-lightbox img {
+  max-width: 95vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.photo-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+.photo-lightbox-close:hover { background: var(--hop-bleu-pale); }
+
+@media (max-width: 768px) {
+  .evenement-photo-banner { max-height: 180px; margin: -12px -12px 10px -12px; }
+  .evenement-photo-banner img { max-height: 180px; }
+  .photo-lightbox-close { top: 12px; right: 12px; width: 36px; height: 36px; font-size: 16px; }
+}
+
+
+/* ====================================================================
    COCKPIT MOBILE (admin)
 ==================================================================== */
 .cockpit-mobile {
@@ -3727,11 +3812,9 @@ body.visitor-mode main {
       <h2>🎤 Tour de présentation</h2>
       <p class="tour-setup-subtitle">Configure ta session avant de lancer</p>
       <div class="tour-setup-section">
-        <label>⏱️ Durée par membre</label>
-        <div class="tour-toggle">
-          <button class="tour-toggle-btn active" data-duration="60" onclick="setTourDuration(60)">60 sec</button>
-          <button class="tour-toggle-btn" data-duration="90" onclick="setTourDuration(90)">90 sec</button>
-          <button class="tour-toggle-btn" data-duration="120" onclick="setTourDuration(120)">2 min</button>
+        <label>⏱️ Durée par membre <button class="admin-only" id="tour-edit-durations-btn" onclick="openTourConfigModal()" style="background:none;border:none;color:var(--hop-bleu);cursor:pointer;font-size:13px;font-weight:600;float:right;">⚙️ Modifier</button></label>
+        <div class="tour-toggle" id="tour-duration-buttons">
+          <!-- Boutons générés dynamiquement depuis state.tourConfig -->
         </div>
       </div>
       <div class="tour-setup-section">
@@ -3873,6 +3956,48 @@ body.visitor-mode main {
   </div>
 </div>
 
+
+<!-- ============== LIGHTBOX PHOTO ÉVÉNEMENT ============== -->
+<div id="evenement-photo-lightbox" class="photo-lightbox" style="display:none;" onclick="closeEvenementPhotoLightbox()">
+  <button class="photo-lightbox-close" onclick="closeEvenementPhotoLightbox()">✕</button>
+  <img id="evenement-photo-lightbox-img" alt="Affiche">
+</div>
+
+
+<!-- ============== MODAL CONFIG TOUR (admin) ============== -->
+<div id="tour-config-modal" class="modal-overlay" style="display:none;">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h2>⏱️ Durées du tour</h2>
+      <button class="modal-close" onclick="closeTourConfigModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 16px 0;font-size:13px;color:var(--hop-texte-sec);">
+        Définis 3 durées personnalisées qui apparaîtront comme choix au lancement du tour.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Durée 1 (en secondes)</label>
+          <input type="number" id="tour-config-duree1" class="form-input" min="10" max="600" placeholder="30">
+        </div>
+        <div class="form-group">
+          <label>Durée 2 (en secondes)</label>
+          <input type="number" id="tour-config-duree2" class="form-input" min="10" max="600" placeholder="60">
+        </div>
+        <div class="form-group full">
+          <label>Durée 3 (en secondes)</label>
+          <input type="number" id="tour-config-duree3" class="form-input" min="10" max="600" placeholder="90">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div style="flex:1;"></div>
+      <button class="btn btn-secondary" onclick="closeTourConfigModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTourConfig()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============== MODAL TROMBINOSCOPE ============== -->
 <div id="trombino-modal" class="modal-overlay" style="display:none;">
   <div class="modal" style="max-width:1100px;width:95%;max-height:92vh;">
@@ -3947,6 +4072,23 @@ body.visitor-mode main {
         <div class="form-group">
           <label>Organisateur</label>
           <input type="text" id="evenement-organisateur" class="form-input" placeholder="Ton nom ou un membre du club">
+        </div>
+        <div class="form-group full">
+          <label>🖼️ Affiche / Photo (optionnel)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="evenement-photo-url" class="form-input" placeholder="URL d'image (Drive, Imgur…) ou Upload →" style="flex:1;min-width:180px;">
+            <label class="btn btn-secondary" style="font-size:13px;margin:0;cursor:pointer;">
+              📤 Upload
+              <input type="file" id="evenement-photo-upload" accept="image/*" onchange="handleEvenementPhotoUpload(event)" style="display:none;">
+            </label>
+          </div>
+          <div id="evenement-photo-preview" style="margin-top:8px;display:none;">
+            <img id="evenement-photo-preview-img" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid var(--hop-bord);" alt="Aperçu">
+            <button type="button" onclick="clearEvenementPhoto()" style="display:block;margin-top:4px;background:none;border:none;color:var(--hop-danger);cursor:pointer;font-size:11px;">✕ Retirer la photo</button>
+          </div>
+          <div style="font-size:11px;color:var(--hop-texte-mute);margin-top:4px;font-style:italic;">
+            Upload limité à 500 Ko. Pour des affiches HD, utilise plutôt une URL (lien direct image).
+          </div>
         </div>
         <div class="form-group full">
           <label>📝 Description</label>
@@ -4234,6 +4376,7 @@ const state = {
   liens: [],
   evenements: [],
   invites: [],
+  tourConfig: { duree1: 30, duree2: 60, duree3: 90 },
   dashboard: null,
   // Identité courante
   user: null,        // { type: 'membre' | 'admin', id?, name, adminCode? }
@@ -4284,6 +4427,7 @@ async function loadAll() {
     state.thematiques = result.data.thematiques || [];
     state.evenements  = result.data.evenements  || [];
     state.invites     = result.data.invites     || [];
+    state.tourConfig  = result.data.tourConfig  || { duree1: 30, duree2: 60, duree3: 90 };
     state.dashboard   = result.data.dashboard   || null;
     renderAll();
     return true;
@@ -5196,8 +5340,17 @@ function evenementCard(e) {
     lienHtml = `<a href="${escapeHtml(e.Lien)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--hop-bleu);font-weight:600;margin-top:6px;">🔗 Plus d'infos</a>`;
   }
 
+  // Bandeau photo si présente
+  const photoBanner = e.Photo_url ? `
+    <div class="evenement-photo-banner" onclick="openEvenementPhotoLightbox('${escapeJs(e.Photo_url)}')">
+      <img src="${escapeHtml(e.Photo_url)}" alt="${escapeHtml(e.Titre || 'Affiche')}" onerror="this.parentElement.style.display='none'">
+      <div class="evenement-photo-overlay">🔍 Cliquer pour agrandir</div>
+    </div>
+  ` : '';
+
   return `
     <div class="reunion-card" style="border-left:4px solid var(--hop-or);${isAnnule ? 'opacity:0.5;' : ''}${isPending ? 'background:#fffbeb;' : ''}">
+      ${photoBanner}
       <div class="reunion-head">
         <div class="reunion-date-block" style="background:#fef3c7;">
           <div class="reunion-date-day" style="color:#92400e;">${day}</div>
@@ -6728,6 +6881,8 @@ function openCreateEvenement() {
   document.getElementById('evenement-description').value = '';
   document.getElementById('evenement-lien').value = '';
   document.getElementById('evenement-statut').value = isAdmin() ? 'Publié' : 'En attente';
+  document.getElementById('evenement-photo-url').value = '';
+  document.getElementById('evenement-photo-preview').style.display = 'none';
 
   // Pour admin : afficher select statut + delete btn
   document.getElementById('evenement-statut-group').style.display = isAdmin() ? '' : 'none';
@@ -6760,6 +6915,14 @@ function openEditEvenement(id) {
   document.getElementById('evenement-description').value = e.Description || '';
   document.getElementById('evenement-lien').value = e.Lien || '';
   document.getElementById('evenement-statut').value = e.Statut || 'En attente';
+  const photoUrl = e.Photo_url || '';
+  document.getElementById('evenement-photo-url').value = photoUrl;
+  if (photoUrl) {
+    document.getElementById('evenement-photo-preview-img').src = photoUrl;
+    document.getElementById('evenement-photo-preview').style.display = 'block';
+  } else {
+    document.getElementById('evenement-photo-preview').style.display = 'none';
+  }
 
   document.getElementById('evenement-statut-group').style.display = isAdmin() ? '' : 'none';
   document.getElementById('evenement-delete-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
@@ -6806,6 +6969,7 @@ async function saveEvenement() {
     description: document.getElementById('evenement-description').value.trim(),
     lien: document.getElementById('evenement-lien').value.trim(),
     statut: isAdmin() ? document.getElementById('evenement-statut').value : 'En attente',
+    photo_url: document.getElementById('evenement-photo-url').value.trim(),
     visible: 'true'
   };
 
@@ -6824,7 +6988,8 @@ async function saveEvenement() {
       Object.assign(local, {
         Titre: params.titre, Date: params.date, Heure: params.heure,
         Lieu: params.lieu, Type: params.type, Organisateur: params.organisateur,
-        Description: params.description, Lien: params.lien, Statut: params.statut
+        Description: params.description, Lien: params.lien, Statut: params.statut,
+        Photo_url: params.photo_url
       });
       renderAll();
     }
@@ -6834,6 +6999,7 @@ async function saveEvenement() {
     const tempId = 'EVT-TEMP-' + Date.now();
     state.evenements.push({
       ID: tempId,
+      Photo_url: params.photo_url,
       Titre: params.titre, Date: params.date, Heure: params.heure,
       Lieu: params.lieu, Type: params.type, Organisateur: params.organisateur,
       Description: params.description, Lien: params.lien,
@@ -6869,6 +7035,48 @@ async function deleteEvenementConfirm() {
   closeEvenementModal();
   await postAPI('delete_evenement', { evenement: id, admin_code: state.user.adminCode });
   setTimeout(loadAll, 1500);
+}
+
+
+/* ====================================================================
+   ÉVÉNEMENTS — Upload photo (base64 inline)
+==================================================================== */
+function handleEvenementPhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Limite stricte 500 Ko
+  if (file.size > 500 * 1024) {
+    toast('⚠️ Image trop lourde (' + Math.round(file.size/1024) + ' Ko). Max 500 Ko. Utilise plutôt une URL.', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  // Vérifier que c'est bien une image
+  if (!file.type.startsWith('image/')) {
+    toast('Format non supporté', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    document.getElementById('evenement-photo-url').value = dataUrl;
+    document.getElementById('evenement-photo-preview-img').src = dataUrl;
+    document.getElementById('evenement-photo-preview').style.display = 'block';
+    toast('📸 Photo chargée (' + Math.round(file.size/1024) + ' Ko)', 'success');
+  };
+  reader.onerror = () => {
+    toast('Erreur de lecture du fichier', 'error');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearEvenementPhoto() {
+  document.getElementById('evenement-photo-url').value = '';
+  document.getElementById('evenement-photo-upload').value = '';
+  document.getElementById('evenement-photo-preview').style.display = 'none';
 }
 
 /* ====================================================================
@@ -7000,6 +7208,7 @@ function renderProjection() {
 ==================================================================== */
 const tour = {
   duration: 60,
+  customDuration: false,
   mode: 'auto',
   order: 'random',
   membres: [],
@@ -7014,7 +7223,85 @@ function openTour() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('tour-setup').style.display = 'flex';
   document.getElementById('tour-running').style.display = 'none';
+  renderTourDurationButtons();
   updateTourEstimate();
+}
+
+function renderTourDurationButtons() {
+  const cfg = state.tourConfig || { duree1: 30, duree2: 60, duree3: 90 };
+  const container = document.getElementById('tour-duration-buttons');
+  if (!container) return;
+  const durees = [cfg.duree1, cfg.duree2, cfg.duree3];
+  // Sélectionner par défaut la 2e durée si la durée actuelle n'est dans aucune plage
+  if (!durees.includes(tour.duration) && !tour.customDuration) {
+    tour.duration = cfg.duree2;
+  }
+  const formatDuration = (d) => d < 60 ? `${d} sec` : (d % 60 === 0 ? `${d/60} min` : `${Math.floor(d/60)}m${d%60}s`);
+
+  let html = durees.map(d => {
+    const isActive = d === tour.duration && !tour.customDuration;
+    return `<button class="tour-toggle-btn ${isActive ? 'active' : ''}" data-duration="${d}" onclick="setTourDuration(${d})">${formatDuration(d)}</button>`;
+  }).join('');
+
+  // Bouton "+ Autre" : ouvre un input pour saisir une durée custom
+  const customActive = tour.customDuration;
+  if (customActive) {
+    html += `<button class="tour-toggle-btn active" onclick="askCustomDuration()" title="Durée personnalisée">${formatDuration(tour.duration)} ✏️</button>`;
+  } else {
+    html += `<button class="tour-toggle-btn" onclick="askCustomDuration()" title="Durée personnalisée">➕ Autre</button>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function askCustomDuration() {
+  const current = tour.customDuration ? tour.duration : 60;
+  const input = prompt('Durée personnalisée (en secondes) :', String(current));
+  if (input === null) return; // annulé
+  const seconds = parseInt(input, 10);
+  if (isNaN(seconds) || seconds < 5 || seconds > 600) {
+    toast('Durée invalide (entre 5 et 600 sec)', 'error');
+    return;
+  }
+  tour.duration = seconds;
+  tour.customDuration = true;
+  renderTourDurationButtons();
+  updateTourEstimate();
+}
+
+function openTourConfigModal() {
+  if (!isAdmin()) return;
+  const cfg = state.tourConfig || { duree1: 30, duree2: 60, duree3: 90 };
+  document.getElementById('tour-config-duree1').value = cfg.duree1;
+  document.getElementById('tour-config-duree2').value = cfg.duree2;
+  document.getElementById('tour-config-duree3').value = cfg.duree3;
+  document.getElementById('tour-config-modal').style.display = 'flex';
+}
+
+function closeTourConfigModal() {
+  document.getElementById('tour-config-modal').style.display = 'none';
+}
+
+async function saveTourConfig() {
+  if (!isAdmin()) return;
+  const d1 = parseInt(document.getElementById('tour-config-duree1').value, 10);
+  const d2 = parseInt(document.getElementById('tour-config-duree2').value, 10);
+  const d3 = parseInt(document.getElementById('tour-config-duree3').value, 10);
+  if (!d1 || !d2 || !d3 || d1 < 10 || d2 < 10 || d3 < 10) {
+    toast('Durées invalides (min 10 sec)', 'error');
+    return;
+  }
+
+  // Optimistic
+  state.tourConfig = { duree1: d1, duree2: d2, duree3: d3 };
+  closeTourConfigModal();
+  toast('✓ Durées enregistrées', 'success');
+  renderTourDurationButtons();
+
+  await postAPI('set_tour_config', {
+    admin_code: state.user.adminCode,
+    duree1: d1, duree2: d2, duree3: d3
+  });
 }
 
 function closeTour() {
@@ -7025,7 +7312,8 @@ function closeTour() {
 
 function setTourDuration(s) {
   tour.duration = s;
-  document.querySelectorAll('[data-duration]').forEach(b => b.classList.toggle('active', Number(b.dataset.duration) === s));
+  tour.customDuration = false;
+  renderTourDurationButtons();
   updateTourEstimate();
 }
 function setTourMode(m) {
@@ -7178,6 +7466,19 @@ function endTour() {
   tour.timerId = null;
   toast('🎉 Tour terminé !', 'success');
   setTimeout(closeTour, 2000);
+}
+
+
+function openEvenementPhotoLightbox(url) {
+  if (!url) return;
+  document.getElementById('evenement-photo-lightbox-img').src = url;
+  document.getElementById('evenement-photo-lightbox').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEvenementPhotoLightbox() {
+  document.getElementById('evenement-photo-lightbox').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 </script>
