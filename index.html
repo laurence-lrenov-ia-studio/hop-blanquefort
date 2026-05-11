@@ -708,10 +708,20 @@ body.visitor-mode .nav,
 body.visitor-mode .tabs-burger,
 body.visitor-mode #main-nav,
 body.visitor-mode .view,
-body.visitor-mode main > section,
+body.visitor-mode main > section:not(.modal-overlay),
 body.visitor-mode .header-actions,
 body.visitor-mode #header-user,
 body.visitor-mode .header-logo-key {
+  display: none !important;
+}
+
+/* Les modals (notamment trombino) doivent rester visibles même en mode visiteur */
+body.visitor-mode .modal-overlay,
+body.visitor-mode #trombino-modal {
+  display: flex !important;
+}
+body.visitor-mode #trombino-modal[style*="display: none"],
+body.visitor-mode .modal-overlay[style*="display: none"] {
   display: none !important;
 }
 body.visitor-mode .header-logo-wrap {
@@ -4423,6 +4433,7 @@ async function checkLogin() {
 
   // Cas 0 : code visiteur (INVBLK) → mode lecture seule trombino du jour
   if (pwd === VISITOR_CODE) {
+    console.log('[VISITOR] Code accepté, démarrage mode visiteur');
     sessionStorage.setItem('hop_authed', '1');
     sessionStorage.setItem('hop_visitor', '1');
     state.user = { type: 'visitor', name: 'Visiteur' };
@@ -4430,19 +4441,35 @@ async function checkLogin() {
     document.body.classList.add('visitor-mode');
     const params = new URLSearchParams(window.location.search);
     const trombinoReunionId = params.get('trombino');
+    console.log('[VISITOR] URL trombino =', trombinoReunionId);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('active');
     applyAdminVisibility();
+    errEl.textContent = '⏳ Chargement…';
     loadAll().then(() => {
+      console.log('[VISITOR] loadAll OK, membres=', state.membres.length, 'reunions=', state.reunions.length);
+      // Essayer d'ouvrir la réunion de l'URL
+      let reunionToOpen = null;
       if (trombinoReunionId) {
-        openTrombinoForReunion(trombinoReunionId);
-      } else {
-        const next = state.reunions
+        reunionToOpen = state.reunions.find(r => r.ID === trombinoReunionId);
+        if (!reunionToOpen) console.warn('[VISITOR] Réunion ' + trombinoReunionId + ' introuvable dans le Sheet');
+      }
+      // Fallback : prochaine réunion à venir
+      if (!reunionToOpen) {
+        reunionToOpen = state.reunions
           .filter(r => r.Statut === 'À venir')
           .sort((a,b) => new Date(a.Date) - new Date(b.Date))[0];
-        if (next) openTrombinoForReunion(next.ID);
-        else toast('Pas de réunion à venir', 'error');
+        if (reunionToOpen) console.log('[VISITOR] Fallback : prochaine réunion =', reunionToOpen.ID);
       }
+      if (reunionToOpen) {
+        openTrombinoForReunion(reunionToOpen.ID);
+      } else {
+        alert('Aucune réunion à venir trouvée. Reviens un jour de réunion.');
+      }
+    }).catch(err => {
+      console.error('[VISITOR] loadAll a échoué:', err);
+      alert('Erreur de chargement : ' + (err.message || err));
+      errEl.textContent = '❌ Erreur de chargement';
     });
     return;
   }
