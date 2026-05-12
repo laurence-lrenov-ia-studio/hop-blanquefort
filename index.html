@@ -2618,6 +2618,106 @@ body.visitor-mode main {
 }
 
 
+/* Fix : invite-modal doit passer au-dessus du trombino-modal */
+#invite-modal { z-index: 10001; }
+#trombino-modal { z-index: 10000; }
+
+
+/* ====================================================================
+   DASHBOARD — Stats présence + invités + actions rapides
+==================================================================== */
+.dash-presence-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--hop-bord);
+}
+.dash-stat-pill {
+  padding: 12px 10px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.dash-stat-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.dash-stat-yes { background: #f0fdf4; border-color: #86efac; }
+.dash-stat-yes .dash-stat-val { color: #16a34a; }
+.dash-stat-no { background: #f3f4f6; border-color: #d1d5db; }
+.dash-stat-no .dash-stat-val { color: #6b7280; }
+.dash-stat-pending { background: #fffbeb; border-color: #fcd34d; }
+.dash-stat-pending .dash-stat-val { color: #d97706; }
+.dash-stat-invite { background: #fef3c7; border-color: var(--hop-or); }
+.dash-stat-invite .dash-stat-val { color: var(--hop-or); }
+.dash-stat-val {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1;
+}
+.dash-stat-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: var(--hop-texte-sec);
+}
+
+.dash-invites-list {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #fffbeb, white);
+  border: 1px solid var(--hop-or);
+  border-radius: 12px;
+}
+.dash-invites-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hop-or);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.dash-invite-item {
+  padding: 4px 0;
+  font-size: 13px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.dash-invite-name {
+  font-weight: 700;
+  color: var(--hop-marine);
+}
+.dash-invite-act {
+  color: var(--hop-bleu);
+  font-size: 12px;
+}
+.dash-invite-by {
+  color: var(--hop-texte-mute);
+  font-size: 11px;
+  font-style: italic;
+}
+
+.dash-quick-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .dash-presence-stats { grid-template-columns: repeat(2, 1fr); }
+  .dash-stat-val { font-size: 20px; }
+  .dash-quick-actions .btn { flex: 1; min-width: 0; }
+}
+
+
 /* ====================================================================
    COCKPIT MOBILE (admin)
 ==================================================================== */
@@ -5028,6 +5128,31 @@ function renderDashboard() {
     const lieuRepas = (next['Lieu_repas'] || '').trim();
     const presNom = (next['Membre_présentateur'] || '').trim();
     const membre = presNom ? state.membres.find(m => m.Nom === presNom) : null;
+
+    // Stats présence pour cette réunion
+    const actifsList = getActiveMembres();
+    const presencesMap = {};
+    (state.presences || []).forEach(p => {
+      if (p.ID_reunion === next.ID) {
+        const v = p['Présent'];
+        if (v === true || v === 'TRUE' || v === 'true') presencesMap[p.ID_membre] = 'yes';
+        else if (v === false || v === 'FALSE' || v === 'false') presencesMap[p.ID_membre] = 'no';
+      }
+    });
+    let cntPresent = 0, cntExcuse = 0, cntPending = 0;
+    actifsList.forEach(m => {
+      const s = presencesMap[m.ID];
+      if (s === 'yes') cntPresent++;
+      else if (s === 'no') cntExcuse++;
+      else cntPending++;
+    });
+
+    // Invités déjà liés à cette réunion
+    const invitesDuJour = (state.invites || []).filter(inv => {
+      const list = (inv.Reunions || '').split('|').filter(x => x.trim());
+      return list.includes(next.ID);
+    });
+
     nextEl.innerHTML = `
       <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
         <div class="reunion-date-block" style="background:var(--hop-bleu-pale);">
@@ -5045,6 +5170,53 @@ function renderDashboard() {
             ${membre ? `<span style="color:var(--hop-texte-sec);font-weight:500;">— ${escapeHtml(membre['Activité'] || '')}</span>` : ''}
           </div>
         </div>
+      </div>
+
+      <!-- STATS PRÉSENCE -->
+      <div class="dash-presence-stats">
+        <div class="dash-stat-pill dash-stat-yes" onclick="openTrombinoForReunion('${next.ID}')" title="Voir le trombino">
+          <div class="dash-stat-val">${cntPresent}</div>
+          <div class="dash-stat-lbl">✓ Présent${cntPresent > 1 ? 's' : ''}</div>
+        </div>
+        <div class="dash-stat-pill dash-stat-no" onclick="openTrombinoForReunion('${next.ID}')" title="Voir le trombino">
+          <div class="dash-stat-val">${cntExcuse}</div>
+          <div class="dash-stat-lbl">✗ Excusé${cntExcuse > 1 ? 's' : ''}</div>
+        </div>
+        <div class="dash-stat-pill dash-stat-pending" onclick="openTrombinoForReunion('${next.ID}')" title="Voir le trombino">
+          <div class="dash-stat-val">${cntPending}</div>
+          <div class="dash-stat-lbl">⏳ Non répondu${cntPending > 1 ? 's' : ''}</div>
+        </div>
+        ${invitesDuJour.length > 0 ? `
+          <div class="dash-stat-pill dash-stat-invite" onclick="openTrombinoForReunion('${next.ID}')" title="Voir le trombino">
+            <div class="dash-stat-val">${invitesDuJour.length}</div>
+            <div class="dash-stat-lbl">★ Invité${invitesDuJour.length > 1 ? 's' : ''}</div>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- INVITÉS DÉJÀ ENREGISTRÉS -->
+      ${invitesDuJour.length > 0 ? `
+        <div class="dash-invites-list">
+          <div class="dash-invites-title">👥 Invités annoncés</div>
+          ${invitesDuJour.slice(0, 5).map(inv => `
+            <div class="dash-invite-item">
+              <span class="dash-invite-name">${escapeHtml(inv.Nom)}</span>
+              ${inv.Activite ? `<span class="dash-invite-act">(${escapeHtml(inv.Activite)})</span>` : ''}
+              ${inv.Invite_par ? `<span class="dash-invite-by">par ${escapeHtml(inv.Invite_par)}</span>` : ''}
+            </div>
+          `).join('')}
+          ${invitesDuJour.length > 5 ? `<div style="font-size:11px;color:var(--hop-texte-mute);margin-top:4px;font-style:italic;">+ ${invitesDuJour.length - 5} autre${invitesDuJour.length - 5 > 1 ? 's' : ''}…</div>` : ''}
+        </div>
+      ` : ''}
+
+      <!-- BOUTONS D'ACTION -->
+      <div class="dash-quick-actions">
+        <button class="btn btn-primary" onclick="openAddInviteFromDashboard('${next.ID}')" style="font-size:13px;">
+          ➕ Ajouter un invité
+        </button>
+        <button class="btn btn-secondary" onclick="openTrombinoForReunion('${next.ID}')" style="font-size:13px;">
+          👥 Voir le trombino du jour
+        </button>
       </div>
     `;
   } else {
@@ -6182,6 +6354,18 @@ function closeCodesMembersModal() {
 // État courant : ID de la réunion pour laquelle on consulte le trombino
 let currentTrombinoReunion = null;
 
+
+
+/* ====================================================================
+   DASHBOARD — Action rapide invité
+==================================================================== */
+function openAddInviteFromDashboard(reunionId) {
+  // Définir la réunion contextuelle (pour qu'au save, l'invité soit lié à cette réunion)
+  currentTrombinoReunion = reunionId;
+  // Ouvrir directement le modal invité (sans passer par le trombino)
+  openInviteModal(null, reunionId);
+}
+
 function openAddInviteForReunion(reunionId) {
   openInviteModal(null, reunionId);
 }
@@ -6329,7 +6513,7 @@ async function saveInvite() {
   }
 
   closeInviteModal();
-  toast(id ? 'Enregistrement…' : 'Invité ajouté');
+  toast(id ? 'Enregistrement…' : '⏳ Ajout en cours…');
 
   if (id) {
     params.invite = id;
@@ -6344,7 +6528,19 @@ async function saveInvite() {
       });
       if (currentTrombinoReunion) renderTrombino(currentTrombinoReunion);
     }
-    await postAPI('update_invite', params);
+    try {
+      const result = await postAPI('update_invite', params);
+      if (!result.ok) {
+        toast('❌ Erreur serveur : ' + (result.error || 'inconnue'), 'error');
+        console.error('[INVITE] update_invite failed:', result);
+        return;
+      }
+      toast('✓ Invité enregistré', 'success');
+    } catch (e) {
+      toast('❌ Erreur réseau', 'error');
+      console.error('[INVITE] update_invite exception:', e);
+      return;
+    }
   } else {
     // Optimistic : ajouter localement
     const tempId = 'I-TEMP-' + Date.now();
@@ -6357,7 +6553,28 @@ async function saveInvite() {
       Notes: params.notes
     });
     if (currentTrombinoReunion) renderTrombino(currentTrombinoReunion);
-    await postAPI('add_invite', params);
+    try {
+      const result = await postAPI('add_invite', params);
+      if (!result.ok) {
+        // Retirer l'invité local et alerter
+        const idx = state.invites.findIndex(x => x.ID === tempId);
+        if (idx !== -1) state.invites.splice(idx, 1);
+        if (currentTrombinoReunion) renderTrombino(currentTrombinoReunion);
+        const msg = result.error || '';
+        if (msg.indexOf('INVITES introuvable') !== -1) {
+          alert('⚠️ L\'onglet INVITES n\'existe pas dans le Sheet.\n\nVa dans Apps Script, exécute la fonction initInvites() du fichier init-invites.gs pour créer l\'onglet, puis réessaie.');
+        } else {
+          toast('❌ Erreur serveur : ' + msg, 'error');
+        }
+        console.error('[INVITE] add_invite failed:', result);
+        return;
+      }
+      toast('✓ Invité ajouté', 'success');
+    } catch (e) {
+      toast('❌ Erreur réseau lors de l\'ajout', 'error');
+      console.error('[INVITE] add_invite exception:', e);
+      return;
+    }
   }
   setTimeout(loadAll, 1500);
 }
