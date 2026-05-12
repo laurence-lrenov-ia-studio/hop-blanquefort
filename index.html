@@ -6838,14 +6838,14 @@ function trombinoCardMembreEnriched(m, status) {
 
   const cardClass = status === 'no' ? 'trombino-card trombino-card-grey' : 'trombino-card';
 
-  // Boutons de contact (cast string pour éviter les erreurs si Sheets renvoie un nombre)
+  // Boutons de contact (utilise formatTel pour gérer le 0 perdu par Google Sheets)
   const contactButtons = [];
-  const telRaw = m.Téléphone ? String(m.Téléphone).trim() : '';
+  const telRaw = m.Téléphone ? formatTel(m.Téléphone) : '';
   if (telRaw) {
     const telClean = telRaw.replace(/\s/g, '');
     contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
-    // WhatsApp : formater le numéro (33...)
-    const waClean = telClean.replace(/^0/, '33').replace(/[^0-9]/g, '');
+    // WhatsApp : indicatif international sans 0 initial
+    const waClean = telClean.replace(/^\+/, '').replace(/^0/, '33').replace(/[^0-9]/g, '');
     if (waClean) contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
   }
   const emailRaw = m.Email ? String(m.Email).trim() : '';
@@ -6874,7 +6874,7 @@ function trombinoCardMembreEnriched(m, status) {
       }</div>` : ''}
       <div class="trombino-contacts-row screen-only">${contactButtons.join('')}</div>
       <div class="print-contacts" style="display:none;">
-        ${telRaw ? `<div>📞 ${escapeHtml(telRaw)}</div>` : ''}
+        ${telRaw ? `<div>📞 ${escapeHtml(formatTelDisplay(telRaw))}</div>` : ''}
         ${emailRaw ? `<div>✉️ ${escapeHtml(emailRaw)}</div>` : ''}
         ${siteRaw ? `<div>🌐 ${escapeHtml(siteRaw.replace(/^https?:\/\//, ''))}</div>` : ''}
       </div>
@@ -6894,11 +6894,11 @@ function trombinoCardInviteEnriched(inv, reunionId) {
     : '';
 
   const contactButtons = [];
-  const telRaw = inv.Telephone ? String(inv.Telephone).trim() : '';
+  const telRaw = inv.Telephone ? formatTel(inv.Telephone) : '';
   if (telRaw) {
     const telClean = telRaw.replace(/\s/g, '');
     contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
-    const waClean = telClean.replace(/^0/, '33').replace(/[^0-9]/g, '');
+    const waClean = telClean.replace(/^\+/, '').replace(/^0/, '33').replace(/[^0-9]/g, '');
     if (waClean) contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
   }
   const emailRaw = inv.Email ? String(inv.Email).trim() : '';
@@ -6953,7 +6953,10 @@ function downloadVcard(membreId) {
   vcard += `N:${nom};${prenom};;;\n`;
   if (m['Activité']) vcard += `ORG:${String(m['Activité'])}\n`;
   if (m.Email) vcard += `EMAIL:${String(m.Email).trim()}\n`;
-  if (m.Téléphone) vcard += `TEL:${String(m.Téléphone).trim()}\n`;
+  if (m.Téléphone) {
+    const telForVcard = formatTel(m.Téléphone);
+    if (telForVcard) vcard += `TEL:${telForVcard}\n`;
+  }
   if (m['Site_web']) {
     let site = String(m['Site_web']).trim();
     if (site && !site.startsWith('http')) site = 'https://' + site;
