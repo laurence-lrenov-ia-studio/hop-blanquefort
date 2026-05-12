@@ -2719,6 +2719,159 @@ body.visitor-mode main {
 
 
 /* ====================================================================
+   INTERVENTIONS MULTIPLES (modal réunion + cards)
+==================================================================== */
+.interventions-section {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--hop-bord);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fafc, white);
+}
+.interventions-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--hop-marine);
+  margin: 0 0 4px 0;
+  font-family: 'Montserrat', sans-serif;
+}
+.interventions-help {
+  font-size: 12px;
+  color: var(--hop-texte-sec);
+  font-style: italic;
+  margin: 0 0 14px 0;
+}
+.intervention-block {
+  padding: 12px;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid var(--hop-bord);
+  margin-bottom: 10px;
+}
+.intervention-membre { border-left: 4px solid var(--hop-bleu); }
+.intervention-atelier { border-left: 4px solid var(--hop-or); }
+.intervention-ext { border-left: 4px solid #16a34a; }
+.intervention-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.intervention-icon { font-size: 16px; }
+.intervention-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hop-marine);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.atelier-mode-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.radio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--hop-bord);
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: white;
+}
+.radio-pill:has(input:checked) {
+  background: var(--hop-bleu-pale);
+  border-color: var(--hop-bleu);
+  color: var(--hop-marine);
+  font-weight: 600;
+}
+.atelier-zone {
+  padding: 10px 0 0 0;
+}
+
+/* Lignes d'affichage interventions (cards + dashboard) */
+.intervention-line {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 2px 0;
+}
+.intervention-line strong {
+  color: var(--hop-marine);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .atelier-mode-toggle { flex-direction: column; }
+  .radio-pill { width: 100%; box-sizing: border-box; }
+}
+
+
+/* ====================================================================
+   STAR(S) DU JOUR
+==================================================================== */
+.intervention-stars { border-left: 4px solid var(--hop-or) !important; }
+.intervention-hint {
+  font-size: 11px;
+  color: var(--hop-texte-mute);
+  font-style: italic;
+  margin-left: 8px;
+}
+.star-slot {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.star-slot:last-of-type { margin-bottom: 10px; }
+.star-slot-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hop-or);
+  min-width: 36px;
+}
+.star-slot .star-select {
+  flex: 1;
+  min-width: 0;
+}
+.star-remove-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--hop-bord);
+  color: var(--hop-danger);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.star-remove-btn:hover {
+  background: #fee2e2;
+  border-color: var(--hop-danger);
+}
+.star-add-btn {
+  background: white;
+  border: 1px dashed var(--hop-or);
+  color: var(--hop-or);
+  font-weight: 600;
+}
+.star-add-btn:hover {
+  background: #fef3c7;
+  border-style: solid;
+}
+
+@media (max-width: 600px) {
+  .star-slot { flex-wrap: wrap; }
+  .star-slot-num { font-size: 12px; min-width: 30px; }
+}
+
+
+/* ====================================================================
    COCKPIT MOBILE (admin)
 ==================================================================== */
 .cockpit-mobile {
@@ -4248,10 +4401,6 @@ body.visitor-mode main {
           <input type="text" id="reunion-lieu-repas" class="form-input">
         </div>
         <div class="form-group">
-          <label>🎤 Intervenant</label>
-          <select id="reunion-presentateur" class="form-select"></select>
-        </div>
-        <div class="form-group">
           <label>Statut</label>
           <select id="reunion-statut" class="form-select">
             <option value="À venir">À venir</option>
@@ -4259,6 +4408,78 @@ body.visitor-mode main {
             <option value="Annulée">Annulée</option>
           </select>
         </div>
+      </div>
+
+      <!-- ===== SECTION INTERVENTIONS PRÉVUES ===== -->
+      <div class="interventions-section">
+        <h3 class="interventions-title">🎯 Interventions prévues</h3>
+        <p class="interventions-help">Une réunion peut combiner plusieurs interventions. Remplis uniquement les sections concernées.</p>
+
+        <!-- BLOC 1 : STAR(S) DU JOUR -->
+        <div class="intervention-block intervention-stars">
+          <div class="intervention-header">
+            <span class="intervention-icon">⭐</span>
+            <span class="intervention-label">Star(s) du jour</span>
+            <span class="intervention-hint">Le ou les membres à l'honneur (max 3)</span>
+          </div>
+          <div id="stars-list"></div>
+          <button type="button" class="btn btn-secondary star-add-btn" id="star-add-btn" onclick="addStarSlot()" style="font-size:12px;padding:6px 12px;">
+            ➕ Ajouter une star
+          </button>
+        </div>
+
+        <!-- BLOC 2 : ATELIER -->
+        <div class="intervention-block intervention-atelier">
+          <div class="intervention-header">
+            <span class="intervention-icon">💡</span>
+            <span class="intervention-label">Atelier</span>
+          </div>
+          <div class="atelier-mode-toggle">
+            <label class="radio-pill"><input type="radio" name="atelier-mode" value="none" onchange="toggleAtelierMode()" checked> Aucun</label>
+            <label class="radio-pill"><input type="radio" name="atelier-mode" value="existing" onchange="toggleAtelierMode()"> Pioche dans ceux déjà proposés</label>
+            <label class="radio-pill"><input type="radio" name="atelier-mode" value="custom" onchange="toggleAtelierMode()"> Saisie libre / nouveau</label>
+          </div>
+          <div id="atelier-existing-zone" class="atelier-zone" style="display:none;">
+            <select id="reunion-atelier-existing" class="form-select" onchange="onAtelierExistingChange()">
+              <option value="">— Choisir un atelier proposé —</option>
+            </select>
+          </div>
+          <div id="atelier-custom-zone" class="atelier-zone" style="display:none;">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Titre de l'atelier</label>
+                <input type="text" id="reunion-atelier-titre" class="form-input" placeholder="Ex : IA pour rédiger ses CGU">
+              </div>
+              <div class="form-group full">
+                <label>Thématique</label>
+                <select id="reunion-atelier-thematique" class="form-select">
+                  <option value="">— Choisir une thématique —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOC 3 : INTERVENANT EXTÉRIEUR -->
+        <div class="intervention-block intervention-ext">
+          <div class="intervention-header">
+            <span class="intervention-icon">🌟</span>
+            <span class="intervention-label">Intervenant extérieur</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" id="reunion-intervenant-ext-nom" class="form-input" placeholder="Ex : Stéphanie Dupont">
+            </div>
+            <div class="form-group">
+              <label>Fonction / Activité</label>
+              <input type="text" id="reunion-intervenant-ext-fonction" class="form-input" placeholder="Ex : Avocate spécialisée IA">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid">
         <div class="form-group full">
           <label>📌 Notes</label>
           <textarea id="reunion-notes" class="form-textarea"></textarea>
@@ -5096,6 +5317,42 @@ function switchView(view) {
 /* ====================================================================
    DASHBOARD
 ==================================================================== */
+
+/* Affiche les interventions prévues pour une réunion */
+function renderInterventionsHTML(r) {
+  const lines = [];
+
+  // Star(s) du jour : nouveau format Stars_du_jour (séparés par |) ou ancien Membre_présentateur
+  const starsRaw = (r.Stars_du_jour || r['Membre_présentateur'] || '').trim();
+  const stars = starsRaw ? starsRaw.split('|').map(s => s.trim()).filter(s => s) : [];
+
+  stars.forEach(starNom => {
+    const m = state.membres.find(x => x.Nom === starNom);
+    const act = m ? ` <span style="color:var(--hop-texte-sec);font-weight:500;">— ${escapeHtml(m['Activité'] || '')}</span>` : '';
+    lines.push(`<div class="intervention-line">⭐ <strong>${escapeHtml(starNom)}</strong>${act}</div>`);
+  });
+
+  const atelierTitre = (r.Atelier_titre || '').trim();
+  if (atelierTitre) {
+    const themaId = r.Atelier_thematique_id || '';
+    const thema = (state.thematiques || []).find(t => t.ID === themaId);
+    const themaTxt = thema ? ` <span style="color:var(--hop-texte-sec);font-weight:500;">(${escapeHtml(thema.Nom || '')})</span>` : '';
+    lines.push(`<div class="intervention-line">💡 <strong>${escapeHtml(atelierTitre)}</strong>${themaTxt}</div>`);
+  }
+
+  const intExtNom = (r.Intervenant_ext_nom || '').trim();
+  if (intExtNom) {
+    const fonc = (r.Intervenant_ext_fonction || '').trim();
+    const foncTxt = fonc ? ` <span style="color:var(--hop-texte-sec);font-weight:500;">— ${escapeHtml(fonc)}</span>` : '';
+    lines.push(`<div class="intervention-line">🌟 <strong>${escapeHtml(intExtNom)}</strong>${foncTxt}</div>`);
+  }
+
+  if (lines.length === 0) {
+    return `<div class="intervention-line"><em style="color:var(--hop-texte-mute);font-weight:500;">⭐ Star du jour à désigner</em></div>`;
+  }
+  return lines.join('');
+}
+
 function renderDashboard() {
   const stats = document.getElementById('dash-stats');
   if (!stats) return;
@@ -5165,9 +5422,8 @@ function renderDashboard() {
             ${lieuR ? `📍 ${escapeHtml(lieuR)}` : '<span style="color:var(--hop-warn);">⚠️ Lieu à confirmer</span>'}<br>
             ${lieuRepas ? `🍽️ ${escapeHtml(lieuRepas)}` : ''}
           </div>
-          <div style="margin-top:10px;font-size:14px;color:var(--hop-marine);font-weight:600;">
-            🎤 ${presNom ? escapeHtml(presNom) : '<em style="color:var(--hop-texte-mute);">Intervenant à désigner</em>'}
-            ${membre ? `<span style="color:var(--hop-texte-sec);font-weight:500;">— ${escapeHtml(membre['Activité'] || '')}</span>` : ''}
+          <div style="margin-top:10px;font-size:14px;color:var(--hop-marine);font-weight:600;line-height:1.7;">
+            ${renderInterventionsHTML(next)}
           </div>
         </div>
       </div>
@@ -5456,7 +5712,7 @@ function reunionCard(r) {
             ${lieuRepas ? `<span>🍽️ ${escapeHtml(lieuRepas)}</span>` : ''}
           </div>
           <div class="reunion-presentateur">
-            🎤 ${presNom ? escapeHtml(presNom) : '<em style="color:var(--hop-texte-mute);font-weight:500;">Intervenant à désigner</em>'}
+            ${renderInterventionsHTML(r)}
           </div>
           ${isAdmin() ? `<div class="reunion-stats" style="margin-top:6px;">
             <span style="color:var(--hop-success);">✓ ${stats.yes}</span>
@@ -5944,9 +6200,82 @@ function openCreateReunion() {
   document.getElementById('reunion-lieu-repas').value = 'Côté Jardin, 105 Av du 11 Novembre, 33290 Blanquefort';
   document.getElementById('reunion-statut').value = 'À venir';
   document.getElementById('reunion-notes').value = '';
-  fillReunionPresentateurSelect('');
+  // Star(s) du jour : 1 slot vide par défaut pour création
+  setStarsFromString('');
+  renderStarsList();
+  // Reset interventions
+  const radio = document.querySelector('input[name="atelier-mode"][value="none"]');
+  if (radio) radio.checked = true;
+  if (typeof toggleAtelierMode === 'function') toggleAtelierMode();
+  const inpTitre = document.getElementById('reunion-atelier-titre');
+  if (inpTitre) inpTitre.value = '';
+  const inpThem = document.getElementById('reunion-atelier-thematique');
+  if (inpThem) inpThem.value = '';
+  const inpExtNom = document.getElementById('reunion-intervenant-ext-nom');
+  if (inpExtNom) inpExtNom.value = '';
+  const inpExtFonc = document.getElementById('reunion-intervenant-ext-fonction');
+  if (inpExtFonc) inpExtFonc.value = '';
   document.getElementById('reunion-delete-btn').style.display = 'none';
   document.getElementById('reunion-modal').style.display = 'flex';
+}
+
+
+
+/* ====================================================================
+   STAR(S) DU JOUR — Gestion 1 à 3 stars dans le modal réunion
+==================================================================== */
+const MAX_STARS = 3;
+let starsCurrent = []; // tableau de noms de membres
+
+function renderStarsList() {
+  const container = document.getElementById('stars-list');
+  if (!container) return;
+  const actifs = [...getActiveMembres()].sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
+
+  container.innerHTML = starsCurrent.map((nom, idx) => `
+    <div class="star-slot">
+      <span class="star-slot-num">⭐ ${idx + 1}</span>
+      <select class="form-select star-select" onchange="updateStar(${idx}, this.value)">
+        <option value="">— Choisir un membre —</option>
+        ${actifs.map(m => `<option value="${escapeHtml(m.Nom)}" ${m.Nom === nom ? 'selected' : ''}>${escapeHtml(m.Nom)} (${escapeHtml(m['Activité'] || '')})</option>`).join('')}
+      </select>
+      <button type="button" class="star-remove-btn" onclick="removeStar(${idx})" title="Retirer">✕</button>
+    </div>
+  `).join('');
+
+  // Cacher le bouton "+ Ajouter une star" si on est à 3
+  const addBtn = document.getElementById('star-add-btn');
+  if (addBtn) addBtn.style.display = starsCurrent.length >= MAX_STARS ? 'none' : 'inline-flex';
+}
+
+function addStarSlot() {
+  if (starsCurrent.length >= MAX_STARS) return;
+  starsCurrent.push('');
+  renderStarsList();
+}
+
+function removeStar(idx) {
+  starsCurrent.splice(idx, 1);
+  if (starsCurrent.length === 0) starsCurrent.push(''); // garder au moins 1 slot vide
+  renderStarsList();
+}
+
+function updateStar(idx, value) {
+  starsCurrent[idx] = value;
+}
+
+function getStarsString() {
+  // Filtre les valeurs vides et joint avec |
+  return starsCurrent.filter(s => s && s.trim()).join('|');
+}
+
+function setStarsFromString(str) {
+  if (!str || !str.trim()) {
+    starsCurrent = [''];
+  } else {
+    starsCurrent = String(str).split('|').map(s => s.trim()).filter(s => s);
+    if (starsCurrent.length === 0) starsCurrent = [''];
+  }
 }
 
 function openEditReunion(id) {
@@ -5961,13 +6290,76 @@ function openEditReunion(id) {
   document.getElementById('reunion-lieu-repas').value = r['Lieu_repas'] || '';
   document.getElementById('reunion-statut').value = r.Statut || 'À venir';
   document.getElementById('reunion-notes').value = r.Notes || '';
-  fillReunionPresentateurSelect(r['Membre_présentateur'] || '');
+  // Star(s) du jour : récupère Stars_du_jour (nouveau format) ou Membre_présentateur (ancien)
+  const starsStr = r.Stars_du_jour || r['Membre_présentateur'] || '';
+  setStarsFromString(starsStr);
+  renderStarsList();
+
+  // Interventions
+  fillAtelierThematiqueSelect();
+  fillAtelierExistingSelect();
+  // Pré-remplir l'état atelier selon ce qui est en base
+  const atelierId = r.Atelier_id || '';
+  const atelierTitre = r.Atelier_titre || '';
+  document.getElementById('reunion-atelier-titre').value = atelierTitre;
+  document.getElementById('reunion-atelier-thematique').value = r.Atelier_thematique_id || '';
+  if (atelierId) {
+    document.querySelector('input[name="atelier-mode"][value="existing"]').checked = true;
+    document.getElementById('reunion-atelier-existing').value = atelierId;
+  } else if (atelierTitre) {
+    document.querySelector('input[name="atelier-mode"][value="custom"]').checked = true;
+  } else {
+    document.querySelector('input[name="atelier-mode"][value="none"]').checked = true;
+  }
+  toggleAtelierMode();
+
+  // Intervenant extérieur
+  document.getElementById('reunion-intervenant-ext-nom').value = r.Intervenant_ext_nom || '';
+  document.getElementById('reunion-intervenant-ext-fonction').value = r.Intervenant_ext_fonction || '';
+
   document.getElementById('reunion-delete-btn').style.display = 'inline-flex';
   document.getElementById('reunion-modal').style.display = 'flex';
 }
 
+function fillAtelierThematiqueSelect() {
+  const sel = document.getElementById('reunion-atelier-thematique');
+  if (!sel) return;
+  const thematiques = (state.thematiques || []).filter(t => t.Statut !== 'Inactive');
+  sel.innerHTML = '<option value="">— Choisir une thématique —</option>' +
+    thematiques.map(t => `<option value="${escapeHtml(t.ID)}">${escapeHtml((t.Icone || '') + ' ' + (t.Nom || ''))}</option>`).join('');
+}
+
+function fillAtelierExistingSelect() {
+  const sel = document.getElementById('reunion-atelier-existing');
+  if (!sel) return;
+  // Tous les ateliers non encore programmés (En vote, En attente, Proposé...)
+  const ateliers = (state.ateliers || []).filter(a => a.Statut !== 'Réalisé' && a.Statut !== 'Annulé');
+  ateliers.sort((a, b) => (b.Votes || 0) - (a.Votes || 0));
+  sel.innerHTML = '<option value="">— Choisir un atelier proposé —</option>' +
+    ateliers.map(a => `<option value="${escapeHtml(a.ID)}" data-titre="${escapeHtml(a.Titre || '')}" data-thematique="${escapeHtml(a.Thematique_id || '')}">${escapeHtml(a.Titre || 'Sans titre')} ${a.Votes ? `(${a.Votes} votes)` : ''}</option>`).join('');
+}
+
+function toggleAtelierMode() {
+  const mode = document.querySelector('input[name="atelier-mode"]:checked').value;
+  document.getElementById('atelier-existing-zone').style.display = mode === 'existing' ? 'block' : 'none';
+  document.getElementById('atelier-custom-zone').style.display = mode === 'custom' ? 'block' : 'none';
+}
+
+function onAtelierExistingChange() {
+  // Quand l'utilisateur choisit un atelier existant, pré-remplir titre + thématique
+  const sel = document.getElementById('reunion-atelier-existing');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.value) {
+    document.getElementById('reunion-atelier-titre').value = opt.dataset.titre || '';
+    document.getElementById('reunion-atelier-thematique').value = opt.dataset.thematique || '';
+  }
+}
+
 function fillReunionPresentateurSelect(currentName) {
+  // Fonction legacy conservée pour compatibilité — l'élément reunion-presentateur n'existe plus,
+  // la sélection se fait via les stars (renderStarsList).
   const sel = document.getElementById('reunion-presentateur');
+  if (!sel) return; // élément remplacé par la liste de stars
   const actifs = [...getActiveMembres()].sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
   sel.innerHTML = '<option value="">— À désigner —</option>' +
     actifs.map(m => `<option value="${escapeHtml(m.Nom)}" ${m.Nom === currentName ? 'selected' : ''}>${escapeHtml(m.Nom)} (${escapeHtml(m['Activité'] || '')})</option>`).join('');
@@ -5982,19 +6374,63 @@ async function saveReunion() {
   const date = document.getElementById('reunion-date').value;
   if (!date) { toast('Date obligatoire', 'error'); return; }
 
+  // Atelier : déterminer mode + titre + thematique
+  const atelierMode = document.querySelector('input[name="atelier-mode"]:checked').value;
+  let atelier_id = '';
+  let atelier_titre = '';
+  let atelier_thematique_id = '';
+
+  if (atelierMode === 'existing') {
+    atelier_id = document.getElementById('reunion-atelier-existing').value;
+    const sel = document.getElementById('reunion-atelier-existing');
+    const opt = sel.options[sel.selectedIndex];
+    if (opt) {
+      atelier_titre = opt.dataset.titre || '';
+      atelier_thematique_id = opt.dataset.thematique || '';
+    }
+  } else if (atelierMode === 'custom') {
+    atelier_titre = document.getElementById('reunion-atelier-titre').value.trim();
+    atelier_thematique_id = document.getElementById('reunion-atelier-thematique').value;
+    // Si titre rempli, on créera l'atelier à la volée dans ATELIERS_DEMANDES
+  }
+
   const params = {
     admin_code: state.user.adminCode,
     date: date,
     type: document.getElementById('reunion-type').value,
     lieu_reunion: document.getElementById('reunion-lieu-r').value.trim(),
     lieu_repas: document.getElementById('reunion-lieu-repas').value.trim(),
-    presentateur: document.getElementById('reunion-presentateur').value,
+    presentateur: starsCurrent[0] || '',  // compat ascendante : 1ère star = ancien Membre_présentateur
+    stars_du_jour: getStarsString(),
     statut: document.getElementById('reunion-statut').value,
-    notes: document.getElementById('reunion-notes').value.trim()
+    notes: document.getElementById('reunion-notes').value.trim(),
+    atelier_id: atelier_id,
+    atelier_titre: atelier_titre,
+    atelier_thematique_id: atelier_thematique_id,
+    intervenant_ext_nom: document.getElementById('reunion-intervenant-ext-nom').value.trim(),
+    intervenant_ext_fonction: document.getElementById('reunion-intervenant-ext-fonction').value.trim()
   };
 
   closeReunionModal();
   toast('Enregistrement…');
+
+  // Si mode custom et atelier sans ID → on crée d'abord l'atelier dans ATELIERS_DEMANDES
+  if (atelierMode === 'custom' && atelier_titre && !atelier_id) {
+    try {
+      const res = await postAPI('add_atelier_quick', {
+        titre: atelier_titre,
+        thematique_id: atelier_thematique_id,
+        demandeur_nom: state.user.name || ''
+      });
+      if (res.ok && res.id) {
+        params.atelier_id = res.id;
+        // Mettre à jour state local
+        if (res.atelier) state.ateliers.push(res.atelier);
+      }
+    } catch (e) {
+      console.error('[ATELIER] Création atelier rapide échouée :', e);
+    }
+  }
 
   if (id) {
     params.reunion = id;
@@ -6006,8 +6442,14 @@ async function saveReunion() {
       r['Lieu_réunion'] = params.lieu_reunion;
       r['Lieu_repas'] = params.lieu_repas;
       r['Membre_présentateur'] = params.presentateur;
+      r.Stars_du_jour = params.stars_du_jour;
       r.Statut = params.statut;
       r.Notes = params.notes;
+      r.Atelier_id = params.atelier_id;
+      r.Atelier_titre = params.atelier_titre;
+      r.Atelier_thematique_id = params.atelier_thematique_id;
+      r.Intervenant_ext_nom = params.intervenant_ext_nom;
+      r.Intervenant_ext_fonction = params.intervenant_ext_fonction;
       renderAll();
     }
     await postAPI('update_reunion', params);
