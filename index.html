@@ -2048,47 +2048,65 @@ body.visitor-mode main {
   justify-content: center;
 }
 
-/* === BANDEAU QR EN PROJECTION === */
+/* === BANDEAU QR EN PROJECTION (v2.32 : agrandi pour visibilité de loin) === */
 .trombino-proj-qr-banner {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 32px;
+  right: 32px;
   background: white;
-  padding: 16px 20px;
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(44, 67, 116, 0.18);
+  padding: 22px 26px;
+  border-radius: 22px;
+  box-shadow: 0 16px 50px rgba(44, 67, 116, 0.35);
   display: flex;
   align-items: center;
-  gap: 16px;
-  border: 2px solid var(--hop-bleu);
-  max-width: 360px;
+  gap: 22px;
+  border: 4px solid var(--hop-or);
+  max-width: 500px;
   z-index: 100;
 }
 .trombino-proj-qr-img {
-  width: 110px;
-  height: 110px;
+  width: 180px;
+  height: 180px;
 }
 .trombino-proj-qr-text {
   font-family: 'Montserrat', sans-serif;
 }
 .trombino-proj-qr-title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   color: var(--hop-marine);
-  line-height: 1.3;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.trombino-proj-qr-subtitle {
+  font-size: 14px;
+  color: var(--hop-texte-sec);
+  margin-bottom: 12px;
 }
 .trombino-proj-qr-code {
-  font-size: 13px;
+  font-size: 18px;
   color: var(--hop-bleu);
-  margin-top: 8px;
-  font-weight: 600;
+  margin-top: 10px;
+  font-weight: 700;
 }
 .trombino-proj-qr-code strong {
-  background: var(--hop-creme);
-  padding: 2px 10px;
-  border-radius: 6px;
-  letter-spacing: 0.05em;
-  color: var(--hop-marine);
+  background: var(--hop-or);
+  padding: 6px 14px;
+  border-radius: 8px;
+  letter-spacing: 0.1em;
+  color: white;
+  font-size: 22px;
+  display: inline-block;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(212, 160, 74, 0.3);
+}
+
+/* Sur grand écran (projection >1400px), encore plus gros */
+@media (min-width: 1400px) {
+  .trombino-proj-qr-img { width: 220px; height: 220px; }
+  .trombino-proj-qr-banner { max-width: 580px; padding: 28px 32px; }
+  .trombino-proj-qr-title { font-size: 24px; }
+  .trombino-proj-qr-code strong { font-size: 26px; }
 }
 
 /* Cartes projection avec statuts */
@@ -3606,6 +3624,28 @@ body.visitor-mode main {
   .tour-contact-line { font-size: 12px; padding: 6px 12px; }
 }
 
+
+/* Invités reçus (historique) V2.33 */
+.reunion-invites-recus {
+  margin: 0 16px 14px 16px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #fffbeb, white);
+  border: 1px solid var(--hop-or);
+  border-radius: 10px;
+}
+.reunion-invites-recus-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hop-or);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.reunion-invite-recu-item {
+  font-size: 13px;
+  padding: 3px 0;
+  color: var(--hop-marine);
+}
 </style>
 </head>
 <body>
@@ -3734,6 +3774,7 @@ body.visitor-mode main {
             <button class="cal-filter-btn" data-filter="classique" onclick="setCalFilter('classique')">🤝 Classiques</button>
             <button class="cal-filter-btn" data-filter="atelier" onclick="setCalFilter('atelier')">💡 Ateliers</button>
             <button class="cal-filter-btn" data-filter="evenement" onclick="setCalFilter('evenement')">🎉 Événements</button>
+            <button class="cal-filter-btn admin-only" data-filter="historique" onclick="setCalFilter('historique')">📜 Historique</button>
           </div>
         </aside>
         <div id="calendrier-list"><div class="loading">Chargement…</div></div>
@@ -4159,8 +4200,21 @@ body.visitor-mode main {
           <input type="text" id="invite-telephone" class="form-input" placeholder="06 ...">
         </div>
         <div class="form-group full">
-          <label>📸 URL photo (optionnel)</label>
-          <input type="text" id="invite-photo-url" class="form-input" placeholder="https://... (laisser vide pour initiales)">
+          <label>📸 Photo (optionnel)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="invite-photo-url" class="form-input" placeholder="URL image (Drive, Imgur…) ou Upload →" style="flex:1;min-width:180px;">
+            <label class="btn btn-secondary" style="font-size:13px;margin:0;cursor:pointer;">
+              📤 Upload
+              <input type="file" id="invite-photo-upload" accept="image/*" onchange="handleInvitePhotoUpload(event)" style="display:none;">
+            </label>
+          </div>
+          <div id="invite-photo-preview" style="margin-top:8px;display:none;">
+            <img id="invite-photo-preview-img" style="max-width:120px;max-height:120px;border-radius:8px;border:1px solid var(--hop-bord);" alt="Aperçu">
+            <button type="button" onclick="clearInvitePhoto()" style="display:block;margin-top:4px;background:none;border:none;color:var(--hop-danger);cursor:pointer;font-size:11px;">✕ Retirer la photo</button>
+          </div>
+          <div style="font-size:11px;color:var(--hop-texte-mute);margin-top:4px;font-style:italic;">
+            Vide = initiales affichées (joli). Upload max 500 Ko. Pour photo HD, uploader sur Drive et coller URL.
+          </div>
         </div>
         <div class="form-group full">
           <label>👤 Invité par</label>
@@ -4853,6 +4907,51 @@ function getActiveMembres() {
   return state.membres.filter(m => m.Statut === 'Actif' || !m.Statut || m.Statut === '');
 }
 
+/* ====================================================================
+   PROCHAINE RÉUNION — détection automatique par DATE (V2.33)
+   La prochaine = la réunion non annulée dont la date est la plus proche
+   dans le futur (ou aujourd'hui). Ne dépend plus du statut manuel.
+==================================================================== */
+function getProchaineReunion() {
+  const aujourdhui = new Date();
+  aujourdhui.setHours(0, 0, 0, 0); // début de journée → une réunion AUJOURD'HUI compte comme à venir
+
+  const futures = state.reunions
+    .filter(r => {
+      if (!r.Date) return false;
+      if (r.Statut === 'Annulée') return false;
+      const d = new Date(r.Date);
+      d.setHours(0, 0, 0, 0);
+      return d >= aujourdhui;
+    })
+    .sort((a, b) => new Date(a.Date) - new Date(b.Date));
+
+  return futures[0] || null;
+}
+
+/* Réunions passées (date < aujourd'hui), pour l'historique — plus récentes en premier */
+function getReunionsPassees() {
+  const aujourdhui = new Date();
+  aujourdhui.setHours(0, 0, 0, 0);
+
+  return state.reunions
+    .filter(r => {
+      if (!r.Date) return false;
+      const d = new Date(r.Date);
+      d.setHours(0, 0, 0, 0);
+      return d < aujourdhui;
+    })
+    .sort((a, b) => new Date(b.Date) - new Date(a.Date)); // plus récente d'abord
+}
+
+/* Invités liés à une réunion donnée (pour l'historique) */
+function getInvitesForReunion(reunionId) {
+  return (state.invites || []).filter(inv => {
+    const list = (inv.Reunions || '').split('|').map(x => x.trim()).filter(x => x);
+    return list.includes(reunionId);
+  });
+}
+
 function getStatsForReunion(reunionId) {
   const presences = state.presences.filter(p => p.ID_reunion === reunionId);
   const yes = presences.filter(p => p['Présent'] === true || p['Présent'] === 'TRUE' || p['Présent'] === 'true').length;
@@ -4912,11 +5011,9 @@ async function checkLogin() {
         reunionToOpen = state.reunions.find(r => r.ID === trombinoReunionId);
         if (!reunionToOpen) console.warn('[VISITOR] Réunion ' + trombinoReunionId + ' introuvable dans le Sheet');
       }
-      // Fallback : prochaine réunion à venir
+      // Fallback : prochaine réunion (par date)
       if (!reunionToOpen) {
-        reunionToOpen = state.reunions
-          .filter(r => r.Statut === 'À venir')
-          .sort((a,b) => new Date(a.Date) - new Date(b.Date))[0];
+        reunionToOpen = getProchaineReunion();
         if (reunionToOpen) console.log('[VISITOR] Fallback : prochaine réunion =', reunionToOpen.ID);
       }
       if (reunionToOpen) {
@@ -5357,7 +5454,12 @@ function renderDashboard() {
   const stats = document.getElementById('dash-stats');
   if (!stats) return;
   const actifs = getActiveMembres().length;
-  const reunionsAvenir = state.reunions.filter(r => r.Statut === 'À venir').length;
+  const reunionsAvenir = state.reunions.filter(r => {
+    if (!r.Date || r.Statut === 'Annulée') return false;
+    const d = new Date(r.Date); d.setHours(0,0,0,0);
+    const auj = new Date(); auj.setHours(0,0,0,0);
+    return d >= auj;
+  }).length;
   const ateliersVote = state.ateliers.filter(a => a.Statut === 'En vote').length;
 
   stats.innerHTML = `
@@ -5378,7 +5480,7 @@ function renderDashboard() {
     </div>
   `;
 
-  const next = state.reunions.find(r => r.Statut === 'À venir');
+  const next = getProchaineReunion();
   const nextEl = document.getElementById('dash-next-reunion');
   if (next) {
     const lieuR = (next['Lieu_réunion'] || next.Lieu || '').trim();
@@ -5629,7 +5731,12 @@ function renderCalendrier() {
 
   // Appliquer le filtre courant
   if (state.calFilter === 'venir') {
-    reunions = reunions.filter(r => r.Statut === 'À venir');
+    reunions = reunions.filter(r => {
+      if (!r.Date || r.Statut === 'Annulée') return false;
+      const d = new Date(r.Date); d.setHours(0,0,0,0);
+      const auj = new Date(); auj.setHours(0,0,0,0);
+      return d >= auj;
+    });
     evenements = evenements.filter(e => e.Statut !== 'Annulé' && e.Statut !== 'Réalisé');
   } else if (state.calFilter === 'atelier') {
     reunions = reunions.filter(r => r.Type === 'Atelier');
@@ -5639,6 +5746,10 @@ function renderCalendrier() {
     // garder tous les événements après filtrage admin/membre
   } else if (state.calFilter === 'classique') {
     reunions = reunions.filter(r => r.Type === 'Classique' || !r.Type);
+    evenements = [];
+  } else if (state.calFilter === 'historique') {
+    // Réunions passées uniquement (date < aujourd'hui), plus récente d'abord
+    reunions = getReunionsPassees();
     evenements = [];
   }
   // 'all' : on garde tout
@@ -5665,13 +5776,20 @@ function reunionCard(r) {
   const day = isNaN(date) ? '?' : date.getDate();
   const month = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
   const stats = getStatsForReunion(r.ID);
-  const isPasse = r.Statut !== 'À venir';
+  // isPasse déterminé par la DATE (V2.33), plus par le statut
+  const dCard = new Date(r.Date); dCard.setHours(0,0,0,0);
+  const aujCard = new Date(); aujCard.setHours(0,0,0,0);
+  const isPasse = !isNaN(dCard) && dCard < aujCard;
+  const isHistorique = state.calFilter === 'historique';
   const isExpanded = state.expandedReunions.has(r.ID);
   const lieuR = (r['Lieu_réunion'] || r.Lieu || '').trim();
   const lieuRepas = (r['Lieu_repas'] || '').trim();
   const presNom = (r['Membre_présentateur'] || '').trim();
   const typeBadge = r.Type === 'Événement' ? 'or' : (r.Type === 'Atelier' ? 'bleu' : 'marine');
   const typeLabel = r.Type === 'Événement' ? '🎉 Événement' : (r.Type === 'Atelier' ? '💡 Atelier' : '🤝 Classique');
+
+  // Invités reçus pour cette réunion (utile surtout en historique)
+  const invitesRecus = getInvitesForReunion(r.ID);
 
   // Boutons présence — toujours visibles si la réunion est à venir (le clic déclenche l'identification si besoin)
   let actions = '';
@@ -5697,6 +5815,20 @@ function reunionCard(r) {
     body = `<div class="reunion-body">${renderPresenceMatrix(r)}</div>`;
   }
 
+  // Bloc invités reçus (affiché en historique, ou si la réunion est passée et a eu des invités)
+  let invitesBlock = '';
+  if ((isHistorique || isPasse) && invitesRecus.length > 0) {
+    invitesBlock = `
+      <div class="reunion-invites-recus">
+        <div class="reunion-invites-recus-title">👥 ${invitesRecus.length} invité${invitesRecus.length > 1 ? 's' : ''} reçu${invitesRecus.length > 1 ? 's' : ''}</div>
+        ${invitesRecus.map(inv => `
+          <div class="reunion-invite-recu-item">
+            <strong>${escapeHtml(inv.Nom)}</strong>${inv.Activite ? ` <span style="color:var(--hop-texte-sec);">— ${escapeHtml(inv.Activite)}</span>` : ''}${inv.Invite_par ? ` <span style="color:var(--hop-texte-mute);font-size:11px;font-style:italic;">(par ${escapeHtml(inv.Invite_par)})</span>` : ''}
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
   return `
     <div class="reunion-card ${isPasse ? 'passe' : ''}" data-reunion-id="${r.ID}">
       <div class="reunion-head">
@@ -5705,7 +5837,7 @@ function reunionCard(r) {
           <div class="reunion-date-month">${month}</div>
         </div>
         <div class="reunion-info">
-          <div class="reunion-title">${formatDate(r.Date)}</div>
+          <div class="reunion-title">${formatDate(r.Date)} ${isPasse && !isHistorique ? '<span style="font-size:11px;color:var(--hop-texte-mute);font-weight:500;">(passée)</span>' : ''}</div>
           <div class="reunion-meta">
             <span class="badge badge-${typeBadge}">${typeLabel}</span>
             ${lieuR ? `<span>📍 ${escapeHtml(lieuR)}</span>` : '<span style="color:var(--hop-warn);">⚠️ Lieu à confirmer</span>'}
@@ -5724,6 +5856,7 @@ function reunionCard(r) {
           ${actions}
         </div>
       </div>
+      ${invitesBlock}
       ${body}
     </div>`;
 }
@@ -6724,12 +6857,27 @@ async function saveLien() {
   };
   if (!params.label || !params.url) { toast('Label et URL obligatoires', 'error'); return; }
   closeLienModal();
-  toast('Enregistrement…');
-  if (id) {
-    params.lien = id;
-    await postAPI('update_lien', params);
-  } else {
-    await postAPI('add_lien', params);
+  toast('⏳ Enregistrement…');
+
+  try {
+    let result;
+    if (id) {
+      params.lien = id;
+      result = await postAPI('update_lien', params);
+    } else {
+      result = await postAPI('add_lien', params);
+    }
+
+    if (!result.ok) {
+      console.error('[LIEN] Erreur serveur :', result);
+      toast('❌ Erreur : ' + (result.error || 'inconnue'), 'error');
+      return;
+    }
+    toast('✓ Lien enregistré', 'success');
+  } catch (e) {
+    console.error('[LIEN] Exception :', e);
+    toast('❌ Erreur réseau', 'error');
+    return;
   }
   setTimeout(loadAll, 1500);
 }
@@ -6801,6 +6949,42 @@ let currentTrombinoReunion = null;
 /* ====================================================================
    DASHBOARD — Action rapide invité
 ==================================================================== */
+
+
+/* ====================================================================
+   INVITÉS — Upload photo (base64 inline, calque sur événements)
+==================================================================== */
+function handleInvitePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 500 * 1024) {
+    toast('⚠️ Image trop lourde (' + Math.round(file.size/1024) + ' Ko). Max 500 Ko. Utilise plutôt une URL.', 'error');
+    event.target.value = '';
+    return;
+  }
+  if (!file.type.startsWith('image/')) {
+    toast('Format non supporté', 'error');
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    document.getElementById('invite-photo-url').value = dataUrl;
+    document.getElementById('invite-photo-preview-img').src = dataUrl;
+    document.getElementById('invite-photo-preview').style.display = 'block';
+    toast('📸 Photo chargée (' + Math.round(file.size/1024) + ' Ko)', 'success');
+  };
+  reader.onerror = () => toast('Erreur de lecture du fichier', 'error');
+  reader.readAsDataURL(file);
+}
+
+function clearInvitePhoto() {
+  document.getElementById('invite-photo-url').value = '';
+  document.getElementById('invite-photo-upload').value = '';
+  document.getElementById('invite-photo-preview').style.display = 'none';
+}
+
 function openAddInviteFromDashboard(reunionId) {
   // Définir la réunion contextuelle (pour qu'au save, l'invité soit lié à cette réunion)
   currentTrombinoReunion = reunionId;
@@ -6816,7 +7000,15 @@ function openAddInviteForTrombino() {
   openInviteModal(null, currentTrombinoReunion);
 }
 
+function resetInvitePhotoPreview() {
+  const preview = document.getElementById('invite-photo-preview');
+  if (preview) preview.style.display = 'none';
+  const upload = document.getElementById('invite-photo-upload');
+  if (upload) upload.value = '';
+}
+
 function openInviteModal(inviteId, reunionContext) {
+  resetInvitePhotoPreview();
   // Remplir le select "Invité par" avec les membres actifs
   const select = document.getElementById('invite-par-select');
   const actifs = getActiveMembres().sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
@@ -6837,7 +7029,16 @@ function openInviteModal(inviteId, reunionContext) {
     document.getElementById('invite-activite').value = inv.Activite || '';
     document.getElementById('invite-email').value = inv.Email || '';
     document.getElementById('invite-telephone').value = inv.Telephone || '';
-    document.getElementById('invite-photo-url').value = inv.Photo_url || '';
+    const photoUrl = inv.Photo_url || '';
+    document.getElementById('invite-photo-url').value = photoUrl;
+    if (photoUrl) {
+      const img = document.getElementById('invite-photo-preview-img');
+      const preview = document.getElementById('invite-photo-preview');
+      if (img && preview) {
+        img.src = photoUrl;
+        preview.style.display = 'block';
+      }
+    }
     document.getElementById('invite-par-select').value = inv.Invite_par_id || '';
     document.getElementById('invite-notes').value = inv.Notes || '';
     document.getElementById('invite-delete-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
@@ -6950,8 +7151,21 @@ async function saveInvite() {
   };
 
   // Si on crée ET qu'on a une réunion contextuelle → lier directement
-  if (!id && reunionContext) {
-    params.reunion = reunionContext;
+  // Fallback : si pas de contexte, lier à la prochaine réunion à venir
+  if (!id) {
+    let targetReunion = reunionContext;
+    if (!targetReunion) {
+      const next = getProchaineReunion();
+      if (next) {
+        targetReunion = next.ID;
+        console.log('[INVITE] Pas de contexte, fallback prochaine réunion :', targetReunion);
+      }
+    }
+    if (targetReunion) {
+      params.reunion = targetReunion;
+    } else {
+      console.warn('[INVITE] Aucune réunion à lier (création orpheline)');
+    }
   }
 
   closeInviteModal();
@@ -6984,14 +7198,14 @@ async function saveInvite() {
       return;
     }
   } else {
-    // Optimistic : ajouter localement
+    // Optimistic : ajouter localement (utilise la réunion finale, pas reunionContext brut)
     const tempId = 'I-TEMP-' + Date.now();
     state.invites.push({
       ID: tempId,
       Nom: params.nom, Activite: params.activite, Email: params.email,
       Telephone: params.telephone, Photo_url: params.photo_url,
       Invite_par: params.invite_par, Invite_par_id: params.invite_par_id,
-      Reunions: reunionContext || '',
+      Reunions: params.reunion || '',
       Notes: params.notes
     });
     if (currentTrombinoReunion) renderTrombino(currentTrombinoReunion);
@@ -7090,9 +7304,7 @@ function renderTrombino(reunionId) {
   // Fallback intelligent : si la réunion demandée n'existe pas, prendre la prochaine à venir
   if (!r) {
     console.warn('[TROMBINO] Réunion ' + reunionId + ' introuvable, fallback');
-    r = state.reunions
-      .filter(x => x.Statut === 'À venir')
-      .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0];
+    r = getProchaineReunion();
     if (r) {
       currentTrombinoReunion = r.ID;
       console.log('[TROMBINO] Fallback OK :', r.ID);
@@ -7337,14 +7549,15 @@ function trombinoCardInviteEnriched(inv, reunionId) {
 
   const contactButtons = [];
   const telRaw = inv.Telephone ? formatTel(inv.Telephone) : '';
-  if (telRaw) {
+  const telDigitsOnly = telRaw.replace(/[^0-9]/g, '');
+  if (telRaw && telDigitsOnly.length >= 9) {
     const telClean = telRaw.replace(/\s/g, '');
     contactButtons.push(`<a href="tel:${telClean}" class="trombino-contact-btn" title="Appeler">📞</a>`);
     const waClean = telClean.replace(/^\+/, '').replace(/^0/, '33').replace(/[^0-9]/g, '');
-    if (waClean) contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
+    if (waClean && waClean.length >= 10) contactButtons.push(`<a href="https://wa.me/${waClean}" target="_blank" rel="noopener" class="trombino-contact-btn" title="WhatsApp">💬</a>`);
   }
   const emailRaw = inv.Email ? String(inv.Email).trim() : '';
-  if (emailRaw) {
+  if (emailRaw && emailRaw.includes('@')) {
     contactButtons.push(`<a href="mailto:${escapeHtml(emailRaw)}" class="trombino-contact-btn" title="Email">✉️</a>`);
   }
 
@@ -7512,8 +7725,9 @@ function openTrombinoProjection() {
     qrBanner.innerHTML = `
       <img src="${qrCodeUrl}" alt="QR" class="trombino-proj-qr-img">
       <div class="trombino-proj-qr-text">
-        <div class="trombino-proj-qr-title">📲 Scanne pour avoir<br>le trombino sur ton tel</div>
-        <div class="trombino-proj-qr-code">Code visiteur : <strong>INVBLK</strong></div>
+        <div class="trombino-proj-qr-title">📲 Visiteurs<br>scannez pour voir<br>le trombino</div>
+        <div class="trombino-proj-qr-subtitle">Code à saisir :</div>
+        <div class="trombino-proj-qr-code"><strong>INVBLK</strong></div>
       </div>
     `;
   }
@@ -7757,7 +7971,7 @@ function closeCockpit() {
 }
 
 function renderCockpit() {
-  const prochaine = state.reunions.find(r => r.Statut === 'À venir');
+  const prochaine = getProchaineReunion();
   if (!prochaine) {
     document.getElementById('cm-reunion-info').innerHTML = '<div style="color:var(--hop-texte-mute);">Aucune réunion à venir</div>';
     document.getElementById('cm-intervenant').innerHTML = '—';
@@ -7841,7 +8055,7 @@ function closeProjection() {
 }
 
 function renderProjection() {
-  const prochaine = state.reunions.find(r => r.Statut === 'À venir');
+  const prochaine = getProchaineReunion();
   if (prochaine) {
     document.getElementById('proj-date').textContent = formatDate(prochaine.Date);
     const lieuR = (prochaine['Lieu_réunion'] || '').trim();
@@ -7861,7 +8075,12 @@ function renderProjection() {
     document.getElementById('proj-activite').textContent = '';
   }
   document.getElementById('proj-stat-membres').textContent = getActiveMembres().length;
-  document.getElementById('proj-stat-reunions').textContent = state.reunions.filter(r => r.Statut === 'À venir').length;
+  document.getElementById('proj-stat-reunions').textContent = state.reunions.filter(r => {
+    if (!r.Date || r.Statut === 'Annulée') return false;
+    const d = new Date(r.Date); d.setHours(0,0,0,0);
+    const auj = new Date(); auj.setHours(0,0,0,0);
+    return d >= auj;
+  }).length;
   document.getElementById('proj-stat-ateliers').textContent = state.ateliers.filter(a => a.Statut === 'En vote').length;
 }
 
