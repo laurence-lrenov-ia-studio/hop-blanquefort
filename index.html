@@ -7997,12 +7997,14 @@ function renderCockpit() {
         : `<span class="cm-tap-edit" ${editAttr}>⚠️ Lieu repas à confirmer ✏️</span>`}
     </div>`;
 
-  const presNom = (prochaine['Membre_présentateur'] || '').trim();
-  const membre = presNom ? state.membres.find(m => m.Nom === presNom) : null;
+  const starsRawCockpit = (prochaine.Stars_du_jour || prochaine['Membre_présentateur'] || '').trim();
+  const starsCockpit = starsRawCockpit ? starsRawCockpit.split('|').map(s => s.trim()).filter(s => s) : [];
+  const presNom = starsCockpit.length > 0 ? starsCockpit.join(' & ') : '';
+  const membre = starsCockpit.length === 1 ? state.membres.find(m => m.Nom === starsCockpit[0]) : null;
   const presEditable = !presNom;
   document.getElementById('cm-intervenant').innerHTML = `
     <div class="cm-intervenant-name${presEditable ? ' cm-tap-edit' : ''}" ${presEditable ? editAttr : ''}>${presNom || 'À désigner'}${presEditable ? ' ✏️' : ''}</div>
-    <div class="cm-intervenant-activite">${membre ? escapeHtml(membre['Activité'] || '') : '—'}</div>`;
+    <div class="cm-intervenant-activite">${membre ? escapeHtml(membre['Activité'] || '') : (starsCockpit.length > 1 ? starsCockpit.length + ' stars du jour' : '—')}</div>`;
 
   // Boutons
   const btns = [];
@@ -8064,10 +8066,24 @@ function renderProjection() {
     if (lieuR) lieuTxt += '📍 ' + lieuR;
     if (lieuRepas) lieuTxt += (lieuTxt ? '<br>' : '') + '🍽️ ' + lieuRepas;
     document.getElementById('proj-lieu').innerHTML = lieuTxt || '<em>Lieu à confirmer</em>';
-    const presNom = (prochaine['Membre_présentateur'] || '').trim();
-    const membre = presNom ? state.membres.find(m => m.Nom === presNom) : null;
-    document.getElementById('proj-name').textContent = presNom || 'À désigner';
-    document.getElementById('proj-activite').textContent = membre ? (membre['Activité'] || '') : '';
+    // Star(s) du jour : lire Stars_du_jour (nouveau) ou Membre_présentateur (ancien)
+    const starsRaw = (prochaine.Stars_du_jour || prochaine['Membre_présentateur'] || '').trim();
+    const stars = starsRaw ? starsRaw.split('|').map(s => s.trim()).filter(s => s) : [];
+    if (stars.length > 0) {
+      // Affiche la 1ère star en grand + activité ; si plusieurs, les nomme toutes
+      const premier = stars[0];
+      const membre = state.membres.find(m => m.Nom === premier);
+      if (stars.length === 1) {
+        document.getElementById('proj-name').textContent = premier;
+        document.getElementById('proj-activite').textContent = membre ? (membre['Activité'] || '') : '';
+      } else {
+        document.getElementById('proj-name').textContent = stars.join(' & ');
+        document.getElementById('proj-activite').textContent = stars.length + ' stars du jour';
+      }
+    } else {
+      document.getElementById('proj-name').textContent = 'À désigner';
+      document.getElementById('proj-activite').textContent = '';
+    }
   } else {
     document.getElementById('proj-date').textContent = 'Aucune réunion';
     document.getElementById('proj-lieu').textContent = '';
