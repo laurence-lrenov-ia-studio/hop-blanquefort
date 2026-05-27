@@ -3646,6 +3646,52 @@ body.visitor-mode main {
   padding: 3px 0;
   color: var(--hop-marine);
 }
+
+/* Mosaïque des excusés en projection V2.34 */
+.trombino-proj-absents {
+  margin-top: 24px;
+  padding: 16px 24px;
+  border-top: 2px dashed rgba(255,255,255,0.25);
+  width: 100%;
+}
+.trombino-proj-absents-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+  text-align: center;
+}
+.trombino-proj-absents-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.trombino-proj-absent-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.45;
+  width: 70px;
+}
+.trombino-proj-absent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  filter: grayscale(100%);
+}
+.trombino-proj-absent-nom {
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
+}
 </style>
 </head>
 <body>
@@ -7677,19 +7723,19 @@ function openTrombinoProjection() {
 
   const grid = document.getElementById('trombino-proj-grid');
 
-  // Construire les cartes membres avec leur statut
-  const membresCards = actifs.map(m => {
-    const status = presencesMap[m.ID];
-    const isAbsent = status === 'no';
-    const isPending = !status;
+  // V2.34 : présents + non-confirmés en grand. Absents (excusés) en petite mosaïque séparée.
+  const membresVisibles = actifs.filter(m => presencesMap[m.ID] !== 'no');
+  const membresAbsents = actifs.filter(m => presencesMap[m.ID] === 'no');
 
+  // Construire les cartes membres présents/non-confirmés (en grand)
+  const membresCards = membresVisibles.map(m => {
+    const status = presencesMap[m.ID];
     let statusBadge = '';
     if (status === 'yes') statusBadge = '<span class="trombino-proj-status trombino-proj-status-yes">✓ Présent</span>';
-    else if (status === 'no') statusBadge = '<span class="trombino-proj-status trombino-proj-status-no">✗ Excusé</span>';
     else statusBadge = '<span class="trombino-proj-status trombino-proj-status-pending">⏳ Non confirmé</span>';
 
     return `
-      <div class="trombino-proj-card ${isAbsent ? 'trombino-proj-card-grey' : ''}">
+      <div class="trombino-proj-card">
         ${statusBadge}
         <div class="trombino-proj-avatar">${buildAvatar(m, 140)}</div>
         <div class="trombino-proj-nom">${escapeHtml(m.Nom)}</div>
@@ -7718,6 +7764,30 @@ function openTrombinoProjection() {
   });
 
   grid.innerHTML = [...membresCards, ...invitesCards].join('');
+
+  // V2.34 : Mosaïque des excusés en bas (petit format, ne défile pas en grand)
+  let absentsBlock = document.getElementById('trombino-proj-absents');
+  if (membresAbsents.length > 0) {
+    if (!absentsBlock) {
+      absentsBlock = document.createElement('div');
+      absentsBlock.id = 'trombino-proj-absents';
+      absentsBlock.className = 'trombino-proj-absents';
+      grid.parentNode.insertBefore(absentsBlock, grid.nextSibling);
+    }
+    absentsBlock.innerHTML = `
+      <div class="trombino-proj-absents-title">✗ Excusés (${membresAbsents.length})</div>
+      <div class="trombino-proj-absents-grid">
+        ${membresAbsents.map(m => `
+          <div class="trombino-proj-absent-mini" title="${escapeHtml(m.Nom)}">
+            <div class="trombino-proj-absent-avatar">${buildAvatar(m, 48)}</div>
+            <div class="trombino-proj-absent-nom">${escapeHtml(m.Nom)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if (absentsBlock) {
+    absentsBlock.innerHTML = '';
+  }
 
   // Bandeau QR en bas
   const qrBanner = document.getElementById('trombino-proj-qr-banner');
@@ -8232,10 +8302,31 @@ function updateTourEstimate() {
 function startTour() {
   const actifs = getActiveMembres();
   if (actifs.length === 0) { toast('Aucun membre actif', 'error'); return; }
+
+  // V2.34 : ne faire passer QUE les membres présents (qui ont coché "Oui")
+  // pour la prochaine réunion. Les absents/excusés ne défilent pas.
+  const prochaine = getProchaineReunion();
+  let participants = actifs;
+  if (prochaine) {
+    const presentsIds = new Set(
+      state.presences
+        .filter(p => p.ID_reunion === prochaine.ID &&
+          (p['Présent'] === true || p['Présent'] === 'TRUE' || p['Présent'] === 'true'))
+        .map(p => p.ID_membre)
+    );
+    const presents = actifs.filter(m => presentsIds.has(m.ID));
+    // Si au moins 1 présent, on ne fait passer qu'eux. Sinon, fallback = tous (sécurité).
+    if (presents.length > 0) {
+      participants = presents;
+    } else {
+      toast('Aucun présent coché — le tour passe tous les membres', 'error');
+    }
+  }
+
   if (tour.order === 'random') {
-    tour.membres = [...actifs].sort(() => Math.random() - 0.5);
+    tour.membres = [...participants].sort(() => Math.random() - 0.5);
   } else {
-    tour.membres = [...actifs].sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
+    tour.membres = [...participants].sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
   }
   tour.currentIdx = 0;
   tour.paused = false;
