@@ -5134,7 +5134,10 @@ async function checkLogin() {
   if (!foundMember) {
     errEl.textContent = '⏳ Vérification...';
     try {
-      const result = await postAPI('check_member_code', { code: pwd });
+      // V2.35 : fetchAPI (vrai GET qui LIT la réponse) au lieu de postAPI (Image aveugle
+      // qui ne peut pas renvoyer le membre). C'était LA cause du "Code incorrect" :
+      // sur l'écran login, state.membres est vide, et le fallback ne lisait jamais la réponse.
+      const result = await fetchAPI('check_member_code', { code: pwd });
       if (result.ok && result.membre) {
         foundMember = result.membre;
       }
@@ -5425,6 +5428,20 @@ document.addEventListener('DOMContentLoaded', () => {
     pwdInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') checkLogin();
     });
+  }
+
+  // V2.35 : précharger les membres dès l'écran login (en arrière-plan)
+  // pour que le matching des codes membres soit instantané et fiable,
+  // sans dépendre d'un appel réseau au moment du clic sur "Entrer".
+  if (!authed && state.membres.length === 0) {
+    fetchAPI('get_all').then(result => {
+      if (result && result.data) {
+        state.membres   = result.data.membres   || [];
+        state.reunions  = result.data.reunions  || [];
+        state.presences = result.data.presences || [];
+        state.invites   = result.data.invites   || [];
+      }
+    }).catch(() => {/* silencieux : le fallback API au login prendra le relais */});
   }
 });
 
