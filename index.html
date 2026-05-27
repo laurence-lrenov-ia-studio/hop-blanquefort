@@ -4924,13 +4924,14 @@ function getMembrePhotoUrl(membreId) {
 
 function buildAvatar(membre, size = 56) {
   if (!membre) return '';
-  const url = getMembrePhotoUrl(membre.ID);
+  // Invité (V2.34) : utilise directement Photo_url, pas d'ID membre
+  const url = membre._estInvite ? (membre.Photo_url || '') : getMembrePhotoUrl(membre.ID);
   const initials = getInitials(membre.Nom);
   // Initiales en fond (z-index:0), image par-dessus (z-index:1) : si l'image charge bien, elle masque les initiales
   return `
     <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;">${initials}</span>
-    <img src="${url}" alt="" onerror="this.style.display='none';"
-         style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1;">`;
+    ${url ? `<img src="${url}" alt="" onerror="this.style.display='none';"
+         style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1;">` : ''}`;
 }
 
 function getThematique(id) {
@@ -8328,6 +8329,29 @@ function startTour() {
   } else {
     tour.membres = [...participants].sort((a, b) => (a.Nom || '').localeCompare(b.Nom || ''));
   }
+
+  // V2.34 : ajouter les invités du jour À LA FIN du tour (après tous les membres)
+  if (prochaine) {
+    const invitesDuJour = (state.invites || []).filter(inv => {
+      const list = (inv.Reunions || '').split('|').map(x => x.trim()).filter(x => x);
+      return list.includes(prochaine.ID);
+    });
+    // Normaliser les invités au format "membre" pour l'affichage du tour
+    const invitesNormalises = invitesDuJour.map(inv => ({
+      Nom: inv.Nom,
+      'Activité': inv.Activite || '',
+      Description: inv.Notes || '',
+      Email: inv.Email || '',
+      'Téléphone': inv.Telephone || '',
+      Site_web: '',
+      Missions: '',
+      Photo_url: inv.Photo_url || '',
+      _estInvite: true,
+      _invitePar: inv.Invite_par || ''
+    }));
+    tour.membres = [...tour.membres, ...invitesNormalises];
+  }
+
   tour.currentIdx = 0;
   tour.paused = false;
   document.getElementById('tour-setup').style.display = 'none';
@@ -8339,8 +8363,14 @@ function showCurrentTourMember() {
   const m = tour.membres[tour.currentIdx];
   if (!m) return;
   document.getElementById('tour-avatar').innerHTML = buildAvatar(m);
-  document.getElementById('tour-nom').textContent = m.Nom || '—';
-  document.getElementById('tour-activite').textContent = m['Activité'] || '';
+  // Badge invité si c'est un invité (V2.34)
+  const nomTxt = m._estInvite
+    ? (m.Nom || '—') + ' ★'
+    : (m.Nom || '—');
+  document.getElementById('tour-nom').textContent = nomTxt;
+  document.getElementById('tour-activite').textContent = m._estInvite
+    ? (m['Activité'] || '') + (m._invitePar ? ' · invité par ' + m._invitePar : '')
+    : (m['Activité'] || '');
   document.getElementById('tour-description').textContent = m.Description || '';
 
   const missEl = document.getElementById('tour-missions');
