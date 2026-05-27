@@ -5120,10 +5120,14 @@ async function checkLogin() {
 
   // Cas 3 : code individuel membre (PRENOMBLK)
   // Vérifie en local d'abord (rapide), fallback API si membres pas chargés
+  // V2.34 : matching robuste — on retire espaces et caractères non alphanumériques
+  // des deux côtés pour éviter les bugs d'espaces/caractères cachés dans le Sheet
+  const normalizeCode = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const pwdNorm = normalizeCode(pwd);
   let foundMember = null;
-  if (state.membres && state.membres.length > 0) {
+  if (state.membres && state.membres.length > 0 && pwdNorm) {
     foundMember = state.membres.find(m =>
-      String(m.Code_acces || '').toUpperCase().trim() === pwd
+      normalizeCode(m.Code_acces) === pwdNorm && normalizeCode(m.Code_acces) !== ''
     );
   }
 
