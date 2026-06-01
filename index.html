@@ -6775,6 +6775,9 @@ async function saveReunion() {
       r.Intervenant_ext_nom = params.intervenant_ext_nom;
       r.Intervenant_ext_fonction = params.intervenant_ext_fonction;
       renderAll();
+      // V2.39 : rafraîchir aussi les datalists pour que les nouveaux lieux
+      // apparaissent immédiatement dans les prochaines éditions (sans attendre loadAll).
+      try { populateLieuxDatalists(); } catch(e) {}
     }
     // V2.38 : fetchAPI (vrai GET qui lit la réponse) au lieu de postAPI (Image() aveugle
     // qui tronque les URLs longues — c'était la cause du bug Star qui "disparaissait" :
