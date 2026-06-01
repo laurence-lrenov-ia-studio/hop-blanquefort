@@ -3751,6 +3751,7 @@ body.visitor-mode main {
         <span id="header-user-name">—</span>
       </div>
       <button class="btn-icon" onclick="reload()" title="Actualiser">↻</button>
+      <button class="btn-icon visitor-hidden" onclick="openInstallModal()" title="Installer l'app" style="background:var(--hop-or);color:white;border-color:var(--hop-or);">📲 Installer</button>
       <button class="btn-icon admin-only" id="cockpit-btn" onclick="openCockpit()" style="display:none;background:var(--hop-bleu);color:white;border-color:var(--hop-bleu);">📱 Cockpit</button>
       <button class="btn-icon admin-only" id="projection-btn" onclick="openProjection()" style="display:none;">▶ Projection</button>
       <button class="btn-icon" onclick="logout()" title="Déconnexion">✕</button>
@@ -3762,8 +3763,8 @@ body.visitor-mode main {
     <button class="tab" data-view="dashboard" onclick="switchView('dashboard')">Tableau de bord</button>
     <button class="tab" data-view="annuaire" onclick="switchView('annuaire')">Annuaire</button>
     <button class="tab" data-view="calendrier" onclick="switchView('calendrier')">📅 Calendrier</button>
-    <button class="tab" data-view="ateliers" onclick="switchView('ateliers')">Ateliers</button>
-    <button class="tab" data-view="proposer" onclick="switchView('proposer')">Proposer</button>
+    <button class="tab" data-view="ateliers" onclick="switchView('ateliers')">📋 Programme</button>
+    <button class="tab" data-view="proposer" onclick="switchView('proposer')">💡 Proposer un sujet</button>
     <button class="tab" data-view="aide" onclick="switchView('aide')">❔ Aide</button>
     <button class="tab admin-only" data-view="thematiques" onclick="switchView('thematiques')" style="display:none;">🎨 Thématiques</button>
     <button class="tab admin-only" data-view="liens" onclick="switchView('liens')" style="display:none;">🔗 Liens</button>
@@ -3829,15 +3830,15 @@ body.visitor-mode main {
 
     <!-- ATELIERS -->
     <div class="view" id="view-ateliers">
-      <h2 class="section-title">Ateliers proposés</h2>
+      <h2 class="section-title">📋 Programme des ateliers</h2>
       <p class="section-subtitle">Vote pour les sujets que tu veux voir programmés</p>
       <div id="ateliers-content"><div class="loading">Chargement…</div></div>
     </div>
 
     <!-- PROPOSER -->
     <div class="view" id="view-proposer">
-      <h2 class="section-title">Proposer un atelier</h2>
-      <p class="section-subtitle">Suggère un sujet d'atelier pour le réseau</p>
+      <h2 class="section-title">💡 Proposer un sujet d'atelier</h2>
+      <p class="section-subtitle">Tu aimerais qu'on aborde un sujet précis ? Propose-le ici. On cherchera ensuite un intervenant (un membre, un invité, ou un expert extérieur).</p>
       <div class="card">
         <div class="form-grid">
           <div class="form-group full">
@@ -3900,30 +3901,52 @@ body.visitor-mode main {
           <h3>🚪 Se connecter à l'app</h3>
           <ol>
             <li>Ouvre l'URL : <code>laurence-lrenov-ia-studio.github.io/hop-blanquefort</code></li>
-            <li>Tape le mot de passe : <code>HOPBLANQUEFORT</code></li>
+            <li>Tape le mot de passe commun : <code>HOPBLANQUEFORT</code></li>
             <li>La première fois, choisis ton nom dans la liste qui s'affiche → tu seras reconnu·e à chaque retour</li>
           </ol>
-          <p class="aide-tip">💡 <strong>Astuce</strong> : ajoute le site à l'écran d'accueil de ton téléphone pour y accéder en 1 clic comme une vraie app.</p>
+          <p class="aide-tip">💡 Tu as peut-être reçu un <strong>code perso</strong> (ex : PRÉNOMBLK) pour entrer directement sans choisir ton nom. Pas de panique si tu l'as oublié : <strong>HOPBLANQUEFORT marche toujours</strong>.</p>
+        </div>
+
+        <div class="aide-card">
+          <h3>📲 Installer l'app sur mon téléphone</h3>
+          <p>Pour ouvrir HOP! en 1 clic comme une vraie application :</p>
+          <ol>
+            <li>Clique sur le bouton <strong>📲 Installer</strong> (en haut, orange)</li>
+            <li>Suis les instructions affichées (différentes selon iPhone ou Android)</li>
+          </ol>
+          <p class="aide-tip">💡 Sur iPhone, il faut utiliser <strong>Safari</strong> (pas Chrome).</p>
         </div>
 
         <div class="aide-card">
           <h3>📅 Cocher ma présence aux réunions</h3>
           <ol>
-            <li>Va sur l'onglet <strong>Calendrier</strong></li>
-            <li>Sur la prochaine réunion, clique <strong>✓ Oui</strong> ou <strong>✗ Non</strong></li>
-            <li>C'est tout — Stéphanie/Florian/Laurence voient en temps réel qui vient</li>
+            <li>Va sur l'onglet <strong>📅 Calendrier</strong></li>
+            <li>Sur une réunion à venir, clique <strong>✓ Oui</strong> ou <strong>✗ Non</strong></li>
+            <li>C'est tout — le Bureau voit en temps réel qui vient</li>
           </ol>
           <p class="aide-tip">💡 Tu peux changer ton avis à tout moment, il suffit de re-cliquer.</p>
         </div>
 
-        <div class="aide-card">
-          <h3>💡 Proposer un atelier</h3>
-          <p>Tu as une idée de sujet pour un atelier collectif ? Propose-la à tout le club.</p>
+        <div class="aide-card" style="border-left:4px solid var(--hop-or);background:linear-gradient(135deg,#fffbeb,white);">
+          <h3>👥 Inviter quelqu'un à une réunion</h3>
+          <p>Tu connais une personne qui pourrait rejoindre ou découvrir le club ?</p>
           <ol>
-            <li>Onglet <strong>Proposer</strong></li>
-            <li>Choisis une catégorie (Business, Finance, Juridique, etc.)</li>
-            <li>Donne un titre clair + une courte description (pourquoi c'est intéressant)</li>
-            <li>Soumets — les autres membres pourront voter pour</li>
+            <li>Va sur l'onglet <strong>📅 Calendrier</strong></li>
+            <li>Trouve la réunion à laquelle tu veux l'amener (même dans plusieurs mois)</li>
+            <li>Clique sur le bouton <strong>➕ Inviter</strong> de cette réunion</li>
+            <li>Remplis son nom, son activité, et éventuellement une photo</li>
+            <li>Valide : ton invité apparaîtra dans le trombinoscope du jour 🎉</li>
+          </ol>
+        </div>
+
+        <div class="aide-card">
+          <h3>📋 Voir le programme & 💡 proposer un sujet</h3>
+          <p>L'onglet <strong>📋 Programme</strong> te montre les ateliers prévus et tu peux voter pour ceux qui t'intéressent.</p>
+          <p>L'onglet <strong>💡 Proposer un sujet</strong> te permet de demander une thématique :</p>
+          <ol>
+            <li>Donne le sujet que tu aimerais voir traité</li>
+            <li>Ajoute une description (pourquoi c'est intéressant pour le groupe)</li>
+            <li>Soumets — on cherchera ensuite un intervenant (un membre, un invité, ou un expert extérieur)</li>
           </ol>
         </div>
 
@@ -3931,12 +3954,11 @@ body.visitor-mode main {
           <h3>🎉 Proposer un événement</h3>
           <p>Un afterwork, une visite, une soirée à organiser avec le club ?</p>
           <ol>
-            <li>Onglet <strong>Calendrier</strong></li>
+            <li>Onglet <strong>📅 Calendrier</strong></li>
             <li>Bouton <strong>🎉 Proposer un événement</strong> (en haut à droite)</li>
             <li>Remplis : titre, date, heure, lieu, type, description</li>
-            <li>Ton événement passe en <strong>⏳ En attente</strong> — un admin du Bureau le validera avant publication</li>
+            <li>Ton événement passe en <strong>⏳ En attente</strong> — le Bureau le validera avant publication</li>
           </ol>
-          <p class="aide-tip">💡 Tu peux toujours éditer ou voir tes événements en attente dans le Calendrier.</p>
         </div>
 
         <div class="aide-card">
@@ -3944,7 +3966,7 @@ body.visitor-mode main {
           <ol>
             <li>Onglet <strong>Annuaire</strong></li>
             <li>Recherche par nom ou activité dans la barre de recherche</li>
-            <li>Clique sur l'email/téléphone/site pour contacter directement</li>
+            <li>Clique sur l'email/téléphone/site pour contacter directement, ou télécharge sa fiche contact 📇</li>
           </ol>
         </div>
 
@@ -4214,6 +4236,22 @@ body.visitor-mode main {
 </div>
 
 <!-- ============== MODALS ============== -->
+<!-- ============== MODAL INSTALLER L'APP ============== -->
+<div id="install-modal" class="modal-overlay" style="display:none;">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h2>📲 Installer l'app HOP!</h2>
+      <button class="modal-close" onclick="closeInstallModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--hop-texte-sec);margin-bottom:18px;line-height:1.5;">
+        Ajoute HOP! sur ton écran d'accueil pour l'ouvrir en 1 clic, comme une vraie application.
+      </p>
+      <div id="install-instructions"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ============== MODAL INVITÉ (création/édition) ============== -->
 <div id="invite-modal" class="modal-overlay" style="display:none;">
   <div class="modal">
@@ -4494,11 +4532,13 @@ body.visitor-mode main {
         </div>
         <div class="form-group full">
           <label>📍 Lieu de la réunion</label>
-          <input type="text" id="reunion-lieu-r" class="form-input">
+          <input type="text" id="reunion-lieu-r" class="form-input" list="datalist-lieux-reunion" autocomplete="off" placeholder="Choisis dans la liste ou tape un nouveau lieu">
+          <datalist id="datalist-lieux-reunion"></datalist>
         </div>
         <div class="form-group full">
           <label>🍽️ Lieu du repas</label>
-          <input type="text" id="reunion-lieu-repas" class="form-input">
+          <input type="text" id="reunion-lieu-repas" class="form-input" list="datalist-lieux-repas" autocomplete="off" placeholder="Choisis dans la liste ou tape un nouveau lieu">
+          <datalist id="datalist-lieux-repas"></datalist>
         </div>
         <div class="form-group">
           <label>Statut</label>
@@ -5361,6 +5401,58 @@ function closeMobileMenu() {
 }
 
 /* ====================================================================
+   INSTALLER L'APP — détecte iPhone / Android / ordi (V2.37)
+==================================================================== */
+function openInstallModal() {
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(ua);
+  const box = document.getElementById('install-instructions');
+
+  let html = '';
+  if (isIOS) {
+    html = `
+      <div style="background:var(--hop-bleu-pale);border-radius:12px;padding:16px 18px;">
+        <div style="font-weight:800;color:var(--hop-marine);font-size:15px;margin-bottom:12px;font-family:'Montserrat',sans-serif;">📱 Sur iPhone / iPad (Safari)</div>
+        <ol style="margin-left:18px;font-size:14px;line-height:1.9;color:var(--hop-marine);">
+          <li>Appuie sur le bouton <strong>Partager</strong> ⬆️ (en bas de Safari)</li>
+          <li>Fais défiler et choisis <strong>« Sur l'écran d'accueil »</strong></li>
+          <li>Appuie sur <strong>Ajouter</strong> en haut à droite</li>
+        </ol>
+        <p style="font-size:12px;color:var(--hop-texte-sec);margin-top:10px;font-style:italic;">⚠️ Important : ça ne marche que dans Safari, pas dans Chrome sur iPhone.</p>
+      </div>`;
+  } else if (isAndroid) {
+    html = `
+      <div style="background:var(--hop-bleu-pale);border-radius:12px;padding:16px 18px;">
+        <div style="font-weight:800;color:var(--hop-marine);font-size:15px;margin-bottom:12px;font-family:'Montserrat',sans-serif;">🤖 Sur Android (Chrome)</div>
+        <ol style="margin-left:18px;font-size:14px;line-height:1.9;color:var(--hop-marine);">
+          <li>Appuie sur le menu <strong>⋮</strong> (3 points, en haut à droite)</li>
+          <li>Choisis <strong>« Ajouter à l'écran d'accueil »</strong></li>
+          <li>Confirme avec <strong>Ajouter</strong></li>
+        </ol>
+      </div>`;
+  } else {
+    html = `
+      <div style="background:var(--hop-bleu-pale);border-radius:12px;padding:16px 18px;">
+        <div style="font-weight:800;color:var(--hop-marine);font-size:15px;margin-bottom:12px;font-family:'Montserrat',sans-serif;">💻 Sur ordinateur</div>
+        <p style="font-size:14px;line-height:1.6;color:var(--hop-marine);">
+          Dans Chrome ou Edge, clique sur l'icône <strong>⊕ Installer</strong> dans la barre d'adresse (à droite de l'URL),
+          ou via le menu <strong>⋮</strong> → <strong>« Installer HOP! »</strong>.
+        </p>
+        <p style="font-size:13px;color:var(--hop-texte-sec);margin-top:12px;">
+          💡 Le plus pratique reste sur ton <strong>téléphone</strong> : rouvre cette page sur ton mobile pour l'ajouter à l'écran d'accueil.
+        </p>
+      </div>`;
+  }
+  box.innerHTML = html;
+  document.getElementById('install-modal').style.display = 'flex';
+}
+
+function closeInstallModal() {
+  document.getElementById('install-modal').style.display = 'none';
+}
+
+/* ====================================================================
    CLIC LOGO → MODE ADMIN (clé visible)
 ==================================================================== */
 function handleLogoClick() {
@@ -5871,6 +5963,12 @@ function reunionCard(r) {
   }
   // Trombinoscope (visible par tous)
   actions += `<button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;background:var(--hop-bleu-pale);border-color:var(--hop-bleu);color:var(--hop-bleu);font-weight:700;" onclick="openTrombinoForReunion('${r.ID}')">👥 Trombino</button>`;
+
+  // Bouton Inviter — sur chaque réunion À VENIR (V2.36) : permet d'inviter
+  // quelqu'un à une réunion future précise (ex juillet), pas seulement la prochaine.
+  if (!isPasse) {
+    actions += `<button class="btn btn-secondary" style="font-size:12px;padding:6px 10px;background:#fffbeb;border-color:var(--hop-or);color:#b8761c;font-weight:700;" onclick="openAddInviteFromDashboard('${r.ID}')">➕ Inviter</button>`;
+  }
 
   if (isAdmin()) {
     actions += `
@@ -6391,6 +6489,29 @@ function resetAtelierForm() {
 /* ====================================================================
    ÉDITION RÉUNION
 ==================================================================== */
+
+// V2.38 : remplir les datalists des lieux à partir des réunions existantes
+// → autocomplétion intelligente : tu vois tes lieux habituels en menu déroulant,
+// mais tu peux toujours en taper un nouveau (input texte standard).
+function populateLieuxDatalists() {
+  const lieuxR = new Set();
+  const lieuxRepas = new Set();
+  // Toujours proposer les 2 lieux par défaut HOP en premier
+  lieuxR.add('Agence Mutuelle de Poitiers, 102 Av du 11 Novembre, 33290 Blanquefort');
+  lieuxRepas.add('Côté Jardin, 105 Av du 11 Novembre, 33290 Blanquefort');
+  // Ajouter tous les lieux déjà utilisés dans les réunions
+  (state.reunions || []).forEach(r => {
+    const lr = (r['Lieu_réunion'] || '').trim();
+    const rp = (r['Lieu_repas']   || '').trim();
+    if (lr) lieuxR.add(lr);
+    if (rp) lieuxRepas.add(rp);
+  });
+  const dlR     = document.getElementById('datalist-lieux-reunion');
+  const dlRepas = document.getElementById('datalist-lieux-repas');
+  if (dlR)     dlR.innerHTML     = [...lieuxR].map(l => `<option value="${escapeHtml(l)}">`).join('');
+  if (dlRepas) dlRepas.innerHTML = [...lieuxRepas].map(l => `<option value="${escapeHtml(l)}">`).join('');
+}
+
 function openCreateReunion() {
   if (!isAdmin()) return;
   document.getElementById('reunion-modal-title').textContent = 'Nouvelle réunion';
@@ -6417,6 +6538,7 @@ function openCreateReunion() {
   const inpExtFonc = document.getElementById('reunion-intervenant-ext-fonction');
   if (inpExtFonc) inpExtFonc.value = '';
   document.getElementById('reunion-delete-btn').style.display = 'none';
+  populateLieuxDatalists();
   document.getElementById('reunion-modal').style.display = 'flex';
 }
 
@@ -6519,6 +6641,7 @@ function openEditReunion(id) {
   document.getElementById('reunion-intervenant-ext-fonction').value = r.Intervenant_ext_fonction || '';
 
   document.getElementById('reunion-delete-btn').style.display = 'inline-flex';
+  populateLieuxDatalists();
   document.getElementById('reunion-modal').style.display = 'flex';
 }
 
@@ -6653,9 +6776,21 @@ async function saveReunion() {
       r.Intervenant_ext_fonction = params.intervenant_ext_fonction;
       renderAll();
     }
-    await postAPI('update_reunion', params);
+    // V2.38 : fetchAPI (vrai GET qui lit la réponse) au lieu de postAPI (Image() aveugle
+    // qui tronque les URLs longues — c'était la cause du bug Star qui "disparaissait" :
+    // l'URL contenait toutes les adresses complètes + atelier + intervenant et dépassait
+    // la limite, donc l'écriture était silencieusement perdue).
+    const updateRes = await fetchAPI('update_reunion', params);
+    if (!updateRes || updateRes.ok === false) {
+      toast('⚠️ Échec enregistrement : ' + (updateRes && updateRes.error ? updateRes.error : 'erreur réseau'));
+      console.error('[update_reunion] échec :', updateRes);
+    }
   } else {
-    await postAPI('add_reunion', params);
+    const addRes = await fetchAPI('add_reunion', params);
+    if (!addRes || addRes.ok === false) {
+      toast('⚠️ Échec création : ' + (addRes && addRes.error ? addRes.error : 'erreur réseau'));
+      console.error('[add_reunion] échec :', addRes);
+    }
   }
   setTimeout(loadAll, 1500);
 }
